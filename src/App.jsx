@@ -240,14 +240,7 @@ ${tags}`);
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans">
-     <div
-  className="mx-auto"
-  style={{
-    width: "100%",
-    maxWidth: isMobile ? "100vw" : "1400px",
-    padding: isMobile ? "0" : "0 24px"
-  }}
->
+      <div className="max-w-7xl mx-auto">
         <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#0f172a]/90 border-b border-white/10 px-4 py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
@@ -259,21 +252,25 @@ ${tags}`);
                 />
               </div>
 
-              <div className="min-w-0">
+              <div className="min-w-0 leading-none">
                 <h1
-                  className="font-semibold truncate"
+                  className="font-semibold"
                   style={{
-                    fontSize: isMobile ? "2.4rem" : "3.5rem",
-                    lineHeight: 1
+                    fontSize: isMobile ? "1.8rem" : "3rem",
+                    lineHeight: 0.95,
+                    marginBottom: isMobile ? "0.35rem" : "0.25rem"
                   }}
                 >
                   Brightside
                 </h1>
+
                 <p
-                  className="text-teal-300 uppercase truncate"
+                  className="text-teal-300 uppercase"
                   style={{
-                    fontSize: isMobile ? "1rem" : "0.95rem",
-                    letterSpacing: "0.25em"
+                    fontSize: isMobile ? "0.72rem" : "0.9rem",
+                    letterSpacing: isMobile ? "0.18em" : "0.25em",
+                    lineHeight: 1.2,
+                    maxWidth: isMobile ? "140px" : "none"
                   }}
                 >
                   Delivering Laughs On Time
@@ -285,7 +282,7 @@ ${tags}`);
               className="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 text-lg"
               onClick={logout}
             >
-              ↗
+              ⌁
             </button>
           </div>
 
@@ -316,13 +313,7 @@ ${tags}`);
           </div>
         </div>
 
-       <div
-  className="grid"
-  style={{
-    gap: isMobile ? "24px" : "32px",
-    padding: isMobile ? "20px" : "32px"
-  }}
->
+        <div className="p-4 sm:p-6 grid gap-4 sm:gap-6">
           <div className="bg-white/5 border border-white/10 rounded-[2rem] p-4 sm:p-6 backdrop-blur-xl">
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-2">
@@ -444,15 +435,11 @@ ${tags}`);
                   return (
                     <div
                       key={i}
-                     className="rounded-3xl border border-white/10 bg-black/20"
-style={{
-  padding: isMobile ? "24px" : "16px",
-  minHeight: isMobile ? "180px" : "120px"
-}}
+                      className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[120px]"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <p className="text-lg font-semibold text-teal-300">
-                          {monthName.slice(0,3)} {day}
+                          {day}
                         </p>
 
                         <button
