@@ -547,9 +547,7 @@ const designMode = true;
             })}
           </div>
         </div>
-      )}
-
-      {view === "list" && (
+      )}      {view === "list" && (
         <div className="grid gap-3">
           {items.map((item) => (
             <div
@@ -568,21 +566,35 @@ const designMode = true;
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
-                  <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all" onClick={() => copyCaption(item.caption)}>
+                  <button
+                    className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                    onClick={() => copyCaption(item.caption)}
+                  >
                     Copy
                   </button>
 
                   {item.type === "Post" && (
-                    <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all" onClick={() => sendToMeta(item)}>Send</button>
+                    <button
+                      className="w-full sm:w-auto px-4 py-2 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all"
+                      onClick={() => sendToMeta(item)}
+                    >
+                      Send
+                    </button>
                   )}
 
                   {item.fileLink && (
-                    <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all" onClick={() => openFile(item.fileLink)}>
+                    <button
+                      className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                      onClick={() => openFile(item.fileLink)}
+                    >
                       Open Media
                     </button>
                   )}
 
-                  <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-red-500/80 hover:bg-red-500 transition-all" onClick={() => deleteItem(item.id)}>
+                  <button
+                    className="w-full sm:w-auto px-4 py-2 rounded-full bg-red-500/80 hover:bg-red-500 transition-all"
+                    onClick={() => deleteItem(item.id)}
+                  >
                     Delete
                   </button>
                 </div>
@@ -592,5 +604,6 @@ const designMode = true;
         </div>
       )}
     </div>
+  </div>
   );
 }
