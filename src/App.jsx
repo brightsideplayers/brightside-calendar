@@ -133,7 +133,110 @@ const designMode = true;
       setUser(currentUser);
     });
 
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    return () => unsubscribeAuth();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = onSnapshot(collection(db, "calendarItems"), (snapshot) => {
+      const data = snapshot.docs.map((docItem) => ({
+        id: docItem.id,
+        ...docItem.data()
+      }));
+
+      setItems(data);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+
+  const login = async () => {
+    try {
+      await signInWithRedirect(auth, provider);
+    } catch (err) {
+      setAuthError(err.message);
+    }
+  };
+
+  const logout = async () => {
+    await signOut(auth);
+  };
+
+  const addItem = async () => {
+    if (!caption || !date) return;
+
+    await addDoc(collection(db, "calendarItems"), {
+      caption,
+      date,
+      type,
+      platform,
+      color: taskColor,
+      fileLink,
+      createdBy: user?.displayName || "Unknown"
+    });
+
+    setCaption("");
+    setDate("");
+    setFileLink("");
+  };
+
+  const deleteItem = async (id) => {
+    await deleteDoc(doc(db, "calendarItems", id));
+  };
+
+  const copyCaption = async (text) => {
+    await navigator.clipboard.writeText(text);
+  };
+
+  const sendToMeta = async () => {
+    window.open("https://business.facebook.com/latest/posts", "_blank");
+  };
+
+  const openFile = (url) => {
+    if (url) window.open(url, "_blank");
+  };
+
+  const addHashtags = () => {
+    if (!selectedSet) return;
+
+    const tags = hashtagSets[selectedSet].join(" ");
+    setCaption((prev) => `${prev}
+
+${tags}`);
+  };
+
+  const changeMonth = (direction) => {
+    let newMonth = currentMonth + direction;
+    let newYear = currentYear;
+
+    if (newMonth < 0) {
+      newMonth = 11;
+      newYear--;
+    }
+
+    if (newMonth > 11) {
+      newMonth = 0;
+      newYear++;
+    }
+
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+  };
+
+  const quickAdd = (day) => {
+    const quickDate = new Date(currentYear, currentMonth, day, 12, 0);
+    setDate(quickDate.toISOString().slice(0, 16));
+  };
+
+  const handleDrop = () => {};
+
+  const days = getDaysInMonth(currentYear, currentMonth);
+  const monthName = new Date(currentYear, currentMonth).toLocaleString("default", {
+    month: "long"
+  });
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans">
