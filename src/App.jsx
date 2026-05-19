@@ -120,8 +120,37 @@ const designMode = true;
   const [type, setType] = useState("Post");
   const [taskColor, setTaskColor] = useState("Yellow");
   const [recurring, setRecurring] = useState("none");
+  const [assignedTo, setAssignedTo] = useState([]);
+  const [showAssignMenu, setShowAssignMenu] = useState(false);
 
   const [dragIndex, setDragIndex] = useState(null);
+
+  const teamMembers = [
+    {
+      name: "Jenn Bryant",
+      email: "jennifer.bryant98@gmail.com"
+    },
+    {
+      name: "Cathy Kates",
+      email: "Cathy@brightsideplayers.com"
+    },
+    {
+      name: "Morna Scott-Dunne",
+      email: "morna.scott.dunne@gmail.com"
+    },
+    {
+      name: "Lesley Quinn",
+      email: "lesley.quinn@gmail.com"
+    },
+    {
+      name: "Amanda Massey",
+      email: "giorgio_amanda@hotmail.com"
+    },
+    {
+      name: "Aaron Smaller",
+      email: "Aaronsmaller@gmail.com"
+    }
+  ];
 
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -177,7 +206,8 @@ const designMode = true;
       color: taskColor,
       fileLink,
       recurring,
-      createdBy: user?.displayName || "Unknown"
+      createdBy: user?.displayName || "Unknown",
+      assignedTo
     };
 
     await addDoc(collection(db, "calendarItems"), baseItem);
@@ -207,6 +237,7 @@ const designMode = true;
     setDate("");
     setFileLink("");
     setRecurring("none");
+    setAssignedTo([]);
   };
 
   const deleteItem = async (id) => {
@@ -317,7 +348,7 @@ ${tags}`);
               style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
               className={`h-14 rounded-2xl font-semibold transition-all ${
                 view === "list"
-                  ? "bg-teal-400 text-black"
+                  ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                   : "bg-white/5 border border-white/10"
               }`}
               onClick={() => setView("list")}
@@ -329,7 +360,7 @@ ${tags}`);
               style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
               className={`h-14 rounded-2xl font-semibold transition-all ${
                 view === "calendar"
-                  ? "bg-teal-400 text-black"
+                  ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                   : "bg-white/5 border border-white/10"
               }`}
               onClick={() => setView("calendar")}
@@ -340,7 +371,7 @@ ${tags}`);
         </div>
 
         <div className="p-4 sm:p-6 grid gap-4 sm:gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-[2rem] p-4 sm:p-6 backdrop-blur-xl">
+          <div className="bg-white/[0.08] border border-white/10 rounded-[2rem] p-4 sm:p-6 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -388,7 +419,7 @@ ${tags}`);
                 <button
                   className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
                     recurring === "none"
-                      ? "bg-teal-400 text-black"
+                      ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                       : "bg-white/5 border border-white/10"
                   }`}
                   onClick={() => setRecurring("none")}
@@ -399,7 +430,7 @@ ${tags}`);
                 <button
                   className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
                     recurring === "weekly"
-                      ? "bg-teal-400 text-black"
+                      ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                       : "bg-white/5 border border-white/10"
                   }`}
                   onClick={() => setRecurring("weekly")}
@@ -410,7 +441,7 @@ ${tags}`);
                 <button
                   className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
                     recurring === "monthly"
-                      ? "bg-teal-400 text-black"
+                      ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                       : "bg-white/5 border border-white/10"
                   }`}
                   onClick={() => setRecurring("monthly")}
@@ -425,14 +456,25 @@ ${tags}`);
                     {Object.keys(platformColors).map((p) => (
                       <button
                         key={p}
-                        className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
+                        className={`h-12 rounded-2xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                           platform === p
-                            ? "bg-teal-400 text-black"
+                            ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                             : "bg-white/5 border border-white/10"
                         }`}
                         onClick={() => setPlatform(p)}
                       >
-                        {p}
+                        <img
+                          src={
+                            p === "Instagram"
+                              ? "https://cdn-icons-png.flaticon.com/512/2111/2111463.png"
+                              : p === "Facebook"
+                              ? "https://cdn-icons-png.flaticon.com/512/733/733547.png"
+                              : "https://cdn-icons-png.flaticon.com/512/3046/3046121.png"
+                          }
+                          alt={p}
+                          className="w-5 h-5"
+                        />
+                        <span>{p}</span>
                       </button>
                     ))}
                   </div>
@@ -447,6 +489,91 @@ ${tags}`);
                 </>
               )}
 
+              <div className="grid gap-2 relative">
+                <label className="text-sm uppercase tracking-wide text-neutral-400 px-1">
+                  Assign To
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAssignMenu(!showAssignMenu)}
+                  className="w-full min-h-[56px] rounded-2xl bg-black/30 border border-white/10 px-4 py-3 text-left flex items-center justify-between"
+                  style={{ fontSize: isMobile ? "1.05rem" : "1rem" }}
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {assignedTo.length === 0 ? (
+                      <span className="text-neutral-400">
+                        Select team members
+                      </span>
+                    ) : (
+                      assignedTo.map((person) => (
+                        <span
+                          key={person}
+                          className="px-2 py-1 rounded-full bg-teal-400 text-black text-sm font-semibold"
+                        >
+                          {person}
+                        </span>
+                      ))
+                    )}
+                  </div>
+
+                  <span className="text-xl">
+                    {showAssignMenu ? "▲" : "▼"}
+                  </span>
+                </button>
+
+                {showAssignMenu && (
+                  <div className="absolute top-full left-0 right-0 z-50 mt-2 rounded-3xl border border-white/10 bg-[#111827] shadow-2xl overflow-hidden">
+                    <div className="max-h-[320px] overflow-y-auto p-2 grid gap-2">
+                      {teamMembers.map((member) => {
+                        const isSelected = assignedTo.includes(member.name);
+
+                        return (
+                          <label
+                            key={member.email}
+                            className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-3 cursor-pointer transition-all ${
+                              isSelected
+                                ? "bg-teal-400 text-black"
+                                : "bg-white/5 hover:bg-white/10"
+                            }`}
+                          >
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-semibold">
+                                {member.name}
+                              </span>
+
+                              <span className="text-xs opacity-70 truncate">
+                                {member.email}
+                              </span>
+                            </div>
+
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => {
+                                if (isSelected) {
+                                  setAssignedTo(
+                                    assignedTo.filter(
+                                      (name) => name !== member.name
+                                    )
+                                  );
+                                } else {
+                                  setAssignedTo([
+                                    ...assignedTo,
+                                    member.name
+                                  ]);
+                                }
+                              }}
+                              className="w-5 h-5"
+                            />
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button
                 className="h-16 rounded-2xl bg-teal-400 text-black font-bold shadow-lg shadow-teal-500/20"
                 style={{ fontSize: isMobile ? "1.4rem" : "1.1rem" }}
@@ -458,7 +585,7 @@ ${tags}`);
           </div>
 
           {view === "calendar" && (
-            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-4 backdrop-blur-xl">
+            <div className="bg-white/[0.06] border border-white/10 rounded-[2rem] p-4 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
               <div className="flex items-center justify-between mb-4">
                 <button
                   className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10"
@@ -520,7 +647,13 @@ ${tags}`);
                   return (
                     <div
                       key={i}
-                      className="rounded-2xl border border-white/10 bg-black/20 p-2 sm:p-3 min-h-[90px] hover:border-teal-400/40 transition-all duration-200 overflow-hidden"
+                      className={`rounded-2xl border p-2 sm:p-3 min-h-[90px] transition-all duration-200 overflow-hidden ${
+                      new Date().getDate() === day &&
+                      new Date().getMonth() === currentMonth &&
+                      new Date().getFullYear() === currentYear
+                        ? "border-teal-300 bg-teal-400/10 shadow-[0_0_25px_rgba(45,212,191,0.18)]"
+                        : "border-white/10 bg-black/20 hover:border-teal-400/40"
+                    }`}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <p className="text-sm sm:text-base font-semibold text-teal-300">
@@ -545,7 +678,7 @@ ${tags}`);
                           return (
                             <div
                               key={idx}
-                              className={`rounded-xl p-1.5 sm:p-2 text-black text-[10px] sm:text-xs font-semibold truncate ${colorClass}`}
+                              className={`h-5 px-2 rounded-full flex items-center text-black text-[9px] sm:text-[10px] font-semibold truncate border border-black/5 shadow-sm ${colorClass}`}
                             >
                               {p.caption}
                               {p.recurring && p.recurring !== "none" && (
@@ -581,6 +714,22 @@ ${tags}`);
                       <p className="text-sm text-neutral-400 mt-2">
                         {new Date(item.date).toLocaleString()}
                       </p>
+
+                      {item.assignedTo && item.assignedTo.length > 0 && (
+                        <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-teal-400/20 border border-teal-400/20 px-3 py-1 text-sm text-teal-200">
+                          <span>👤</span>
+                          <div className="flex flex-wrap gap-1">
+                            {item.assignedTo.map((person) => (
+                              <span
+                                key={person}
+                                className="px-2 py-1 rounded-full bg-black/20"
+                              >
+                                {person}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className={`w-4 h-4 rounded-full ${
