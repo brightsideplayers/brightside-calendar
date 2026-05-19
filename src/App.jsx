@@ -419,7 +419,7 @@ ${tags}`);
                 </button>
               </div>
 
-              <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-7"} gap-3`}>
+            <div className="grid grid-cols-7 gap-2">
                 {Array.from({ length: days }, (_, i) => {
                   const day = i + 1;
 
@@ -435,10 +435,10 @@ ${tags}`);
                   return (
                     <div
                       key={i}
-                      className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[120px]"
+                      className="rounded-2xl border border-white/10 bg-black/20 p-2 min-h-[80px]"
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <p className="text-lg font-semibold text-teal-300">
+                        <p className="text-sm font-semibold text-teal-300">
                           {day}
                         </p>
 
