@@ -16,6 +16,9 @@ import {
   doc,
   updateDoc
 } from "firebase/firestore";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAZ3nQpzf246EepmNDK6Qs32q-G4-b8R4E",
@@ -32,5 +35,10 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 export default function App() {
-  return <div style={{padding:40,color:"white",background:"#111827",minHeight:"100vh"}}>Brightside Calendar Updated Build</div>
+  return (
+    <div className="min-h-screen bg-[#111827] text-white p-10">
+      <h1 className="text-4xl">Brightside Calendar</h1>
+      <p className="text-teal-300">Updated App.jsx placeholder build</p>
+    </div>
+  );
 }
