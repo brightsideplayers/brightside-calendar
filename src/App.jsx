@@ -406,8 +406,10 @@ ${tags}`);
                   ←
                 </button>
 
-                <h2 className="font-semibold"
-                  style={{ fontSize: isMobile ? "2rem" : "1.5rem" }}>
+                <h2
+                  className="font-semibold"
+                  style={{ fontSize: isMobile ? "2rem" : "1.5rem" }}
+                >
                   {monthName} {currentYear}
                 </h2>
 
@@ -419,9 +421,31 @@ ${tags}`);
                 </button>
               </div>
 
-            <div className="grid grid-cols-7 gap-2">
-                {Array.from({ length: days }, (_, i) => {
-                  const day = i + 1;
+              <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs uppercase tracking-wide text-neutral-400">
+                {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d) => (
+                  <div key={d} className="py-2 font-semibold">
+                    {d}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-2">
+                {Array.from({
+                  length:
+                    new Date(currentYear, currentMonth, 1).getDay() + days
+                }, (_, i) => {
+                  const firstDayOffset = new Date(currentYear, currentMonth, 1).getDay();
+
+                  if (i < firstDayOffset) {
+                    return (
+                      <div
+                        key={`empty-${i}`}
+                        className="rounded-2xl bg-white/5 border border-white/5 min-h-[90px]"
+                      />
+                    );
+                  }
+
+                  const day = i - firstDayOffset + 1;
 
                   const dayItems = items.filter((p) => {
                     const d = new Date(p.date);
@@ -435,15 +459,15 @@ ${tags}`);
                   return (
                     <div
                       key={i}
-                      className="rounded-2xl border border-white/10 bg-black/20 p-2 min-h-[80px]"
+                      className="rounded-2xl border border-white/10 bg-black/20 p-2 sm:p-3 min-h-[90px] hover:border-teal-400/40 transition-all duration-200 overflow-hidden"
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <p className="text-sm font-semibold text-teal-300">
+                        <p className="text-sm sm:text-base font-semibold text-teal-300">
                           {day}
                         </p>
 
                         <button
-                          className="text-xs px-3 py-1 rounded-full bg-white/10"
+                          className="hidden sm:flex text-xs px-2 py-1 rounded-full bg-white/10 items-center justify-center"
                           onClick={() => quickAdd(day)}
                         >
                           +
@@ -460,7 +484,7 @@ ${tags}`);
                           return (
                             <div
                               key={idx}
-                              className={`rounded-2xl p-3 text-black text-sm font-semibold ${colorClass}`}
+                              className={`rounded-xl p-1.5 sm:p-2 text-black text-[10px] sm:text-xs font-semibold truncate ${colorClass}`}
                             >
                               {p.caption}
                             </div>
