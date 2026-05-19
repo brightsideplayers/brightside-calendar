@@ -356,8 +356,29 @@ const designMode = true;
       </div>
 
       <div className="flex gap-2 justify-center">
-        <button
-          className={`rounded-full px-6 py-2 transition-all duration-300 ${
+       <div className="flex gap-3 justify-center items-center">
+  <button
+    className={`min-w-[140px] h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+      view === "list"
+        ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
+        : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
+    }`}
+    onClick={() => setView("list")}
+  >
+    List
+  </button>
+
+  <button
+    className={`min-w-[140px] h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+      view === "calendar"
+        ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
+        : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
+    }`}
+    onClick={() => setView("calendar")}
+  >
+    Calendar
+  </button>
+</div>
             view === "list"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
@@ -367,8 +388,29 @@ const designMode = true;
           List
         </button>
 
-        <button
-          className={`rounded-full px-6 py-2 transition-all duration-300 ${
+       <div className="flex gap-3 justify-center items-center">
+  <button
+    className={`min-w-[140px] h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+      view === "list"
+        ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
+        : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
+    }`}
+    onClick={() => setView("list")}
+  >
+    List
+  </button>
+
+  <button
+    className={`min-w-[140px] h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+      view === "calendar"
+        ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
+        : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
+    }`}
+    onClick={() => setView("calendar")}
+  >
+    Calendar
+  </button>
+</div>
             view === "calendar"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
