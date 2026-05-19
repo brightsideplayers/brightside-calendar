@@ -278,7 +278,7 @@ const designMode = true;
             </div>
 
             <div>
-              <h1 className="text-4xl font-light tracking-tight">
+              <h1 className="text-2xl sm:text-4xl font-light tracking-tight leading-tight">
                 Brightside Calendar
               </h1>
               <p className="text-teal-300 text-sm tracking-[0.25em] uppercase mt-2">
@@ -313,10 +313,10 @@ const designMode = true;
   }
 
   return (
-    <div className="p-6 grid gap-6 min-h-screen bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#0f172a] text-white font-sans">
-      <div className="flex justify-between items-center flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-full overflow-hidden border border-teal-400/30 shadow-2xl shadow-teal-500/20 bg-white/5 backdrop-blur flex items-center justify-center">
+    <div className="p-3 sm:p-6 grid gap-4 sm:gap-6 min-h-screen bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#0f172a] text-white font-sans overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border border-teal-400/30 shadow-2xl shadow-teal-500/20 bg-white/5 backdrop-blur flex items-center justify-center">
             <img
               src="https://i.imgur.com/YdjP8nC.png"
               alt="Brightside Logo"
@@ -328,13 +328,13 @@ const designMode = true;
             <h1 className="text-4xl font-light tracking-tight">
               Brightside Calendar
             </h1>
-            <p className="text-teal-300 text-sm tracking-[0.25em] uppercase">
+            <p className="text-teal-300 text-[9px] sm:text-[10px] sm:text-sm tracking-[0.18em] sm:tracking-[0.25em] uppercase">
               Delivering Laughs On Time
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <div className="text-right">
             <p className="text-sm font-medium">{user.displayName}</p>
             <p className="text-xs text-neutral-400">{user.email}</p>
@@ -343,7 +343,7 @@ const designMode = true;
           <img
             src={user.photoURL}
             alt="User"
-            className="w-10 h-10 rounded-full border border-white/10"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/10"
           />
 
           <button
@@ -355,9 +355,9 @@ const designMode = true;
         </div>
       </div>
 
-      <div className="flex gap-3 justify-center items-center">
+      <div className="flex gap-2 sm:gap-3 justify-center items-center w-full">
         <button
-          className={`min-w-[140px] h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+          className={`flex-1 sm:flex-none sm:min-w-[140px] h-11 sm:h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
             view === "list"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
@@ -368,7 +368,7 @@ const designMode = true;
         </button>
 
         <button
-          className={`min-w-[140px] h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+          className={`flex-1 sm:flex-none sm:min-w-[140px] h-11 sm:h-12 rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
             view === "calendar"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
@@ -379,7 +379,7 @@ const designMode = true;
         </button>
       </div>
 
-      <div className="p-6 rounded-[2rem] shadow-2xl bg-white/5 backdrop-blur-xl border border-white/10">
+      <div className="p-4 sm:p-6 rounded-[2rem] shadow-2xl bg-white/5 backdrop-blur-xl border border-white/10">
         <div className="grid gap-3">
           <select
             className="p-3 rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
@@ -485,7 +485,7 @@ const designMode = true;
             <button onClick={() => changeMonth(1)}>→</button>
           </div>
 
-          <div className="grid grid-cols-7 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
               (day) => (
                 <div
@@ -513,7 +513,7 @@ const designMode = true;
               return (
                 <div
                   key={i}
-                  className="p-2 min-h-[120px] rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/40 transition-all duration-300 hover:scale-[1.02]"
+                  className="p-2 min-h-[90px] sm:min-h-[120px] rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/40 transition-all duration-300 hover:scale-[1.02]"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => handleDrop(day)}
                   onDoubleClick={() => quickAdd(day)}
@@ -534,7 +534,7 @@ const designMode = true;
                           key={idx}
                           draggable
                           onDragStart={() => setDragIndex(originalIndex)}
-                          className={`text-[10px] truncate cursor-move p-1 rounded-lg text-black ${colorClass}`}
+                          className={`text-[9px] sm:text-[10px] truncate cursor-move p-1 rounded-lg text-black ${colorClass}`}
                         >
                           {p.type === "Task" ? "📝" : ""} {p.caption.slice(0, 20)}
                         </p>
@@ -549,11 +549,11 @@ const designMode = true;
       )}
 
       {view === "list" && (
-        <div className="grid gap-2">
+        <div className="grid gap-3">
           {items.map((item) => (
             <div
               key={item.id}
-              className="p-4 rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/50 transition-all duration-300"
+              className="p-3 sm:p-4 rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/50 transition-all duration-300 overflow-hidden"
             >
               <div className="grid gap-2">
                 <p className="font-semibold">{item.caption}</p>
