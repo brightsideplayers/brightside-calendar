@@ -308,12 +308,13 @@ const designMode = true;
             </button>
           </div>
         </div>
-      </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
-    <div className="p-3 sm:p-6 grid gap-4 sm:gap-6 min-h-screen bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#0f172a] text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#0f172a] text-white font-sans overflow-x-hidden">
+      <div className="w-full max-w-md sm:max-w-6xl mx-auto p-3 sm:p-6 grid gap-4 sm:gap-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border border-teal-400/30 shadow-2xl shadow-teal-500/20 bg-white/5 backdrop-blur flex items-center justify-center">
@@ -325,7 +326,7 @@ const designMode = true;
           </div>
 
           <div>
-            <h1 className="text-4xl font-light tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-light tracking-tight leading-tight">
               Brightside Calendar
             </h1>
             <p className="text-teal-300 text-[9px] sm:text-[10px] sm:text-sm tracking-[0.18em] sm:tracking-[0.25em] uppercase">
@@ -391,14 +392,14 @@ const designMode = true;
           </select>
 
           <input
-            className="rounded-2xl bg-black/40 border-white/10 text-white backdrop-blur"
+            className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
             placeholder={type === "Post" ? "Caption" : "Task..."}
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
           />
 
           <input
-            className="rounded-2xl bg-black/40 border-white/10 text-white backdrop-blur"
+            className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
             type="datetime-local"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -417,7 +418,7 @@ const designMode = true;
               </select>
 
               <input
-                className="rounded-2xl bg-black/40 border-white/10 text-white backdrop-blur"
+                className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
                 placeholder="Icedrive link"
                 value={fileLink}
                 onChange={(e) => setFileLink(e.target.value)}
@@ -435,7 +436,7 @@ const designMode = true;
               </select>
 
               <button
-                className="rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20"
+                className="w-full p-3 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
                 onClick={addHashtags}
               >
                 Add Hashtags
@@ -467,7 +468,7 @@ const designMode = true;
           )}
 
           <button
-            className="rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20"
+            className="w-full p-3 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
             onClick={addItem}
           >
             Add
@@ -566,22 +567,22 @@ const designMode = true;
                   Added by {item.createdBy || "Unknown"}
                 </p>
 
-                <div className="flex gap-2 flex-wrap">
-                  <button onClick={() => copyCaption(item.caption)}>
+                <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
+                  <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all" onClick={() => copyCaption(item.caption)}>
                     Copy
                   </button>
 
                   {item.type === "Post" && (
-                    <button onClick={() => sendToMeta(item)}>Send</button>
+                    <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all" onClick={() => sendToMeta(item)}>Send</button>
                   )}
 
                   {item.fileLink && (
-                    <button onClick={() => openFile(item.fileLink)}>
+                    <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all" onClick={() => openFile(item.fileLink)}>
                       Open Media
                     </button>
                   )}
 
-                  <button onClick={() => deleteItem(item.id)}>
+                  <button className="w-full sm:w-auto px-4 py-2 rounded-full bg-red-500/80 hover:bg-red-500 transition-all" onClick={() => deleteItem(item.id)}>
                     Delete
                   </button>
                 </div>
