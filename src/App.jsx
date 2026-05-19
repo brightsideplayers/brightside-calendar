@@ -133,138 +133,270 @@ const designMode = true;
       setUser(currentUser);
     });
 
-    return () => unsubscribeAuth();
-  }, []);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
-  useEffect(() => {
-    if (!user) return;
+  return (
+    <div className="min-h-screen bg-[#0f172a] text-white font-sans">
+      <div className="max-w-7xl mx-auto">
+        <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#0f172a]/90 border-b border-white/10 px-4 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-14 h-14 rounded-2xl overflow-hidden border border-teal-400/30 bg-white/5 flex-shrink-0">
+                <img
+                  src="https://i.imgur.com/YdjP8nC.png"
+                  alt="Brightside Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
-    const unsubscribe = onSnapshot(collection(db, "calendarItems"), (snapshot) => {
-      const data = snapshot.docs.map((docItem) => ({
-        id: docItem.id,
-        ...docItem.data()
-      }));
+              <div className="min-w-0">
+                <h1 className="text-2xl sm:text-4xl font-semibold truncate">
+                  Brightside
+                </h1>
+                <p className="text-teal-300 text-xs sm:text-sm uppercase tracking-[0.25em] truncate">
+                  Delivering Laughs On Time
+                </p>
+              </div>
+            </div>
 
-      setItems(data);
-    });
+            <button
+              className="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 text-lg"
+              onClick={logout}
+            >
+              ↗
+            </button>
+          </div>
 
-    return () => unsubscribe();
-  }, [user]);
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            <button
+              className={`h-14 rounded-2xl text-lg font-semibold transition-all ${
+                view === "list"
+                  ? "bg-teal-400 text-black"
+                  : "bg-white/5 border border-white/10"
+              }`}
+              onClick={() => setView("list")}
+            >
+              Feed
+            </button>
 
-  const addHashtags = () => {
-    if (!selectedSet) return;
-    const tags = hashtagSets[selectedSet].join(" ");
-    setCaption((prev) => prev + "\n\n" + tags);
-  };
+            <button
+              className={`h-14 rounded-2xl text-lg font-semibold transition-all ${
+                view === "calendar"
+                  ? "bg-teal-400 text-black"
+                  : "bg-white/5 border border-white/10"
+              }`}
+              onClick={() => setView("calendar")}
+            >
+              Calendar
+            </button>
+          </div>
+        </div>
 
-  const addItem = async () => {
-    if (!caption || !date) return;
+        <div className="p-4 sm:p-6 grid gap-4 sm:gap-6">
+          <div className="bg-white/5 border border-white/10 rounded-[2rem] p-4 sm:p-6 backdrop-blur-xl">
+            <div className="grid gap-4">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  className={`h-14 rounded-2xl text-lg font-semibold transition-all ${
+                    type === "Post"
+                      ? "bg-teal-400 text-black"
+                      : "bg-white/5 border border-white/10"
+                  }`}
+                  onClick={() => setType("Post")}
+                >
+                  Post
+                </button>
 
-    const newItem = {
-      caption,
-      date,
-      type,
-      platform: type === "Post" ? platform : "Task",
-      fileLink,
-      color: type === "Task" ? taskColor : null,
-      createdBy: user?.displayName || "Unknown"
-    };
+                <button
+                  className={`h-14 rounded-2xl text-lg font-semibold transition-all ${
+                    type === "Task"
+                      ? "bg-teal-400 text-black"
+                      : "bg-white/5 border border-white/10"
+                  }`}
+                  onClick={() => setType("Task")}
+                >
+                  Task
+                </button>
+              </div>
 
-    await addDoc(collection(db, "calendarItems"), newItem);
+              <textarea
+                className="w-full min-h-[140px] rounded-3xl bg-black/30 border border-white/10 p-5 text-lg resize-none"
+                placeholder={type === "Post" ? "Write caption..." : "Task details..."}
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+              />
 
-    setCaption("");
-    setDate("");
-    setFileLink("");
-  };
+              <input
+                className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4 text-lg"
+                type="datetime-local"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
 
-  const handleDrop = async (day) => {
-    if (dragIndex === null) return;
+              {type === "Post" && (
+                <>
+                  <div className="grid grid-cols-3 gap-2">
+                    {Object.keys(platformColors).map((p) => (
+                      <button
+                        key={p}
+                        className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
+                          platform === p
+                            ? "bg-teal-400 text-black"
+                            : "bg-white/5 border border-white/10"
+                        }`}
+                        onClick={() => setPlatform(p)}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
 
-    const updated = [...items];
-    const item = updated[dragIndex];
+                  <input
+                    className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4 text-lg"
+                    placeholder="Media link"
+                    value={fileLink}
+                    onChange={(e) => setFileLink(e.target.value)}
+                  />
+                </>
+              )}
 
-    const newDate = new Date(currentYear, currentMonth, day);
-    const oldDate = new Date(item.date);
+              <button
+                className="h-16 rounded-2xl bg-teal-400 text-black text-xl font-bold shadow-lg shadow-teal-500/20"
+                onClick={addItem}
+              >
+                Add {type}
+              </button>
+            </div>
+          </div>
 
-    newDate.setHours(oldDate.getHours() || 12);
-    newDate.setMinutes(oldDate.getMinutes() || 0);
+          {view === "calendar" && (
+            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-4 backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10"
+                  onClick={() => changeMonth(-1)}
+                >
+                  ←
+                </button>
 
-    await updateDoc(doc(db, "calendarItems", item.id), {
-      date: newDate.toISOString()
-    });
+                <h2 className="text-2xl font-semibold">
+                  {monthName} {currentYear}
+                </h2>
 
-    setDragIndex(null);
-  };
+                <button
+                  className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10"
+                  onClick={() => changeMonth(1)}
+                >
+                  →
+                </button>
+              </div>
 
-  const deleteItem = async (id) => {
-    await deleteDoc(doc(db, "calendarItems", id));
-  };
+              <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-7"} gap-3`}>
+                {Array.from({ length: days }, (_, i) => {
+                  const day = i + 1;
 
-  const copyCaption = async (text) => {
-    await navigator.clipboard.writeText(text);
-    alert("Copied!");
-  };
+                  const dayItems = items.filter((p) => {
+                    const d = new Date(p.date);
+                    return (
+                      d.getDate() === day &&
+                      d.getMonth() === currentMonth &&
+                      d.getFullYear() === currentYear
+                    );
+                  });
 
-  const sendToMeta = async (item) => {
-    await navigator.clipboard.writeText(item.caption);
-    window.open("https://business.facebook.com/latest/posts", "_blank");
-  };
+                  return (
+                    <div
+                      key={i}
+                      className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[120px]"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-lg font-semibold text-teal-300">
+                          {monthName.slice(0,3)} {day}
+                        </p>
 
-  const openFile = (link) => {
-    if (link) window.open(link, "_blank");
-  };
+                        <button
+                          className="text-xs px-3 py-1 rounded-full bg-white/10"
+                          onClick={() => quickAdd(day)}
+                        >
+                          +
+                        </button>
+                      </div>
 
-  const days = getDaysInMonth(currentYear, currentMonth);
+                      <div className="grid gap-2">
+                        {dayItems.map((p, idx) => {
+                          const colorClass =
+                            p.type === "Task"
+                              ? taskColors[p.color || "Yellow"]
+                              : platformColors[p.platform];
 
-  const changeMonth = (direction) => {
-    let newMonth = currentMonth + direction;
-    let newYear = currentYear;
+                          return (
+                            <div
+                              key={idx}
+                              className={`rounded-2xl p-3 text-black text-sm font-semibold ${colorClass}`}
+                            >
+                              {p.caption}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-    if (newMonth < 0) {
-      newMonth = 11;
-      newYear -= 1;
-    }
+          {view === "list" && (
+            <div className="grid gap-4">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-[2rem] border border-white/10 bg-white/5 p-5 backdrop-blur-xl"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0">
+                      <p className="text-xl font-semibold break-words">
+                        {item.caption}
+                      </p>
 
-    if (newMonth > 11) {
-      newMonth = 0;
-      newYear += 1;
-    }
+                      <p className="text-sm text-neutral-400 mt-2">
+                        {new Date(item.date).toLocaleString()}
+                      </p>
+                    </div>
 
-    setCurrentMonth(newMonth);
-    setCurrentYear(newYear);
-  };
+                    <div className={`w-4 h-4 rounded-full ${
+                      item.type === "Task"
+                        ? taskColors[item.color || "Yellow"]
+                        : platformColors[item.platform]
+                    }`} />
+                  </div>
 
-  const monthName = new Date(currentYear, currentMonth).toLocaleString("default", {
-    month: "long"
-  });
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    <button
+                      className="h-12 rounded-2xl bg-white/10 text-sm font-semibold"
+                      onClick={() => copyCaption(item.caption)}
+                    >
+                      Copy
+                    </button>
 
-  const quickAdd = (day) => {
-    const newDate = new Date(currentYear, currentMonth, day);
-    setDate(newDate.toISOString().slice(0, 16));
-    setView("list");
-  };
+                    <button
+                      className="h-12 rounded-2xl bg-red-500/80 text-sm font-semibold"
+                      onClick={() => deleteItem(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  const login = async () => {
-    try {
-      setAuthError("");
-      await signInWithRedirect(auth, provider);
-    } catch (error) {
-      if (error.code === "auth/unauthorized-domain") {
-        setAuthError(
-          "This domain has not been authorized in Firebase yet. Add your preview/deployment domain inside Firebase Authentication → Settings → Authorized domains."
-        );
-      } else {
-        setAuthError(error.message || "Authentication failed.");
-      }
-    }
-  };
-
-  const logout = async () => {
-    await signOut(auth);
-  };
-
-
-  if (!user && !designMode) {
+if (!user && !designMode) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#0f172a] flex items-center justify-center p-6 text-white">
         <div className="w-full max-w-md p-8 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10 text-center shadow-2xl">
@@ -278,7 +410,7 @@ const designMode = true;
             </div>
 
             <div>
-              <h1 className="text-4xl sm:text-5xl font-light tracking-tight leading-tight">
+              <h1 className="text-5xl sm:text-6xl font-light tracking-tight leading-tight">
                 Brightside Calendar
               </h1>
               <p className="text-teal-300 text-sm tracking-[0.25em] uppercase mt-2">
@@ -326,10 +458,10 @@ const designMode = true;
           </div>
 
           <div>
-            <h1 className="text-4xl sm:text-5xl font-light tracking-tight leading-tight">
+            <h1 className="text-5xl sm:text-6xl font-light tracking-tight leading-tight">
               Brightside Calendar
             </h1>
-            <p className="text-teal-300 text-sm sm:text-base tracking-[0.18em] sm:tracking-[0.25em] uppercase">
+            <p className="text-teal-300 text-lg sm:text-xl tracking-[0.18em] sm:tracking-[0.25em] uppercase">
               Delivering Laughs On Time
             </p>
           </div>
@@ -337,8 +469,8 @@ const designMode = true;
 
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <div className="text-right">
-            <p className="text-lg sm:text-sm font-medium">{user.displayName}</p>
-            <p className="text-sm sm:text-xs text-neutral-400">{user.email}</p>
+            <p className="text-2xl sm:text-lg font-medium">{user.displayName}</p>
+            <p className="text-lg sm:text-base text-neutral-400">{user.email}</p>
           </div>
 
           <img
@@ -358,7 +490,7 @@ const designMode = true;
 
       <div className="sticky top-0 z-20 flex gap-2 sm:gap-3 justify-center items-center w-full py-2">
         <button
-          className={`flex-1 h-16 text-xl sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+          className={`flex-1 h-20 text-2xl sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
             view === "list"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
@@ -369,7 +501,7 @@ const designMode = true;
         </button>
 
         <button
-          className={`flex-1 h-16 text-xl sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+          className={`flex-1 h-20 text-2xl sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
             view === "calendar"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
@@ -383,7 +515,7 @@ const designMode = true;
       <div className="w-full p-4 sm:p-6 rounded-[2rem] shadow-2xl bg-white/5 backdrop-blur-xl border border-white/10">
         <div className="grid gap-3">
           <select
-            className="p-3 rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
+            className="p-5 text-2xl rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
             value={type}
             onChange={(e) => setType(e.target.value)}
           >
@@ -392,14 +524,14 @@ const designMode = true;
           </select>
 
           <input
-            className="w-full p-5 text-lg rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
+            className="w-full p-6 text-2xl rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
             placeholder={type === "Post" ? "Caption" : "Task..."}
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
           />
 
           <input
-            className="w-full p-5 text-lg rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
+            className="w-full p-6 text-2xl rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
             type="datetime-local"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -408,7 +540,7 @@ const designMode = true;
           {type === "Post" && (
             <>
               <select
-                className="p-3 rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
+                className="p-5 text-2xl rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
               >
@@ -418,14 +550,14 @@ const designMode = true;
               </select>
 
               <input
-                className="w-full p-5 text-lg rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
+                className="w-full p-6 text-2xl rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
                 placeholder="Icedrive link"
                 value={fileLink}
                 onChange={(e) => setFileLink(e.target.value)}
               />
 
               <select
-                className="p-3 rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
+                className="p-5 text-2xl rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
                 value={selectedSet}
                 onChange={(e) => setSelectedSet(e.target.value)}
               >
@@ -436,7 +568,7 @@ const designMode = true;
               </select>
 
               <button
-                className="w-full p-5 text-xl rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
+                className="w-full p-6 text-2xl rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
                 onClick={addHashtags}
               >
                 Add Hashtags
@@ -446,7 +578,7 @@ const designMode = true;
 
           {type === "Task" && (
             <select
-              className="p-3 rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
+              className="p-5 text-2xl rounded-2xl bg-neutral-900 border border-white/20 text-white backdrop-blur appearance-auto cursor-pointer relative z-10"
               value={taskColor}
               onChange={(e) => setTaskColor(e.target.value)}
             >
@@ -468,7 +600,7 @@ const designMode = true;
           )}
 
           <button
-            className="w-full p-5 text-xl rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
+            className="w-full p-6 text-2xl rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
             onClick={addItem}
           >
             Add
@@ -480,7 +612,7 @@ const designMode = true;
         <div>
           <div className="flex justify-between items-center mb-2">
             <button onClick={() => changeMonth(-1)}>←</button>
-            <h2 className="text-3xl tracking-widest">
+            <h2 className="text-5xl tracking-widest">
               {monthName} {currentYear}
             </h2>
             <button onClick={() => changeMonth(1)}>→</button>
@@ -491,7 +623,7 @@ const designMode = true;
               (day) => (
                 <div
                   key={day}
-                  className="text-center text-base uppercase tracking-widest text-teal-300 pb-2"
+                  className="text-center text-2xl uppercase tracking-widest text-teal-300 pb-2"
                 >
                   {day}
                 </div>
@@ -514,13 +646,13 @@ const designMode = true;
               return (
                 <div
                   key={i}
-                  className="p-4 min-h-[180px] rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/40 transition-all duration-300 hover:scale-[1.02]"
+                  className="p-6 min-h-[240px] rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/40 transition-all duration-300 hover:scale-[1.02]"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => handleDrop(day)}
                   onDoubleClick={() => quickAdd(day)}
                 >
                   <div>
-                    <p className="text-sm sm:text-xs text-neutral-400">{day}</p>
+                    <p className="text-lg sm:text-base text-neutral-400">{day}</p>
 
                     {dayItems.map((p, idx) => {
                       const originalIndex = items.findIndex((x) => x === p);
@@ -535,7 +667,7 @@ const designMode = true;
                           key={idx}
                           draggable
                           onDragStart={() => setDragIndex(originalIndex)}
-                          className={`text-base sm:text-sm truncate cursor-move p-1 rounded-lg text-black ${colorClass}`}
+                          className={`text-2xl sm:text-lg truncate cursor-move p-1 rounded-lg text-black ${colorClass}`}
                         >
                           {p.type === "Task" ? "📝" : ""} {p.caption.slice(0, 20)}
                         </p>
@@ -555,7 +687,7 @@ const designMode = true;
               className="p-5 sm:p-6 rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/50 transition-all duration-300 overflow-hidden"
             >
               <div className="grid gap-2">
-                <p className="text-xl font-semibold">{item.caption}</p>
+                <p className="text-3xl font-semibold">{item.caption}</p>
 
                 <p className="text-sm text-neutral-400">
                   {new Date(item.date).toLocaleString()}
@@ -567,7 +699,7 @@ const designMode = true;
 
                 <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
                   <button
-                    className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                    className="w-full sm:w-auto px-6 py-4 text-xl rounded-full bg-white/10 hover:bg-white/20 transition-all"
                     onClick={() => copyCaption(item.caption)}
                   >
                     Copy
@@ -575,7 +707,7 @@ const designMode = true;
 
                   {item.type === "Post" && (
                     <button
-                      className="w-full sm:w-auto px-4 py-2 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all"
+                      className="w-full sm:w-auto px-6 py-4 text-xl rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all"
                       onClick={() => sendToMeta(item)}
                     >
                       Send
@@ -584,7 +716,7 @@ const designMode = true;
 
                   {item.fileLink && (
                     <button
-                      className="w-full sm:w-auto px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                      className="w-full sm:w-auto px-6 py-4 text-xl rounded-full bg-white/10 hover:bg-white/20 transition-all"
                       onClick={() => openFile(item.fileLink)}
                     >
                       Open Media
@@ -592,7 +724,7 @@ const designMode = true;
                   )}
 
                   <button
-                    className="w-full sm:w-auto px-4 py-2 rounded-full bg-red-500/80 hover:bg-red-500 transition-all"
+                    className="w-full sm:w-auto px-6 py-4 text-xl rounded-full bg-red-500/80 hover:bg-red-500 transition-all"
                     onClick={() => deleteItem(item.id)}
                   >
                     Delete
