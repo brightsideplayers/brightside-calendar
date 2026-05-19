@@ -94,8 +94,8 @@ function getDaysInMonth(year, month) {
 }
 
 export default function App() {
-  // TEMPORARY: bypass login while designing UI
-const designMode = true;
+  // Live authentication enabled
+const designMode = false;
   
 
   const [items, setItems] = useState([]);
