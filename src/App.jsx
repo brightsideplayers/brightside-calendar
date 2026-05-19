@@ -295,6 +295,47 @@ ${tags}`);
     month: "long"
   });
 
+  if (!user && !designMode) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-6 text-white">
+        <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/[0.08] backdrop-blur-2xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="w-24 h-24 rounded-3xl overflow-hidden border border-teal-400/30 bg-white/5">
+              <img
+                src="https://i.imgur.com/YdjP8nC.png"
+                alt="Brightside Logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div>
+              <h1 className="font-semibold text-4xl mb-2">
+                Brightside
+              </h1>
+
+              <p className="text-teal-300 uppercase tracking-[0.25em] text-sm">
+                Delivering Laughs On Time
+              </p>
+            </div>
+
+            {authError && (
+              <div className="w-full rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-200">
+                {authError}
+              </div>
+            )}
+
+            <button
+              onClick={login}
+              className="w-full h-14 rounded-2xl bg-teal-400 text-black font-semibold text-lg shadow-lg shadow-teal-500/20"
+            >
+              Continue with Google
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans">
       <div className="max-w-7xl mx-auto">
