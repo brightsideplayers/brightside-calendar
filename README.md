@@ -1,5 +1,5 @@
 # Brightside Calendar
-
+deployment trigger
 ## Install
 npm install
 
@@ -8,3 +8,4 @@ npm run dev
 
 ## Deploy
 Upload to GitHub and connect repository to Vercel.
+
