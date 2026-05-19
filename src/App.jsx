@@ -240,7 +240,14 @@ ${tags}`);
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white font-sans">
-      <div className="max-w-7xl mx-auto">
+     <div
+  className="mx-auto"
+  style={{
+    width: "100%",
+    maxWidth: isMobile ? "100vw" : "1400px",
+    padding: isMobile ? "0" : "0 24px"
+  }}
+>
         <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#0f172a]/90 border-b border-white/10 px-4 py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
@@ -309,7 +316,13 @@ ${tags}`);
           </div>
         </div>
 
-        <div className="p-4 sm:p-6 grid gap-4 sm:gap-6">
+       <div
+  className="grid"
+  style={{
+    gap: isMobile ? "24px" : "32px",
+    padding: isMobile ? "20px" : "32px"
+  }}
+>
           <div className="bg-white/5 border border-white/10 rounded-[2rem] p-4 sm:p-6 backdrop-blur-xl">
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-2">
@@ -431,7 +444,11 @@ ${tags}`);
                   return (
                     <div
                       key={i}
-                      className="rounded-3xl border border-white/10 bg-black/20 p-4 min-h-[120px]"
+                     className="rounded-3xl border border-white/10 bg-black/20"
+style={{
+  padding: isMobile ? "24px" : "16px",
+  minHeight: isMobile ? "180px" : "120px"
+}}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <p className="text-lg font-semibold text-teal-300">
