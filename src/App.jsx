@@ -278,7 +278,7 @@ const designMode = true;
             </div>
 
             <div>
-              <h1 className="text-2xl sm:text-4xl font-light tracking-tight leading-tight">
+              <h1 className="text-4xl sm:text-5xl font-light tracking-tight leading-tight">
                 Brightside Calendar
               </h1>
               <p className="text-teal-300 text-sm tracking-[0.25em] uppercase mt-2">
@@ -317,7 +317,7 @@ const designMode = true;
       <div className="w-full min-h-screen mx-auto p-3 sm:p-6 grid gap-4 sm:gap-6 sm:max-w-6xl">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-          <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full overflow-hidden border border-teal-400/30 shadow-2xl shadow-teal-500/20 bg-white/5 backdrop-blur flex items-center justify-center">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border border-teal-400/30 shadow-2xl shadow-teal-500/20 bg-white/5 backdrop-blur flex items-center justify-center">
             <img
               src="https://i.imgur.com/YdjP8nC.png"
               alt="Brightside Logo"
@@ -326,10 +326,10 @@ const designMode = true;
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-4xl font-light tracking-tight leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-light tracking-tight leading-tight">
               Brightside Calendar
             </h1>
-            <p className="text-teal-300 text-[11px] sm:text-[10px] sm:text-sm tracking-[0.18em] sm:tracking-[0.25em] uppercase">
+            <p className="text-teal-300 text-sm sm:text-base tracking-[0.18em] sm:tracking-[0.25em] uppercase">
               Delivering Laughs On Time
             </p>
           </div>
@@ -337,8 +337,8 @@ const designMode = true;
 
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <div className="text-right">
-            <p className="text-sm font-medium">{user.displayName}</p>
-            <p className="text-xs text-neutral-400">{user.email}</p>
+            <p className="text-lg sm:text-sm font-medium">{user.displayName}</p>
+            <p className="text-sm sm:text-xs text-neutral-400">{user.email}</p>
           </div>
 
           <img
@@ -358,7 +358,7 @@ const designMode = true;
 
       <div className="sticky top-0 z-20 flex gap-2 sm:gap-3 justify-center items-center w-full py-2">
         <button
-          className={`flex-1 h-12 sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+          className={`flex-1 h-16 text-xl sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
             view === "list"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
@@ -369,7 +369,7 @@ const designMode = true;
         </button>
 
         <button
-          className={`flex-1 h-12 sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
+          className={`flex-1 h-16 text-xl sm:flex-none sm:min-w-[140px] rounded-full px-6 flex items-center justify-center transition-all duration-300 font-medium ${
             view === "calendar"
               ? "bg-teal-400 text-black shadow-lg shadow-teal-500/20"
               : "border border-white/20 bg-white/5 backdrop-blur text-white hover:bg-teal-400 hover:text-black hover:border-teal-300"
@@ -392,14 +392,14 @@ const designMode = true;
           </select>
 
           <input
-            className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
+            className="w-full p-5 text-lg rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
             placeholder={type === "Post" ? "Caption" : "Task..."}
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
           />
 
           <input
-            className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
+            className="w-full p-5 text-lg rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
             type="datetime-local"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -418,7 +418,7 @@ const designMode = true;
               </select>
 
               <input
-                className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
+                className="w-full p-5 text-lg rounded-2xl bg-black/40 border border-white/10 text-white backdrop-blur"
                 placeholder="Icedrive link"
                 value={fileLink}
                 onChange={(e) => setFileLink(e.target.value)}
@@ -436,7 +436,7 @@ const designMode = true;
               </select>
 
               <button
-                className="w-full p-3 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
+                className="w-full p-5 text-xl rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
                 onClick={addHashtags}
               >
                 Add Hashtags
@@ -468,7 +468,7 @@ const designMode = true;
           )}
 
           <button
-            className="w-full p-3 rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
+            className="w-full p-5 text-xl rounded-full bg-teal-400 text-black hover:bg-teal-300 transition-all duration-300 shadow-lg shadow-teal-500/20 font-medium"
             onClick={addItem}
           >
             Add
@@ -480,7 +480,7 @@ const designMode = true;
         <div>
           <div className="flex justify-between items-center mb-2">
             <button onClick={() => changeMonth(-1)}>←</button>
-            <h2 className="text-xl tracking-widest">
+            <h2 className="text-3xl tracking-widest">
               {monthName} {currentYear}
             </h2>
             <button onClick={() => changeMonth(1)}>→</button>
@@ -491,7 +491,7 @@ const designMode = true;
               (day) => (
                 <div
                   key={day}
-                  className="text-center text-xs uppercase tracking-widest text-teal-300 pb-2"
+                  className="text-center text-base uppercase tracking-widest text-teal-300 pb-2"
                 >
                   {day}
                 </div>
@@ -514,13 +514,13 @@ const designMode = true;
               return (
                 <div
                   key={i}
-                  className="p-2 min-h-[120px] rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/40 transition-all duration-300 hover:scale-[1.02]"
+                  className="p-4 min-h-[180px] rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/40 transition-all duration-300 hover:scale-[1.02]"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => handleDrop(day)}
                   onDoubleClick={() => quickAdd(day)}
                 >
                   <div>
-                    <p className="text-xs text-neutral-400">{day}</p>
+                    <p className="text-sm sm:text-xs text-neutral-400">{day}</p>
 
                     {dayItems.map((p, idx) => {
                       const originalIndex = items.findIndex((x) => x === p);
@@ -535,7 +535,7 @@ const designMode = true;
                           key={idx}
                           draggable
                           onDragStart={() => setDragIndex(originalIndex)}
-                          className={`text-[11px] sm:text-[10px] truncate cursor-move p-1 rounded-lg text-black ${colorClass}`}
+                          className={`text-base sm:text-sm truncate cursor-move p-1 rounded-lg text-black ${colorClass}`}
                         >
                           {p.type === "Task" ? "📝" : ""} {p.caption.slice(0, 20)}
                         </p>
@@ -552,10 +552,10 @@ const designMode = true;
           {items.map((item) => (
             <div
               key={item.id}
-              className="p-3 sm:p-4 rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/50 transition-all duration-300 overflow-hidden"
+              className="p-5 sm:p-6 rounded-3xl bg-white/5 backdrop-blur-lg border border-white/10 hover:border-teal-400/50 transition-all duration-300 overflow-hidden"
             >
               <div className="grid gap-2">
-                <p className="font-semibold">{item.caption}</p>
+                <p className="text-xl font-semibold">{item.caption}</p>
 
                 <p className="text-sm text-neutral-400">
                   {new Date(item.date).toLocaleString()}
