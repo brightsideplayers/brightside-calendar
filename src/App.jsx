@@ -119,6 +119,7 @@ const designMode = true;
 
   const [type, setType] = useState("Post");
   const [taskColor, setTaskColor] = useState("Yellow");
+  const [recurring, setRecurring] = useState("none");
 
   const [dragIndex, setDragIndex] = useState(null);
 
@@ -168,19 +169,44 @@ const designMode = true;
   const addItem = async () => {
     if (!caption || !date) return;
 
-    await addDoc(collection(db, "calendarItems"), {
+    const baseItem = {
       caption,
       date,
       type,
       platform,
       color: taskColor,
       fileLink,
+      recurring,
       createdBy: user?.displayName || "Unknown"
-    });
+    };
+
+    await addDoc(collection(db, "calendarItems"), baseItem);
+
+    if (recurring !== "none") {
+      const repeatCount = recurring === "weekly" ? 12 : 6;
+
+      for (let i = 1; i <= repeatCount; i++) {
+        const nextDate = new Date(date);
+
+        if (recurring === "weekly") {
+          nextDate.setDate(nextDate.getDate() + i * 7);
+        }
+
+        if (recurring === "monthly") {
+          nextDate.setMonth(nextDate.getMonth() + i);
+        }
+
+        await addDoc(collection(db, "calendarItems"), {
+          ...baseItem,
+          date: nextDate.toISOString()
+        });
+      }
+    }
 
     setCaption("");
     setDate("");
     setFileLink("");
+    setRecurring("none");
   };
 
   const deleteItem = async (id) => {
@@ -358,6 +384,41 @@ ${tags}`);
                 onChange={(e) => setDate(e.target.value)}
               />
 
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
+                    recurring === "none"
+                      ? "bg-teal-400 text-black"
+                      : "bg-white/5 border border-white/10"
+                  }`}
+                  onClick={() => setRecurring("none")}
+                >
+                  Once
+                </button>
+
+                <button
+                  className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
+                    recurring === "weekly"
+                      ? "bg-teal-400 text-black"
+                      : "bg-white/5 border border-white/10"
+                  }`}
+                  onClick={() => setRecurring("weekly")}
+                >
+                  Weekly
+                </button>
+
+                <button
+                  className={`h-12 rounded-2xl text-sm font-semibold transition-all ${
+                    recurring === "monthly"
+                      ? "bg-teal-400 text-black"
+                      : "bg-white/5 border border-white/10"
+                  }`}
+                  onClick={() => setRecurring("monthly")}
+                >
+                  Monthly
+                </button>
+              </div>
+
               {type === "Post" && (
                 <>
                   <div className="grid grid-cols-3 gap-2">
@@ -487,6 +548,11 @@ ${tags}`);
                               className={`rounded-xl p-1.5 sm:p-2 text-black text-[10px] sm:text-xs font-semibold truncate ${colorClass}`}
                             >
                               {p.caption}
+                              {p.recurring && p.recurring !== "none" && (
+                                <span className="ml-1 opacity-70">
+                                  ↻
+                                </span>
+                              )}
                             </div>
                           );
                         })}
