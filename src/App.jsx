@@ -72,6 +72,17 @@ export default function App() {
   const [fileLink, setFileLink] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [authError, setAuthError] = useState("");
+  const [costumes, setCostumes] = useState([]);
+  const [propsList, setPropsList] = useState([]);
+  const [promoItems, setPromoItems] = useState([]);
+  const [newCostume, setNewCostume] = useState("");
+  const [newProp, setNewProp] = useState("");
+  const [promoTitle, setPromoTitle] = useState("");
+  const [promoLink, setPromoLink] = useState("");
+  const [contacts, setContacts] = useState([]);
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
@@ -156,6 +167,47 @@ export default function App() {
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  const addSimpleItem = (setter, value, reset) => {
+    if (!value.trim()) return;
+
+    setter((prev) => [...prev, { id: Date.now(), text: value }]);
+    reset("");
+  };
+
+  const addContact = () => {
+    if (!contactName) return;
+
+    setContacts((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name: contactName,
+        phone: contactPhone,
+        email: contactEmail
+      }
+    ]);
+
+    setContactName("");
+    setContactPhone("");
+    setContactEmail("");
+  };
+
+  const addPromo = () => {
+    if (!promoTitle || !promoLink) return;
+
+    setPromoItems((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        title: promoTitle,
+        link: promoLink
+      }
+    ]);
+
+    setPromoTitle("");
+    setPromoLink("");
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-[#020617] flex items-center justify-center text-white p-6">
@@ -223,6 +275,34 @@ export default function App() {
               className={`${button} px-5 ${view === "calendar" ? gradients.cyan : glass}`}
             >
               Calendar
+            </button>
+
+            <button
+              onClick={() => setView("costumes")}
+              className={`${button} px-5 ${view === "costumes" ? gradients.orange : glass}`}
+            >
+              Costumes
+            </button>
+
+            <button
+              onClick={() => setView("props")}
+              className={`${button} px-5 ${view === "props" ? gradients.lime : glass}`}
+            >
+              Props
+            </button>
+
+            <button
+              onClick={() => setView("promo")}
+              className={`${button} px-5 ${view === "promo" ? gradients.pink : glass}`}
+            >
+              Promo
+            </button>
+
+            <button
+              onClick={() => setView("contacts")}
+              className={`${button} px-5 ${view === "contacts" ? gradients.cyan : glass}`}
+            >
+              Contacts
             </button>
           </div>
         </GlassCard>
@@ -325,62 +405,158 @@ export default function App() {
 
         {view === "calendar" && (
           <GlassCard>
-            <div className="grid gap-5">
-              <h2 className="text-4xl font-bold">
-                Content Calendar
-              </h2>
+            <div className="text-4xl font-bold mb-5">Content Calendar</div>
+            <div className="grid grid-cols-7 gap-3">
+              {weekDays.map((day) => (
+                <div key={day} className="text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50">
+                  {day}
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        )}
 
-              <div className="grid grid-cols-7 gap-3">
-                {weekDays.map((day) => (
-                  <div
-                    key={day}
-                    className="text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50"
-                  >
-                    {day}
+        {view === "costumes" && (
+          <GlassCard>
+            <div className="grid gap-4">
+              <h2 className="text-4xl font-bold">Costume List</h2>
+              <div className="flex gap-2">
+                <input
+                  value={newCostume}
+                  onChange={(e) => setNewCostume(e.target.value)}
+                  placeholder="Add costume item"
+                  className="flex-1 h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
+                <button
+                  onClick={() => addSimpleItem(setCostumes, newCostume, setNewCostume)}
+                  className={`${button} px-5 ${gradients.orange}`}
+                >
+                  Add
+                </button>
+              </div>
+
+              <div className="grid gap-3">
+                {costumes.map((item) => (
+                  <div key={item.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    {item.text}
                   </div>
                 ))}
               </div>
+            </div>
+          </GlassCard>
+        )}
 
-              <div className="grid grid-cols-7 gap-3">
-                {calendarDays.map((day, i) => {
-                  const matchingPosts = items.filter((item) => {
-                    if (!item.date || !day) return false;
+        {view === "props" && (
+          <GlassCard>
+            <div className="grid gap-4">
+              <h2 className="text-4xl font-bold">Prop List</h2>
+              <div className="flex gap-2">
+                <input
+                  value={newProp}
+                  onChange={(e) => setNewProp(e.target.value)}
+                  placeholder="Add prop item"
+                  className="flex-1 h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
+                <button
+                  onClick={() => addSimpleItem(setPropsList, newProp, setNewProp)}
+                  className={`${button} px-5 ${gradients.lime}`}
+                >
+                  Add
+                </button>
+              </div>
 
-                    const itemDate = new Date(item.date);
+              <div className="grid gap-3">
+                {propsList.map((item) => (
+                  <div key={item.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    {item.text}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </GlassCard>
+        )}
 
-                    return (
-                      itemDate.getDate() === day &&
-                      itemDate.getMonth() === currentMonth &&
-                      itemDate.getFullYear() === currentYear
-                    );
-                  });
+        {view === "promo" && (
+          <GlassCard>
+            <div className="grid gap-4">
+              <h2 className="text-4xl font-bold">Promo Materials</h2>
 
-                  return (
-                    <div
-                      key={i}
-                      className={`min-h-[120px] rounded-3xl border p-3 ${
-                        day === today.getDate()
-                          ? "border-fuchsia-300 shadow-[0_0_20px_rgba(236,72,153,0.4)]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      <div className="text-sm text-cyan-100 mb-2">
-                        {day || ""}
-                      </div>
+              <input
+                value={promoTitle}
+                onChange={(e) => setPromoTitle(e.target.value)}
+                placeholder="Promo title"
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              />
 
-                      <div className="grid gap-2">
-                        {matchingPosts.map((post) => (
-                          <div
-                            key={post.id}
-                            className="rounded-2xl bg-cyan-400/10 border border-cyan-300/20 p-2 text-xs"
-                          >
-                            {post.caption?.slice(0, 20)}
-                          </div>
-                        ))}
-                      </div>
+              <input
+                value={promoLink}
+                onChange={(e) => setPromoLink(e.target.value)}
+                placeholder="Image or Icedrive link"
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              />
+
+              <button
+                onClick={addPromo}
+                className={`${button} ${gradients.pink} text-white font-bold`}
+              >
+                Add Promo Material
+              </button>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {promoItems.map((item) => (
+                  <div key={item.id} className="rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
+                    <img src={item.link} alt={item.title} className="w-full h-48 object-cover" />
+                    <div className="p-4">
+                      <h3 className="text-xl font-bold">{item.title}</h3>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </GlassCard>
+        )}
+
+        {view === "contacts" && (
+          <GlassCard>
+            <div className="grid gap-4">
+              <h2 className="text-4xl font-bold">Contacts</h2>
+
+              <input
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="Name"
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              />
+
+              <input
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="Phone"
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              />
+
+              <input
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder="Email"
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              />
+
+              <button
+                onClick={addContact}
+                className={`${button} ${gradients.cyan} text-white font-bold`}
+              >
+                Add Contact
+              </button>
+
+              <div className="grid gap-3">
+                {contacts.map((contact) => (
+                  <div key={contact.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-xl font-bold">{contact.name}</div>
+                    <div className="text-white/70 text-sm mt-2">{contact.phone}</div>
+                    <div className="text-cyan-300 text-sm">{contact.email}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </GlassCard>
