@@ -257,6 +257,14 @@ const designMode = false;
     if (url) window.open(url, "_blank");
   };
 
+  const isImageLink = (url) => {
+    return /(jpg|jpeg|png|webp|gif)$/i.test(url || "");
+  };
+
+  const isVideoLink = (url) => {
+    return /(mp4|webm|mov)$/i.test(url || "");
+  };
+
   const addHashtags = () => {
     if (!selectedSet) return;
 
@@ -385,7 +393,28 @@ ${tags}`);
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-4">
+          {item.fileLink && (
+                    <div className="mt-4 rounded-3xl overflow-hidden border border-white/10 bg-black/30">
+                      {isImageLink(item.fileLink) && (
+                        <img
+                          src={item.fileLink}
+                          alt="Media"
+                          className="w-full max-h-[420px] object-cover"
+                          onClick={() => openFile(item.fileLink)}
+                        />
+                      )}
+
+                      {isVideoLink(item.fileLink) && (
+                        <video
+                          src={item.fileLink}
+                          controls
+                          className="w-full max-h-[420px] object-cover"
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2 mt-4">
             <button
               style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
               className={`h-14 rounded-2xl font-semibold transition-all ${
@@ -521,13 +550,41 @@ ${tags}`);
                     ))}
                   </div>
 
-                  <input
-                    className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4"
-                style={{ fontSize: isMobile ? "1.15rem" : "1rem" }}
-                    placeholder="Media link"
-                    value={fileLink}
-                    onChange={(e) => setFileLink(e.target.value)}
-                  />
+                  <div className="grid gap-3">
+                    <input
+                      className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4"
+                      style={{ fontSize: isMobile ? "1.15rem" : "1rem" }}
+                      placeholder="Media link"
+                      value={fileLink}
+                      onChange={(e) => setFileLink(e.target.value)}
+                    />
+
+                    {fileLink && (
+                      <div className="rounded-3xl overflow-hidden border border-white/10 bg-black/30">
+                        {isImageLink(fileLink) && (
+                          <img
+                            src={fileLink}
+                            alt="Preview"
+                            className="w-full max-h-[320px] object-cover"
+                          />
+                        )}
+
+                        {isVideoLink(fileLink) && (
+                          <video
+                            src={fileLink}
+                            controls
+                            className="w-full max-h-[320px] object-cover"
+                          />
+                        )}
+
+                        {!isImageLink(fileLink) && !isVideoLink(fileLink) && (
+                          <div className="p-6 text-center text-neutral-400 text-sm">
+                            Preview unavailable for this link type
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
 
