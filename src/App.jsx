@@ -94,6 +94,14 @@ function getDaysInMonth(year, month) {
 }
 
 export default function App() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js");
+      });
+    }
+  }, []);
+
   // Live authentication enabled
 const designMode = false;
   
@@ -332,7 +340,7 @@ ${tags}`);
   if (!user && !designMode) {
     return (
       <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-6 text-white">
-        <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/[0.08] backdrop-blur-2xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
+        <div className="w-full max-w-md rounded-[1.5rem] border border-white/10 bg-white/[0.08] backdrop-blur-2xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="w-24 h-24 rounded-3xl overflow-hidden border border-teal-400/30 bg-white/5">
               <img
@@ -360,7 +368,7 @@ ${tags}`);
 
             <button
               onClick={login}
-              className="w-full h-14 rounded-2xl bg-teal-400 text-black font-semibold text-lg shadow-lg shadow-teal-500/20"
+              className="w-full h-12 rounded-2xl bg-teal-400 text-black font-semibold text-lg shadow-lg shadow-teal-500/20"
             >
               Continue with Google
             </button>
@@ -376,7 +384,7 @@ ${tags}`);
         <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#0f172a]/90 border-b border-white/10 px-4 py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-14 h-14 rounded-2xl overflow-hidden border border-teal-400/30 bg-white/5 flex-shrink-0">
+              <div className="w-14 h-12 rounded-2xl overflow-hidden border border-teal-400/30 bg-white/5 flex-shrink-0">
                 <img
                   src="https://i.imgur.com/YdjP8nC.png"
                   alt="Brightside Logo"
@@ -421,7 +429,7 @@ ${tags}`);
           <div className="grid grid-cols-3 gap-2 mt-4">
             <button
               style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
-              className={`h-14 rounded-2xl font-semibold transition-all ${
+              className={`h-12 rounded-2xl font-semibold transition-all ${
                 view === "list"
                   ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                   : "bg-white/5 border border-white/10"
@@ -433,7 +441,7 @@ ${tags}`);
 
             <button
               style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
-              className={`h-14 rounded-2xl font-semibold transition-all ${
+              className={`h-12 rounded-2xl font-semibold transition-all ${
                 view === "calendar"
                   ? "bg-teal-400/10 border-2 border-teal-300 text-teal-100"
                   : "bg-white/5 border border-white/10"
@@ -445,13 +453,13 @@ ${tags}`);
           </div>
         </div>
 
-        <div className="p-4 sm:p-6 grid gap-4 sm:gap-6">
-          <div className="bg-white/[0.08] border border-white/10 rounded-[2rem] p-4 sm:p-6 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
-            <div className="grid gap-4">
+        <div className="p-3 sm:p-4 grid gap-3 sm:gap-4">
+          <div className="bg-white/[0.08] border border-white/10 rounded-[1.5rem] p-4 sm:p-6 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
+            <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-2">
                 <button
                   style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
-              className={`h-14 rounded-2xl font-semibold transition-all ${
+              className={`h-12 rounded-2xl font-semibold transition-all ${
                     type === "Post"
                       ? "bg-teal-400 text-black"
                       : "bg-white/5 border border-white/10"
@@ -463,7 +471,7 @@ ${tags}`);
 
                 <button
                   style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
-              className={`h-14 rounded-2xl font-semibold transition-all ${
+              className={`h-12 rounded-2xl font-semibold transition-all ${
                     type === "Task"
                       ? "bg-teal-400 text-black"
                       : "bg-white/5 border border-white/10"
@@ -475,7 +483,7 @@ ${tags}`);
               </div>
 
               <textarea
-                className="w-full min-h-[140px] rounded-3xl bg-black/30 border border-white/10 p-5 resize-none"
+                className="w-full min-h-[110px] rounded-3xl bg-black/30 border border-white/10 p-5 resize-none"
                 style={{ fontSize: isMobile ? "1.2rem" : "1rem" }}
                 placeholder={type === "Post" ? "Write caption..." : "Task details..."}
                 value={caption}
@@ -483,7 +491,7 @@ ${tags}`);
               />
 
               <input
-                className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4"
+                className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
                 style={{ fontSize: isMobile ? "1.15rem" : "1rem" }}
                 type="datetime-local"
                 value={date}
@@ -556,7 +564,7 @@ ${tags}`);
 
                   <div className="grid gap-3">
                     <input
-                      className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4"
+                      className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
                       style={{ fontSize: isMobile ? "1.15rem" : "1rem" }}
                       placeholder="Media link"
                       value={fileLink}
@@ -678,7 +686,7 @@ ${tags}`);
               </div>
 
               <button
-                className="h-16 rounded-2xl bg-teal-400 text-black font-bold shadow-lg shadow-teal-500/20"
+                className="h-14 rounded-2xl bg-teal-400 text-black font-bold shadow-lg shadow-teal-500/20"
                 style={{ fontSize: isMobile ? "1.4rem" : "1.1rem" }}
                 onClick={addItem}
               >
@@ -688,7 +696,7 @@ ${tags}`);
           </div>
 
           {view === "calendar" && (
-            <div className="bg-white/[0.06] border border-white/10 rounded-[2rem] p-4 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
+            <div className="bg-white/[0.06] border border-white/10 rounded-[1.5rem] p-4 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
               <div className="flex items-center justify-between mb-4">
                 <button
                   className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10"
@@ -731,7 +739,7 @@ ${tags}`);
                     return (
                       <div
                         key={`empty-${i}`}
-                        className="rounded-2xl bg-white/5 border border-white/5 min-h-[90px]"
+                        className="rounded-2xl bg-white/5 border border-white/5 min-h-[72px]"
                       />
                     );
                   }
@@ -750,7 +758,7 @@ ${tags}`);
                   return (
                     <div
                       key={i}
-                      className={`rounded-2xl border p-2 sm:p-3 min-h-[90px] transition-all duration-200 overflow-hidden ${
+                      className={`rounded-2xl border p-2 min-h-[72px] transition-all duration-200 overflow-hidden ${
                       new Date().getDate() === day &&
                       new Date().getMonth() === currentMonth &&
                       new Date().getFullYear() === currentYear
@@ -801,16 +809,16 @@ ${tags}`);
           )}
 
           {view === "list" && (
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-[2rem] border border-white/10 bg-white/5 p-5 backdrop-blur-xl"
+                  className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 backdrop-blur-xl"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="min-w-0">
                       <p className="font-semibold break-words"
-                        style={{ fontSize: isMobile ? "1.5rem" : "1.25rem" }}>
+                        style={{ fontSize: isMobile ? "1.25rem" : "1.1rem" }}>
                         {item.caption}
                       </p>
 
