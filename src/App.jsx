@@ -122,6 +122,7 @@ const designMode = false;
   const [recurring, setRecurring] = useState("none");
   const [assignedTo, setAssignedTo] = useState([]);
   const [showAssignMenu, setShowAssignMenu] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   const [dragIndex, setDragIndex] = useState(null);
 
@@ -211,26 +212,32 @@ const designMode = false;
       assignedTo
     };
 
-    await addDoc(collection(db, "calendarItems"), baseItem);
+    if (editingId) {
+      await updateDoc(doc(db, "calendarItems", editingId), baseItem);
 
-    if (recurring !== "none") {
-      const repeatCount = recurring === "weekly" ? 12 : 6;
+      setEditingId(null);
+    } else {
+      await addDoc(collection(db, "calendarItems"), baseItem);
 
-      for (let i = 1; i <= repeatCount; i++) {
-        const nextDate = new Date(date);
+      if (recurring !== "none") {
+        const repeatCount = recurring === "weekly" ? 12 : 6;
 
-        if (recurring === "weekly") {
-          nextDate.setDate(nextDate.getDate() + i * 7);
+        for (let i = 1; i <= repeatCount; i++) {
+          const nextDate = new Date(date);
+
+          if (recurring === "weekly") {
+            nextDate.setDate(nextDate.getDate() + i * 7);
+          }
+
+          if (recurring === "monthly") {
+            nextDate.setMonth(nextDate.getMonth() + i);
+          }
+
+          await addDoc(collection(db, "calendarItems"), {
+            ...baseItem,
+            date: nextDate.toISOString()
+          });
         }
-
-        if (recurring === "monthly") {
-          nextDate.setMonth(nextDate.getMonth() + i);
-        }
-
-        await addDoc(collection(db, "calendarItems"), {
-          ...baseItem,
-          date: nextDate.toISOString()
-        });
       }
     }
 
@@ -239,10 +246,28 @@ const designMode = false;
     setFileLink("");
     setRecurring("none");
     setAssignedTo([]);
+    setEditingId(null);
   };
 
   const deleteItem = async (id) => {
     await deleteDoc(doc(db, "calendarItems", id));
+  };
+
+  const editItem = (item) => {
+    setEditingId(item.id);
+    setCaption(item.caption || "");
+    setDate(item.date || "");
+    setPlatform(item.platform || "Instagram");
+    setType(item.type || "Post");
+    setTaskColor(item.color || "Yellow");
+    setFileLink(item.fileLink || "");
+    setRecurring(item.recurring || "none");
+    setAssignedTo(item.assignedTo || []);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   };
 
   const copyCaption = async (text) => {
@@ -393,7 +418,7 @@ ${tags}`);
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-4">
+          <div className="grid grid-cols-3 gap-2 mt-4">
             <button
               style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
               className={`h-14 rounded-2xl font-semibold transition-all ${
@@ -657,7 +682,7 @@ ${tags}`);
                 style={{ fontSize: isMobile ? "1.4rem" : "1.1rem" }}
                 onClick={addItem}
               >
-                Add {type}
+                {editingId ? `Save ${type}` : `Add ${type}`}
               </button>
             </div>
           </div>
@@ -823,6 +848,13 @@ ${tags}`);
                       onClick={() => copyCaption(item.caption)}
                     >
                       Copy
+                    </button>
+
+                    <button
+                      className="h-12 rounded-2xl bg-teal-400/20 border border-teal-300 text-sm font-semibold text-teal-100"
+                      onClick={() => editItem(item)}
+                    >
+                      Edit
                     </button>
 
                     <button
