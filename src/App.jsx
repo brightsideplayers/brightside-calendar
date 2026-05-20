@@ -84,6 +84,8 @@ export default function App() {
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [contactSkill, setContactSkill] = useState("");
+  const [selectedSkill, setSelectedSkill] = useState("All");
   const [tiktokCaption, setTiktokCaption] = useState("");
   const [tiktokVideoLink, setTiktokVideoLink] = useState("");
   const [selectedPreset, setSelectedPreset] = useState("Funny Panto");
@@ -306,13 +308,15 @@ export default function App() {
         id: Date.now(),
         name: contactName,
         phone: contactPhone,
-        email: contactEmail
+        email: contactEmail,
+        skill: contactSkill
       }
     ]);
 
     setContactName("");
     setContactPhone("");
     setContactEmail("");
+    setContactSkill("");
   };
 
   const addPromo = () => {
@@ -385,7 +389,7 @@ export default function App() {
             </button>
           </div>
 
-          <div className="flex gap-2 flex-wrap mt-5">
+          <div className="flex gap-2 overflow-x-auto whitespace-nowrap pb-2 mt-5">
             <button
               onClick={() => setView("feed")}
               className={`${button} px-5 ${view === "feed" ? gradients.pink : glass}`}
@@ -415,17 +419,17 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => setView("promo")}
-              className={`${button} px-5 ${view === "promo" ? gradients.pink : glass}`}
-            >
-              Promo
-            </button>
-
-            <button
               onClick={() => setView("contacts")}
               className={`${button} px-5 ${view === "contacts" ? gradients.cyan : glass}`}
             >
               Contacts
+            </button>
+
+            <button
+              onClick={() => setView("promo")}
+              className={`${button} px-5 ${view === "promo" ? gradients.pink : glass}`}
+            >
+              Promo
             </button>
 
             
@@ -487,11 +491,6 @@ export default function App() {
                       key={p}
                       onClick={() => {
                         setPlatform(p);
-                        if (p === "TikTok") {
-                          setView("tiktok-inline");
-                        } else {
-                          setView("feed");
-                        }
                       }}
                       className={`
                         ${button}
@@ -514,101 +513,108 @@ export default function App() {
                   ))}
 
                   {platform === "TikTok" && (
-                    <div className="col-span-3 mt-3 grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-                      <GlassCard className="xl:col-span-2 grid gap-4">
-                        <div>
-                          <h2 className="text-4xl font-black bg-gradient-to-r from-pink-300 via-fuchsia-300 to-orange-300 bg-clip-text text-transparent">
-                            TikTok Dashboard
-                          </h2>
+                    <details
+                      open
+                      className="col-span-3 mt-3 rounded-[1.8rem] border border-fuchsia-300/20 bg-fuchsia-500/10 overflow-hidden"
+                    >
+                      <summary className="cursor-pointer list-none px-5 py-4 text-fuchsia-100 font-bold uppercase tracking-[0.2em] border-b border-fuchsia-300/10">
+                        TikTok Tools
+                      </summary>
 
-                          <p className="text-white/50 mt-2">
-                            Build captions, hashtags and prep videos for posting.
-                          </p>
-                        </div>
+                      <div className="p-5 grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+                        <GlassCard className="xl:col-span-2 grid gap-4">
+                          <div>
+                            <h2 className="text-4xl font-black bg-gradient-to-r from-pink-300 via-fuchsia-300 to-orange-300 bg-clip-text text-transparent">
+                              TikTok Dashboard
+                            </h2>
 
-                        <textarea
-                          value={tiktokCaption}
-                          onChange={(e) => setTiktokCaption(e.target.value)}
-                          placeholder="Write TikTok caption..."
-                          className="min-h-[180px] rounded-3xl bg-black/30 border border-white/10 p-5"
-                        />
-
-                        <input
-                          value={tiktokVideoLink}
-                          onChange={(e) => setTiktokVideoLink(e.target.value)}
-                          placeholder="Icedrive video link"
-                          className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                        />
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {Object.keys(hashtagPresets).map((preset) => (
-                            <button
-                              key={preset}
-                              onClick={() => setSelectedPreset(preset)}
-                              className={`h-12 rounded-2xl border transition-all ${
-                                selectedPreset === preset
-                                  ? "border-fuchsia-300 bg-fuchsia-500/20 text-fuchsia-100"
-                                  : "border-white/10 bg-white/5"
-                              }`}
-                            >
-                              {preset}
-                            </button>
-                          ))}
-                        </div>
-
-                        <div className="rounded-[1.8rem] border border-fuchsia-300/20 bg-fuchsia-500/10 p-5">
-                          <div className="text-sm uppercase tracking-[0.2em] text-fuchsia-200/70 mb-3">
-                            Suggested Hashtags
+                            <p className="text-white/50 mt-2">
+                              Build captions, hashtags and prep videos for posting.
+                            </p>
                           </div>
 
-                          <div className="flex flex-wrap gap-2">
-                            {hashtagPresets[selectedPreset].map((tag) => (
-                              <div
-                                key={tag}
-                                className="px-3 py-2 rounded-2xl bg-black/30 border border-white/10 text-sm"
+                          <textarea
+                            value={tiktokCaption}
+                            onChange={(e) => setTiktokCaption(e.target.value)}
+                            placeholder="Write TikTok caption..."
+                            className="min-h-[180px] rounded-3xl bg-black/30 border border-white/10 p-5"
+                          />
+
+                          <input
+                            value={tiktokVideoLink}
+                            onChange={(e) => setTiktokVideoLink(e.target.value)}
+                            placeholder="Icedrive video link"
+                            className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                          />
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {Object.keys(hashtagPresets).map((preset) => (
+                              <button
+                                key={preset}
+                                onClick={() => setSelectedPreset(preset)}
+                                className={`h-12 rounded-2xl border transition-all ${
+                                  selectedPreset === preset
+                                    ? "border-fuchsia-300 bg-fuchsia-500/20 text-fuchsia-100"
+                                    : "border-white/10 bg-white/5"
+                                }`}
                               >
-                                {tag}
+                                {preset}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div className="rounded-[1.8rem] border border-fuchsia-300/20 bg-fuchsia-500/10 p-5">
+                            <div className="text-sm uppercase tracking-[0.2em] text-fuchsia-200/70 mb-3">
+                              Suggested Hashtags
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              {hashtagPresets[selectedPreset].map((tag) => (
+                                <div
+                                  key={tag}
+                                  className="px-3 py-2 rounded-2xl bg-black/30 border border-white/10 text-sm"
+                                >
+                                  {tag}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </GlassCard>
+
+                        <GlassCard className="aspect-auto md:aspect-square flex flex-col justify-between">
+                          <div>
+                            <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+                              Posting Checklist
+                            </h3>
+
+                            <p className="text-white/50 mt-2 text-sm">
+                              Prep everything before upload.
+                            </p>
+                          </div>
+
+                          <div className="grid gap-3 text-sm">
+                            {[
+                              "Vertical video",
+                              "Strong opening 3 seconds",
+                              "Caption added",
+                              "Hashtags selected",
+                              "Thumbnail checked",
+                              "Sound tested"
+                            ].map((item) => (
+                              <div
+                                key={item}
+                                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-3"
+                              >
+                                <div className="w-5 h-5 rounded-full border border-fuchsia-300/30 bg-fuchsia-500/20" />
+                                <div>{item}</div>
                               </div>
                             ))}
                           </div>
-                        </div>
-                      </GlassCard>
-
-                      <GlassCard className="aspect-square flex flex-col justify-between">
-                        <div>
-                          <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
-                            Posting Checklist
-                          </h3>
-
-                          <p className="text-white/50 mt-2 text-sm">
-                            Prep everything before upload.
-                          </p>
-                        </div>
-
-                        <div className="grid gap-3 text-sm">
-                          {[
-                            "Vertical video",
-                            "Strong opening 3 seconds",
-                            "Caption added",
-                            "Hashtags selected",
-                            "Thumbnail checked",
-                            "Sound tested"
-                          ].map((item) => (
-                            <div
-                              key={item}
-                              className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-3"
-                            >
-                              <div className="w-5 h-5 rounded-full border border-fuchsia-300/30 bg-fuchsia-500/20" />
-                              <div>{item}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </GlassCard>
-                    </div>
+                        </GlassCard>
+                      </div>
+                    </details>
                   )}
-                </div>
-
-                <button
+<button
                   onClick={addPost}
                   className={`${button} ${gradients.pink} text-white font-bold`}
                 >
@@ -688,9 +694,7 @@ export default function App() {
                 </h2>
 
                 <div className="text-cyan-200/60 text-sm uppercase tracking-[0.25em]">
-                  {today.toLocaleString("default", {
-                    month: "long"
-                  })}
+                  {today.toLocaleString("default", { month: "long" })}
                 </div>
               </div>
 
@@ -758,41 +762,89 @@ export default function App() {
 
         {view === "costumes" && (
           <div className="grid gap-5">
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-              <GlassCard className="aspect-square flex flex-col justify-between">
-                <div>
-                  <h2 className="text-3xl font-black bg-gradient-to-r from-orange-300 to-amber-300 bg-clip-text text-transparent">
-                    Costume List
-                  </h2>
+            <GlassCard>
+              <div className="flex flex-col md:flex-row gap-3">
+                <input
+                  value={newCostume}
+                  onChange={(e) => setNewCostume(e.target.value)}
+                  placeholder="Add costume item"
+                  className="flex-1 h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
 
-                  <p className="text-white/50 mt-2 text-sm">
-                    Track costumes, fittings and assignments.
-                  </p>
-                </div>
-
-                <div className="grid gap-3">
-                  <input
-                    value={newCostume}
-                    onChange={(e) => setNewCostume(e.target.value)}
-                    placeholder="Add costume item"
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                  />
-
-                  <button
-                    onClick={() => addSimpleItem(setCostumes, newCostume, setNewCostume)}
-                    className={`${button} ${gradients.orange} text-white font-bold`}
-                  >
-                    Add Costume
-                  </button>
-                </div>
-              </GlassCard>
-
-              {costumes.map((item) => (
-                <GlassCard
-                  key={item.id}
-                  className="aspect-square flex flex-col justify-between relative"
+                <button
+                  onClick={() => addSimpleItem(setCostumes, newCostume, setNewCostume)}
+                  className={`${button} px-6 ${gradients.orange} text-white font-bold whitespace-nowrap`}
                 >
-                  <div className="absolute top-4 right-4">
+                  Add Costume
+                </button>
+              </div>
+            </GlassCard>
+
+            <div className="grid gap-3">
+              {costumes.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl px-4 py-4 flex items-start justify-between gap-4"
+                >
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <button
+                      onClick={() => {
+                        setCostumes((prev) =>
+                          prev.map((costume) =>
+                            costume.id === item.id
+                              ? { ...costume, checked: !costume.checked }
+                              : costume
+                          )
+                        );
+                      }}
+                      className={`mt-1 w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
+                        item.checked
+                          ? "border-orange-300 bg-orange-500/20 text-orange-100"
+                          : "border-white/20 bg-black/20"
+                      }`}
+                    >
+                      {item.checked ? "✓" : ""}
+                    </button>
+
+                    <div className="grid gap-2 min-w-0 flex-1">
+                      {editingCostumeId === item.id ? (
+                        <>
+                          <input
+                            value={editingCostumeText}
+                            onChange={(e) => setEditingCostumeText(e.target.value)}
+                            className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                          />
+
+                          <button
+                            onClick={saveCostumeEdit}
+                            className={`${button} ${gradients.orange} text-white font-bold`}
+                          >
+                            Save
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div
+                            className={`text-lg font-bold ${
+                              item.checked
+                                ? "text-white/40 line-through"
+                                : "text-orange-100"
+                            }`}
+                          >
+                            {item.text}
+                          </div>
+
+                          {item.assignedTo && (
+                            <div className="inline-flex w-fit px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-xs uppercase tracking-[0.2em]">
+                              Assigned to: {item.assignedTo}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="relative flex-shrink-0">
                     <button
                       onClick={() =>
                         setOpenCostumeMenu(
@@ -829,36 +881,7 @@ export default function App() {
                       </div>
                     )}
                   </div>
-
-                  {editingCostumeId === item.id ? (
-                    <div className="grid gap-3 mt-12">
-                      <input
-                        value={editingCostumeText}
-                        onChange={(e) => setEditingCostumeText(e.target.value)}
-                        className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                      />
-
-                      <button
-                        onClick={saveCostumeEdit}
-                        className={`${button} ${gradients.orange} text-white font-bold`}
-                      >
-                        Save
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="text-2xl font-bold text-orange-100 mt-10 text-center">
-                        {item.text}
-                      </div>
-
-                      {item.assignedTo && (
-                        <div className="rounded-2xl border border-cyan-300/20 bg-cyan-500/10 p-3 text-center text-sm text-cyan-100">
-                          Assigned to: {item.assignedTo}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </GlassCard>
+                </div>
               ))}
             </div>
           </div>
@@ -866,47 +889,66 @@ export default function App() {
 
         {view === "props" && (
           <div className="grid gap-5">
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-              <GlassCard className="aspect-square flex flex-col justify-between">
-                <div>
-                  <h2 className="text-3xl font-black bg-gradient-to-r from-lime-300 to-emerald-300 bg-clip-text text-transparent">
-                    Prop List
-                  </h2>
+            <GlassCard>
+              <div className="flex flex-col md:flex-row gap-3">
+                <input
+                  value={newProp}
+                  onChange={(e) => setNewProp(e.target.value)}
+                  placeholder="Add prop item"
+                  className="flex-1 h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
 
-                  <p className="text-white/50 mt-2 text-sm">
-                    Track all stage props.
-                  </p>
-                </div>
-
-                <div className="grid gap-3">
-                  <input
-                    value={newProp}
-                    onChange={(e) => setNewProp(e.target.value)}
-                    placeholder="Add prop item"
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                  />
-
-                  <button
-                    onClick={() => addSimpleItem(setPropsList, newProp, setNewProp)}
-                    className={`${button} ${gradients.lime} text-white font-bold`}
-                  >
-                    Add Prop
-                  </button>
-                </div>
-              </GlassCard>
-
-              {propsList.map((item) => (
-                <GlassCard
-                  key={item.id}
-                  className="aspect-square flex flex-col justify-between relative"
+                <button
+                  onClick={() => addSimpleItem(setPropsList, newProp, setNewProp)}
+                  className={`${button} px-6 ${gradients.lime} text-white font-bold whitespace-nowrap`}
                 >
-                  <div className="absolute top-4 right-4">
+                  Add Prop
+                </button>
+              </div>
+            </GlassCard>
+
+            <div className="grid gap-3">
+              {propsList.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl px-4 py-4 flex items-start justify-between gap-4"
+                >
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
                     <button
-                      onClick={() =>
-                        setOpenPropMenu(
-                          openPropMenu === item.id ? null : item.id
-                        )
-                      }
+                      onClick={() => {
+                        setPropsList((prev) =>
+                          prev.map((prop) =>
+                            prop.id === item.id
+                              ? { ...prop, checked: !prop.checked }
+                              : prop
+                          )
+                        );
+                      }}
+                      className={`mt-1 w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
+                        item.checked
+                          ? "border-lime-300 bg-lime-500/20 text-lime-100"
+                          : "border-white/20 bg-black/20"
+                      }`}
+                    >
+                      {item.checked ? "✓" : ""}
+                    </button>
+
+                    <div className="grid gap-2 min-w-0 flex-1">
+                      <div className={`text-lg font-bold ${item.checked ? "text-white/40 line-through" : "text-lime-100"}`}>
+                        {item.text}
+                      </div>
+
+                      {item.assignedTo && (
+                        <div className="inline-flex w-fit px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-xs uppercase tracking-[0.2em]">
+                          Assigned to: {item.assignedTo}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="relative flex-shrink-0">
+                    <button
+                      onClick={() => setOpenPropMenu(openPropMenu === item.id ? null : item.id)}
                       className="w-10 h-10 rounded-2xl border border-white/10 bg-black/30 text-white/70"
                     >
                       ⋮
@@ -914,59 +956,19 @@ export default function App() {
 
                     {openPropMenu === item.id && (
                       <div className="absolute right-0 mt-2 w-40 rounded-2xl border border-white/10 bg-[#0f172a] shadow-[0_0_25px_rgba(0,0,0,0.35)] overflow-hidden z-20">
-                        <button
-                          onClick={() => assignProp(item.id)}
-                          className="w-full text-left px-4 py-3 hover:bg-white/5 text-cyan-100"
-                        >
+                        <button onClick={() => assignProp(item.id)} className="w-full text-left px-4 py-3 hover:bg-white/5 text-cyan-100">
                           Assign
                         </button>
-
-                        <button
-                          onClick={() => startPropEdit(item)}
-                          className="w-full text-left px-4 py-3 hover:bg-white/5 text-fuchsia-100"
-                        >
+                        <button onClick={() => startPropEdit(item)} className="w-full text-left px-4 py-3 hover:bg-white/5 text-fuchsia-100">
                           Edit
                         </button>
-
-                        <button
-                          onClick={() => deleteProp(item.id)}
-                          className="w-full text-left px-4 py-3 hover:bg-red-500/10 text-red-200"
-                        >
+                        <button onClick={() => deleteProp(item.id)} className="w-full text-left px-4 py-3 hover:bg-red-500/10 text-red-200">
                           Delete
                         </button>
                       </div>
                     )}
                   </div>
-
-                  {editingPropId === item.id ? (
-                    <div className="grid gap-3 mt-12">
-                      <input
-                        value={editingPropText}
-                        onChange={(e) => setEditingPropText(e.target.value)}
-                        className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                      />
-
-                      <button
-                        onClick={savePropEdit}
-                        className={`${button} ${gradients.lime} text-white font-bold`}
-                      >
-                        Save
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="text-2xl font-bold text-lime-100 mt-10 text-center">
-                        {item.text}
-                      </div>
-
-                      {item.assignedTo && (
-                        <div className="rounded-2xl border border-cyan-300/20 bg-cyan-500/10 p-3 text-center text-sm text-cyan-100">
-                          Assigned to: {item.assignedTo}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </GlassCard>
+                </div>
               ))}
             </div>
           </div>
@@ -974,57 +976,58 @@ export default function App() {
 
         {view === "promo" && (
           <div className="grid gap-5">
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-              <GlassCard className="aspect-square flex flex-col justify-between">
-                <div>
-                  <h2 className="text-3xl font-black bg-gradient-to-r from-fuchsia-300 to-pink-300 bg-clip-text text-transparent">
-                    Promo Materials
-                  </h2>
+            <GlassCard>
+              <div className="flex flex-col md:flex-row gap-3">
+                <input
+                  value={promoTitle}
+                  onChange={(e) => setPromoTitle(e.target.value)}
+                  placeholder="Promo title"
+                  className="flex-1 h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
 
-                  <p className="text-white/50 mt-2 text-sm">
-                    Posters, graphics and downloadable assets.
-                  </p>
-                </div>
+                <input
+                  value={promoLink}
+                  onChange={(e) => setPromoLink(e.target.value)}
+                  placeholder="Image or Icedrive link"
+                  className="flex-1 h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
 
-                <div className="grid gap-3">
-                  <input
-                    value={promoTitle}
-                    onChange={(e) => setPromoTitle(e.target.value)}
-                    placeholder="Promo title"
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                  />
+                <button
+                  onClick={addPromo}
+                  className={`${button} px-6 ${gradients.pink} text-white font-bold whitespace-nowrap`}
+                >
+                  Add Promo
+                </button>
+              </div>
+            </GlassCard>
 
-                  <input
-                    value={promoLink}
-                    onChange={(e) => setPromoLink(e.target.value)}
-                    placeholder="Image or Icedrive link"
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                  />
-
-                  <button
-                    onClick={addPromo}
-                    className={`${button} ${gradients.pink} text-white font-bold`}
-                  >
-                    Add Promo
-                  </button>
-                </div>
-              </GlassCard>
-
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {promoItems.map((item) => (
                 <GlassCard
                   key={item.id}
-                  className="aspect-square overflow-hidden p-0"
+                  className="overflow-hidden p-0"
                 >
-                  <img
-                    src={item.link}
-                    alt={item.title}
-                    className="w-full h-[70%] object-cover"
-                  />
+                  <div className="aspect-video bg-black/30 overflow-hidden">
+                    <img
+                      src={item.link}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
 
-                  <div className="p-4">
-                    <div className="text-xl font-bold truncate">
+                  <div className="p-5 grid gap-4">
+                    <div className="text-xl font-bold text-fuchsia-100 truncate">
                       {item.title}
                     </div>
+
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-11 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 flex items-center justify-center font-bold"
+                    >
+                      Open Promo
+                    </a>
                   </div>
                 </GlassCard>
               ))}
@@ -1034,85 +1037,79 @@ export default function App() {
 
         {view === "contacts" && (
           <div className="grid gap-5">
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-              <GlassCard className="aspect-square flex flex-col justify-between">
-                <div>
-                  <h2 className="text-3xl font-black bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
-                    Contacts
-                  </h2>
-
-                  <p className="text-white/50 mt-2 text-sm">
-                    Cast, crew and production contacts.
-                  </p>
-                </div>
-
-                <div className="grid gap-3">
-                  <input
-                    value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
-                    placeholder="Name"
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                  />
-
-                  <input
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    placeholder="Phone"
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                  />
-
-                  <input
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="Email"
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                  />
-
-                  <button
-                    onClick={addContact}
-                    className={`${button} ${gradients.cyan} text-white font-bold`}
-                  >
-                    Add Contact
-                  </button>
-                </div>
-              </GlassCard>
-
-              {contacts.map((contact) => (
-                <GlassCard
-                  key={contact.id}
-                  className="aspect-square flex flex-col justify-center"
+            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
+              {[
+                "All",
+                "Actor",
+                "Director",
+                "Costumes",
+                "Props",
+                "Stage Manager",
+                "Marketing"
+              ].map((skill) => (
+                <button
+                  key={skill}
+                  onClick={() => setSelectedSkill(skill)}
+                  className={`h-11 px-4 rounded-2xl border transition-all whitespace-nowrap ${
+                    selectedSkill === skill
+                      ? "border-cyan-300 text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.45)] bg-cyan-500/10"
+                      : "border-white/10 bg-white/5 text-white/70"
+                  }`}
                 >
-                  <div className="text-2xl font-black text-cyan-100">
-                    {contact.name}
-                  </div>
-
-                  <div className="mt-4 grid gap-2 text-sm">
-                    <div className="text-white/70">
-                      {contact.phone}
-                    </div>
-
-                    <a
-                      href={`mailto:${contact.email}`}
-                      className="text-cyan-300 break-all underline underline-offset-4 hover:text-cyan-200 transition-all"
-                    >
-                      {contact.email}
-                    </a>
-
-                    <a
-                      href={`mailto:${contact.email}`}
-                      className="mt-3 inline-flex items-center justify-center h-11 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-100 font-bold"
-                    >
-                      Email Contact
-                    </a>
-                  </div>
-                </GlassCard>
+                  {skill}
+                </button>
               ))}
             </div>
-          </div>
-        )}
 
-        
-      </div>
-    </div>
-  );
-}
+            <GlassCard>
+              <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-3">
+                <input
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                  placeholder="Name"
+                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
+
+                <input
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="Phone"
+                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
+
+                <input
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="Email"
+                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
+
+                <input
+                  value={contactSkill}
+                  onChange={(e) => setContactSkill(e.target.value)}
+                  placeholder="Skill"
+                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                />
+
+                <button
+                  onClick={addContact}
+                  className={`${button} ${gradients.cyan} text-white font-bold`}
+                >
+                  Add Contact
+                </button>
+              </div>
+            </GlassCard>
+
+            <div className="grid gap-3">
+              {contacts
+                .filter((contact) =>
+                  selectedSkill === "All"
+                    ? true
+                    : contact.skill === selectedSkill
+                )
+                .map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                  >
+             
