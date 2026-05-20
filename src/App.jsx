@@ -361,7 +361,7 @@ export default function App() {
           >
             Continue with Google
           </button>
-        
+        </GlassCard>
       </div>
     );
   }
@@ -610,7 +610,7 @@ export default function App() {
                               </div>
                             ))}
                           </div>
-                                               </GlassCard>
+                                              </GlassCard>
                       </div>
                     </details>
                   )}
