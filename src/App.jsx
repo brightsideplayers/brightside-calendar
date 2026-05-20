@@ -393,28 +393,7 @@ ${tags}`);
             </button>
           </div>
 
-          {item.fileLink && (
-                    <div className="mt-4 rounded-3xl overflow-hidden border border-white/10 bg-black/30">
-                      {isImageLink(item.fileLink) && (
-                        <img
-                          src={item.fileLink}
-                          alt="Media"
-                          className="w-full max-h-[420px] object-cover"
-                          onClick={() => openFile(item.fileLink)}
-                        />
-                      )}
-
-                      {isVideoLink(item.fileLink) && (
-                        <video
-                          src={item.fileLink}
-                          controls
-                          className="w-full max-h-[420px] object-cover"
-                        />
-                      )}
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-2 mt-4">
+          <div className="grid grid-cols-2 gap-2 mt-4">
             <button
               style={{ fontSize: isMobile ? "1.25rem" : "1rem" }}
               className={`h-14 rounded-2xl font-semibold transition-all ${
