@@ -612,8 +612,10 @@ export default function App() {
                           </div>
                                               </GlassCard>
                       </div>
-                    </details>
+                                       </details>
                   )}
+
+                </div>
 
                   <button
                   onClick={addPost}
