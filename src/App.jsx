@@ -83,6 +83,36 @@ export default function App() {
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [tiktokCaption, setTiktokCaption] = useState("");
+  const [tiktokVideoLink, setTiktokVideoLink] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState("Funny Panto");
+
+  const hashtagPresets = {
+    "Funny Panto": [
+      "#Pantomime",
+      "#TheatreTok",
+      "#ComedyTheatre",
+      "#OhYesItIs"
+    ],
+    "Milton Theatre": [
+      "#MiltonON",
+      "#MiltonOntario",
+      "#CommunityTheatre",
+      "#OntarioTheatre"
+    ],
+    "Backstage Chaos": [
+      "#Backstage",
+      "#StageLife",
+      "#CastLife",
+      "#TechWeek"
+    ],
+    Nostalgic: [
+      "#Throwback",
+      "#TheatreMemories",
+      "#PastShows",
+      "#PantoMagic"
+    ]
+  };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
@@ -304,6 +334,13 @@ export default function App() {
             >
               Contacts
             </button>
+
+            <button
+              onClick={() => setView("tiktok")}
+              className={`${button} px-5 ${view === "tiktok" ? gradients.orange : glass}`}
+            >
+              TikTok
+            </button>
           </div>
         </GlassCard>
 
@@ -337,7 +374,21 @@ export default function App() {
                     <button
                       key={p}
                       onClick={() => setPlatform(p)}
-                      className={`${button} ${platform === p ? gradients.orange : glass}`}
+                      className={`
+                        ${button}
+                        border
+                        font-bold
+                        transition-all
+                        ${
+                          platform === p
+                            ? p === "Instagram"
+                              ? "border-fuchsia-300 text-fuchsia-100 shadow-[0_0_20px_rgba(217,70,239,0.55)] bg-fuchsia-500/10"
+                              : p === "Facebook"
+                              ? "border-cyan-300 text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.55)] bg-cyan-500/10"
+                              : "border-orange-300 text-orange-100 shadow-[0_0_20px_rgba(251,146,60,0.55)] bg-orange-500/10"
+                            : "border-white/10 bg-white/5 text-white/70"
+                        }
+                      `}
                     >
                       {p}
                     </button>
@@ -405,13 +456,77 @@ export default function App() {
 
         {view === "calendar" && (
           <GlassCard>
-            <div className="text-4xl font-bold mb-5">Content Calendar</div>
-            <div className="grid grid-cols-7 gap-3">
-              {weekDays.map((day) => (
-                <div key={day} className="text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50">
-                  {day}
+            <div className="grid gap-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+                  Content Calendar
+                </h2>
+
+                <div className="text-cyan-200/60 text-sm uppercase tracking-[0.25em]">
+                  {today.toLocaleString("default", {
+                    month: "long"
+                  })}
                 </div>
-              ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-3">
+                {weekDays.map((day) => (
+                  <div
+                    key={day}
+                    className="text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50 py-2"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-3">
+                {calendarDays.map((day, i) => {
+                  const matchingPosts = items.filter((item) => {
+                    if (!item.date || !day) return false;
+
+                    const itemDate = new Date(item.date);
+
+                    return (
+                      itemDate.getDate() === day &&
+                      itemDate.getMonth() === currentMonth &&
+                      itemDate.getFullYear() === currentYear
+                    );
+                  });
+
+                  return (
+                    <div
+                      key={i}
+                      className={`min-h-[140px] rounded-[1.8rem] border p-3 transition-all ${
+                        day === today.getDate()
+                          ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
+                          : "border-white/10 bg-white/5"
+                      }`}
+                    >
+                      <div className="text-sm font-bold text-cyan-100 mb-3">
+                        {day || ""}
+                      </div>
+
+                      <div className="grid gap-2">
+                        {matchingPosts.map((post) => (
+                          <div
+                            key={post.id}
+                            className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs"
+                          >
+                            <div className="font-bold text-cyan-100 truncate">
+                              {post.platform}
+                            </div>
+
+                            <div className="text-white/70 truncate">
+                              {post.caption?.slice(0, 18)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </GlassCard>
         )}
@@ -447,119 +562,281 @@ export default function App() {
         )}
 
         {view === "props" && (
-          <GlassCard>
-            <div className="grid gap-4">
-              <h2 className="text-4xl font-bold">Prop List</h2>
-              <div className="flex gap-2">
-                <input
-                  value={newProp}
-                  onChange={(e) => setNewProp(e.target.value)}
-                  placeholder="Add prop item"
-                  className="flex-1 h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-                <button
-                  onClick={() => addSimpleItem(setPropsList, newProp, setNewProp)}
-                  className={`${button} px-5 ${gradients.lime}`}
-                >
-                  Add
-                </button>
-              </div>
+          <div className="grid gap-5">
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <GlassCard className="aspect-square flex flex-col justify-between">
+                <div>
+                  <h2 className="text-3xl font-black bg-gradient-to-r from-lime-300 to-emerald-300 bg-clip-text text-transparent">
+                    Prop List
+                  </h2>
 
-              <div className="grid gap-3">
-                {propsList.map((item) => (
-                  <div key={item.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-white/50 mt-2 text-sm">
+                    Track all stage props.
+                  </p>
+                </div>
+
+                <div className="grid gap-3">
+                  <input
+                    value={newProp}
+                    onChange={(e) => setNewProp(e.target.value)}
+                    placeholder="Add prop item"
+                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                  />
+
+                  <button
+                    onClick={() => addSimpleItem(setPropsList, newProp, setNewProp)}
+                    className={`${button} ${gradients.lime} text-white font-bold`}
+                  >
+                    Add Prop
+                  </button>
+                </div>
+              </GlassCard>
+
+              {propsList.map((item) => (
+                <GlassCard
+                  key={item.id}
+                  className="aspect-square flex items-center justify-center text-center"
+                >
+                  <div className="text-2xl font-bold text-lime-100">
                     {item.text}
                   </div>
-                ))}
-              </div>
+                </GlassCard>
+              ))}
             </div>
-          </GlassCard>
+          </div>
         )}
 
         {view === "promo" && (
-          <GlassCard>
-            <div className="grid gap-4">
-              <h2 className="text-4xl font-bold">Promo Materials</h2>
+          <div className="grid gap-5">
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <GlassCard className="aspect-square flex flex-col justify-between">
+                <div>
+                  <h2 className="text-3xl font-black bg-gradient-to-r from-fuchsia-300 to-pink-300 bg-clip-text text-transparent">
+                    Promo Materials
+                  </h2>
 
-              <input
-                value={promoTitle}
-                onChange={(e) => setPromoTitle(e.target.value)}
-                placeholder="Promo title"
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-              />
+                  <p className="text-white/50 mt-2 text-sm">
+                    Posters, graphics and downloadable assets.
+                  </p>
+                </div>
 
-              <input
-                value={promoLink}
-                onChange={(e) => setPromoLink(e.target.value)}
-                placeholder="Image or Icedrive link"
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-              />
+                <div className="grid gap-3">
+                  <input
+                    value={promoTitle}
+                    onChange={(e) => setPromoTitle(e.target.value)}
+                    placeholder="Promo title"
+                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                  />
 
-              <button
-                onClick={addPromo}
-                className={`${button} ${gradients.pink} text-white font-bold`}
-              >
-                Add Promo Material
-              </button>
+                  <input
+                    value={promoLink}
+                    onChange={(e) => setPromoLink(e.target.value)}
+                    placeholder="Image or Icedrive link"
+                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                  />
 
-              <div className="grid md:grid-cols-2 gap-4">
-                {promoItems.map((item) => (
-                  <div key={item.id} className="rounded-3xl border border-white/10 bg-white/5 overflow-hidden">
-                    <img src={item.link} alt={item.title} className="w-full h-48 object-cover" />
-                    <div className="p-4">
-                      <h3 className="text-xl font-bold">{item.title}</h3>
+                  <button
+                    onClick={addPromo}
+                    className={`${button} ${gradients.pink} text-white font-bold`}
+                  >
+                    Add Promo
+                  </button>
+                </div>
+              </GlassCard>
+
+              {promoItems.map((item) => (
+                <GlassCard
+                  key={item.id}
+                  className="aspect-square overflow-hidden p-0"
+                >
+                  <img
+                    src={item.link}
+                    alt={item.title}
+                    className="w-full h-[70%] object-cover"
+                  />
+
+                  <div className="p-4">
+                    <div className="text-xl font-bold truncate">
+                      {item.title}
                     </div>
                   </div>
-                ))}
-              </div>
+                </GlassCard>
+              ))}
             </div>
-          </GlassCard>
+          </div>
         )}
 
         {view === "contacts" && (
-          <GlassCard>
-            <div className="grid gap-4">
-              <h2 className="text-4xl font-bold">Contacts</h2>
+          <div className="grid gap-5">
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <GlassCard className="aspect-square flex flex-col justify-between">
+                <div>
+                  <h2 className="text-3xl font-black bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+                    Contacts
+                  </h2>
 
-              <input
-                value={contactName}
-                onChange={(e) => setContactName(e.target.value)}
-                placeholder="Name"
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                  <p className="text-white/50 mt-2 text-sm">
+                    Cast, crew and production contacts.
+                  </p>
+                </div>
+
+                <div className="grid gap-3">
+                  <input
+                    value={contactName}
+                    onChange={(e) => setContactName(e.target.value)}
+                    placeholder="Name"
+                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                  />
+
+                  <input
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    placeholder="Phone"
+                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                  />
+
+                  <input
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="Email"
+                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                  />
+
+                  <button
+                    onClick={addContact}
+                    className={`${button} ${gradients.cyan} text-white font-bold`}
+                  >
+                    Add Contact
+                  </button>
+                </div>
+              </GlassCard>
+
+              {contacts.map((contact) => (
+                <GlassCard
+                  key={contact.id}
+                  className="aspect-square flex flex-col justify-center"
+                >
+                  <div className="text-2xl font-black text-cyan-100">
+                    {contact.name}
+                  </div>
+
+                  <div className="mt-4 grid gap-2 text-sm">
+                    <div className="text-white/70">
+                      {contact.phone}
+                    </div>
+
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className="text-cyan-300 break-all underline underline-offset-4 hover:text-cyan-200 transition-all"
+                    >
+                      {contact.email}
+                    </a>
+
+                    <a
+                      href={`mailto:${contact.email}`}
+                      className="mt-3 inline-flex items-center justify-center h-11 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-100 font-bold"
+                    >
+                      Email Contact
+                    </a>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {view === "tiktok" && (
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <GlassCard className="xl:col-span-2 grid gap-4">
+              <div>
+                <h2 className="text-4xl font-black bg-gradient-to-r from-pink-300 via-fuchsia-300 to-orange-300 bg-clip-text text-transparent">
+                  TikTok Dashboard
+                </h2>
+
+                <p className="text-white/50 mt-2">
+                  Build captions, hashtags and prep videos for posting.
+                </p>
+              </div>
+
+              <textarea
+                value={tiktokCaption}
+                onChange={(e) => setTiktokCaption(e.target.value)}
+                placeholder="Write TikTok caption..."
+                className="min-h-[180px] rounded-3xl bg-black/30 border border-white/10 p-5"
               />
 
               <input
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
-                placeholder="Phone"
+                value={tiktokVideoLink}
+                onChange={(e) => setTiktokVideoLink(e.target.value)}
+                placeholder="Icedrive video link"
                 className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
               />
 
-              <input
-                value={contactEmail}
-                onChange={(e) => setContactEmail(e.target.value)}
-                placeholder="Email"
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-              />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Object.keys(hashtagPresets).map((preset) => (
+                  <button
+                    key={preset}
+                    onClick={() => setSelectedPreset(preset)}
+                    className={`h-12 rounded-2xl border transition-all ${
+                      selectedPreset === preset
+                        ? "border-fuchsia-300 bg-fuchsia-500/20 text-fuchsia-100"
+                        : "border-white/10 bg-white/5"
+                    }`}
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
 
-              <button
-                onClick={addContact}
-                className={`${button} ${gradients.cyan} text-white font-bold`}
-              >
-                Add Contact
-              </button>
+              <div className="rounded-[1.8rem] border border-fuchsia-300/20 bg-fuchsia-500/10 p-5">
+                <div className="text-sm uppercase tracking-[0.2em] text-fuchsia-200/70 mb-3">
+                  Suggested Hashtags
+                </div>
 
-              <div className="grid gap-3">
-                {contacts.map((contact) => (
-                  <div key={contact.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                    <div className="text-xl font-bold">{contact.name}</div>
-                    <div className="text-white/70 text-sm mt-2">{contact.phone}</div>
-                    <div className="text-cyan-300 text-sm">{contact.email}</div>
+                <div className="flex flex-wrap gap-2">
+                  {hashtagPresets[selectedPreset].map((tag) => (
+                    <div
+                      key={tag}
+                      className="px-3 py-2 rounded-2xl bg-black/30 border border-white/10 text-sm"
+                    >
+                      {tag}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="aspect-square flex flex-col justify-between">
+              <div>
+                <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+                  Posting Checklist
+                </h3>
+
+                <p className="text-white/50 mt-2 text-sm">
+                  Prep everything before upload.
+                </p>
+              </div>
+
+              <div className="grid gap-3 text-sm">
+                {[
+                  "Vertical video",
+                  "Strong opening 3 seconds",
+                  "Caption added",
+                  "Hashtags selected",
+                  "Thumbnail checked",
+                  "Sound tested"
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-3"
+                  >
+                    <div className="w-5 h-5 rounded-full border border-fuchsia-300/30 bg-fuchsia-500/20" />
+                    <div>{item}</div>
                   </div>
                 ))}
               </div>
-            </div>
-          </GlassCard>
+            </GlassCard>
+          </div>
         )}
       </div>
     </div>
