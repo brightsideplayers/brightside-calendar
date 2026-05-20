@@ -1034,82 +1034,131 @@ export default function App() {
             </div>
           </div>
         )}
+{view === "contacts" && (
+  <div className="grid gap-5">
+    <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
+      {[
+        "All",
+        "Actor",
+        "Director",
+        "Costumes",
+        "Props",
+        "Stage Manager",
+        "Marketing"
+      ].map((skill) => (
+        <button
+          key={skill}
+          onClick={() => setSelectedSkill(skill)}
+          className={`h-11 px-4 rounded-2xl border transition-all whitespace-nowrap ${
+            selectedSkill === skill
+              ? "border-cyan-300 text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.45)] bg-cyan-500/10"
+              : "border-white/10 bg-white/5 text-white/70"
+          }`}
+        >
+          {skill}
+        </button>
+      ))}
+    </div>
 
-        {view === "contacts" && (
-          <div className="grid gap-5">
-            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
-              {[
-                "All",
-                "Actor",
-                "Director",
-                "Costumes",
-                "Props",
-                "Stage Manager",
-                "Marketing"
-              ].map((skill) => (
-                <button
-                  key={skill}
-                  onClick={() => setSelectedSkill(skill)}
-                  className={`h-11 px-4 rounded-2xl border transition-all whitespace-nowrap ${
-                    selectedSkill === skill
-                      ? "border-cyan-300 text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.45)] bg-cyan-500/10"
-                      : "border-white/10 bg-white/5 text-white/70"
-                  }`}
-                >
-                  {skill}
-                </button>
-              ))}
+    <GlassCard>
+      <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-3">
+        <input
+          value={contactName}
+          onChange={(e) => setContactName(e.target.value)}
+          placeholder="Name"
+          className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+        />
+
+        <input
+          value={contactPhone}
+          onChange={(e) => setContactPhone(e.target.value)}
+          placeholder="Phone"
+          className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+        />
+
+        <input
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
+          placeholder="Email"
+          className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+        />
+
+        <input
+          value={contactSkill}
+          onChange={(e) => setContactSkill(e.target.value)}
+          placeholder="Skill"
+          className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+        />
+
+        <button
+          onClick={addContact}
+          className={`${button} ${gradients.cyan} text-white font-bold`}
+        >
+          Add Contact
+        </button>
+      </div>
+    </GlassCard>
+
+    <div className="grid gap-3">
+      {contacts
+        .filter((contact) =>
+          selectedSkill === "All"
+            ? true
+            : contact.skill === selectedSkill
+        )
+        .map((contact) => (
+          <div
+            key={contact.id}
+            className="rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
+            <div className="grid gap-2 min-w-0">
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="text-xl font-black text-cyan-100 truncate">
+                  {contact.name}
+                </div>
+
+                {contact.skill && (
+                  <div className="px-3 py-1 rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-xs uppercase tracking-[0.2em]">
+                    {contact.skill}
+                  </div>
+                )}
+              </div>
+
+              <div className="text-white/70 text-sm">
+                {contact.phone}
+              </div>
+
+              <a
+                href={`mailto:${contact.email}`}
+                className="text-cyan-300 text-sm underline underline-offset-4 break-all"
+              >
+                {contact.email}
+              </a>
             </div>
 
-            <GlassCard>
-              <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-3">
-                <input
-                  value={contactName}
-                  onChange={(e) => setContactName(e.target.value)}
-                  placeholder="Name"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
+            <div className="flex gap-2 md:flex-shrink-0">
+              <a
+                href={`tel:${contact.phone}`}
+                className="h-11 px-4 rounded-2xl border border-lime-300/20 bg-lime-500/10 text-lime-100 flex items-center justify-center font-bold"
+              >
+                Call
+              </a>
 
-                <input
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="Phone"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
+              <a
+                href={`mailto:${contact.email}`}
+                className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-100 flex items-center justify-center font-bold"
+              >
+                ✉ Email
+              </a>
+            </div>
+          </div>
+        ))}
+    </div>
+  </div>
+)}
 
-                <input
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="Email"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <input
-                  value={contactSkill}
-                  onChange={(e) => setContactSkill(e.target.value)}
-                  placeholder="Skill"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <button
-                  onClick={addContact}
-                  className={`${button} ${gradients.cyan} text-white font-bold`}
-                >
-                  Add Contact
-                </button>
-              </div>
-            </GlassCard>
-
-            <div className="grid gap-3">
-              {contacts
-                .filter((contact) =>
-                  selectedSkill === "All"
-                    ? true
-                    : contact.skill === selectedSkill
-                )
-                .map((contact) => (
-                  <div
-                    key={contact.id}
-                    className="rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-                  >
-             
+      </div>
+    </div>
+  );
+}
+        
