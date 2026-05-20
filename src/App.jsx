@@ -361,7 +361,7 @@ export default function App() {
           >
             Continue with Google
           </button>
-        </GlassCard>
+        
       </div>
     );
   }
@@ -610,11 +610,12 @@ export default function App() {
                               </div>
                             ))}
                           </div>
-                        </GlassCard>
+                                               </GlassCard>
                       </div>
                     </details>
                   )}
-<button
+
+                  <button
                   onClick={addPost}
                   className={`${button} ${gradients.pink} text-white font-bold`}
                 >
