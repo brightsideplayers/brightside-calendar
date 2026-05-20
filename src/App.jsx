@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import {
   GoogleAuthProvider,
   getAuth,
-  signInWithRedirect,
+  signInWithPopup,
   onAuthStateChanged,
   signOut
 } from "firebase/auth";
@@ -185,7 +185,8 @@ const designMode = false;
 
   const login = async () => {
     try {
-      await signInWithRedirect(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
     } catch (err) {
       setAuthError(err.message);
     }
