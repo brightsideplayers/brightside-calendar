@@ -37,7 +37,7 @@ export default function FeedView({
                     <img
                       src={item.imageUrl}
                       alt=""
-                      className="w-full h-[260px] object-cover"
+                      className="w-full aspect-square object-cover"
                     />
                   )}
 
