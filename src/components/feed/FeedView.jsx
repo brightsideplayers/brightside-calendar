@@ -81,7 +81,9 @@ export default function FeedView({
                       </div>
 
                       <div className="text-xs text-cyan-100/50">
-                        {new Date(item.date).toLocaleDateString()}
+                        {new Date(
+                           item.scheduledFor
+                               ).toLocaleString()}
                       </div>
                     </div>
 
