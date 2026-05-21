@@ -17,15 +17,29 @@ export default function QuickAddModal({
   useState("12:00");
   const handleSave = async () => {
     if (!caption.trim()) return;
+const [hours, minutes] =
+  scheduledTime.split(":");
 
-    await addDoc(collection(db, "posts"), {
-      caption,
-      platform,
-      imageUrl,
-      date: quickAddDate.toISOString(),
-      status: "Scheduled",
-      createdAt: Date.now()
-    });
+const scheduledDate = new Date(
+  quickAddDate
+);
+
+scheduledDate.setHours(hours);
+scheduledDate.setMinutes(minutes);
+
+await addDoc(collection(db, "posts"), {
+  caption,
+  platform,
+  imageUrl,
+
+  scheduledFor:
+    scheduledDate.toISOString(),
+
+  status: "scheduled",
+
+  createdAt: Date.now()
+});
+    
 
     setCaption("");
 
