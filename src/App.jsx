@@ -13,7 +13,11 @@ export default function App() {
 
   const views = {
     feed: <FeedView />,
-    calendar: <CalendarView />,
+    calendar: <CalendarView
+  items={items}
+  setItems={setItems}
+  openCalendarQuickAdd={openCalendarQuickAdd}
+/>
     contacts: <ContactsView />,
     costumes: <CostumesView />,
     props: <PropsView />,
