@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+
 import GlassCard from "../layout/GlassCard";
 
 export default function QuickAddModal({
   quickAddDate,
-  setQuickAddDate,
-  setItems
+  setQuickAddDate
 }) {
   const [caption, setCaption] = useState("");
 
@@ -12,25 +14,17 @@ export default function QuickAddModal({
 
   const [platform, setPlatform] = useState("Instagram");
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!caption.trim()) return;
 
-    setItems((prev) => [
-      ...prev,
-      {
-        id: String(Date.now()),
-
-        caption,
-
-        platform,
-
-        imageUrl,
-
-        date: quickAddDate.toISOString(),
-
-        status: "Scheduled"
-      }
-    ]);
+    await addDoc(collection(db, "posts"), {
+      caption,
+      platform,
+      imageUrl,
+      date: quickAddDate.toISOString(),
+      status: "Scheduled",
+      createdAt: Date.now()
+    });
 
     setCaption("");
 
@@ -81,7 +75,7 @@ export default function QuickAddModal({
           <input
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="Paste IMGUR image link..."
+            placeholder="Paste IMGUR direct image link..."
             className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
           />
 
