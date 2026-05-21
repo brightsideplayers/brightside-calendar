@@ -27,7 +27,37 @@ const snapshot =
         post.scheduledFor
       ) <= now
   );
+for (const post of posts) {
+  const createMediaRes =
+    await fetch(
+      `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media`,
+      {
+        method: "POST",
 
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          image_url:
+            post.imageUrl,
+
+          caption:
+            post.caption,
+
+          access_token:
+            process.env
+              .INSTAGRAM_ACCESS_TOKEN
+        })
+      }
+    );
+
+  const mediaData =
+    await createMediaRes.json();
+
+  console.log(mediaData);
+}
   console.log(posts);
 
   return res.status(200).json({
