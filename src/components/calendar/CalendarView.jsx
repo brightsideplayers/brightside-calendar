@@ -1,3 +1,5 @@
+import { doc, deleteDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import { useState } from "react";
 import GlassCard from "../layout/GlassCard";
 
@@ -170,13 +172,11 @@ export default function CalendarView({
                         className="group relative rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs cursor-move overflow-hidden transition-all hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
                       >
                         <button
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
 
-                            setItems((prev) =>
-                              prev.filter(
-                                (p) => p.id !== post.id
-                              )
+                            await deleteDoc(
+                              doc(db, "posts", post.id)
                             );
                           }}
                           className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
