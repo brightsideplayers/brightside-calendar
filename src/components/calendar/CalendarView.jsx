@@ -3,21 +3,25 @@ import {
   deleteDoc,
   updateDoc
 } from "firebase/firestore";
+
 import { db } from "../../firebase";
 import { useState } from "react";
 import GlassCard from "../layout/GlassCard";
 
 export default function CalendarView({
   items,
-  setItems,
   openCalendarQuickAdd
 }) {
-  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [calendarDate, setCalendarDate] =
+    useState(new Date());
 
   const today = new Date();
 
-  const currentMonth = calendarDate.getMonth();
-  const currentYear = calendarDate.getFullYear();
+  const currentMonth =
+    calendarDate.getMonth();
+
+  const currentYear =
+    calendarDate.getFullYear();
 
   const firstDay = new Date(
     currentYear,
@@ -33,6 +37,7 @@ export default function CalendarView({
 
   const calendarDays = [
     ...Array(firstDay).fill(null),
+
     ...Array.from(
       { length: daysInMonth },
       (_, i) => i + 1
@@ -43,29 +48,17 @@ export default function CalendarView({
     setCalendarDate((prev) => {
       const next = new Date(prev);
 
-      next.setMonth(prev.getMonth() + direction);
+      next.setMonth(
+        prev.getMonth() + direction
+      );
 
       return next;
     });
   };
 
   const handleDrop = async (e, day) => {
-  const id = e.dataTransfer.getData("eventId");
-
-  const droppedDate = new Date(
-    currentYear,
-    currentMonth,
-    day
-  );
-
-  await updateDoc(
-    doc(db, "posts", id),
-    {
-      date: droppedDate.toISOString()
-    }
-  );
-};
-    const id = e.dataTransfer.getData("eventId");
+    const id =
+      e.dataTransfer.getData("eventId");
 
     const droppedDate = new Date(
       currentYear,
@@ -73,15 +66,11 @@ export default function CalendarView({
       day
     );
 
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              date: droppedDate.toISOString()
-            }
-          : item
-      )
+    await updateDoc(
+      doc(db, "posts", id),
+      {
+        date: droppedDate.toISOString()
+      }
     );
   };
 
@@ -95,21 +84,28 @@ export default function CalendarView({
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => changeMonth(-1)}
+              onClick={() =>
+                changeMonth(-1)
+              }
               className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
             >
               ←
             </button>
 
             <div className="text-cyan-100 font-bold">
-              {calendarDate.toLocaleString("default", {
-                month: "long",
-                year: "numeric"
-              })}
+              {calendarDate.toLocaleString(
+                "default",
+                {
+                  month: "long",
+                  year: "numeric"
+                }
+              )}
             </div>
 
             <button
-              onClick={() => changeMonth(1)}
+              onClick={() =>
+                changeMonth(1)
+              }
               className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
             >
               →
@@ -133,27 +129,43 @@ export default function CalendarView({
 
         <div className="grid grid-cols-7 gap-3">
           {calendarDays.map((day, i) => {
-            const matchingPosts = items.filter((item) => {
-              if (!item.date || !day) return false;
+            const matchingPosts =
+              items.filter((item) => {
+                if (
+                  !item.date ||
+                  !day
+                )
+                  return false;
 
-              const itemDate = new Date(item.date);
+                const itemDate =
+                  new Date(item.date);
 
-              return (
-                itemDate.getDate() === day &&
-                itemDate.getMonth() === currentMonth &&
-                itemDate.getFullYear() === currentYear
-              );
-            });
+                return (
+                  itemDate.getDate() ===
+                    day &&
+                  itemDate.getMonth() ===
+                    currentMonth &&
+                  itemDate.getFullYear() ===
+                    currentYear
+                );
+              });
 
             return (
               <div
                 key={i}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => handleDrop(e, day)}
+                onDragOver={(e) =>
+                  e.preventDefault()
+                }
+                onDrop={(e) =>
+                  handleDrop(e, day)
+                }
                 className={`min-h-[160px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden ${
-                  day === today.getDate() &&
-                  currentMonth === today.getMonth() &&
-                  currentYear === today.getFullYear()
+                  day ===
+                    today.getDate() &&
+                  currentMonth ===
+                    today.getMonth() &&
+                  currentYear ===
+                    today.getFullYear()
                     ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
                     : "border-white/10 bg-white/5"
                 }`}
@@ -166,7 +178,9 @@ export default function CalendarView({
                   {day && (
                     <button
                       onClick={() =>
-                        openCalendarQuickAdd(day)
+                        openCalendarQuickAdd(
+                          day
+                        )
                       }
                       className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
                     >
@@ -191,11 +205,17 @@ export default function CalendarView({
                         className="group relative rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs cursor-move overflow-hidden transition-all hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
                       >
                         <button
-                          onClick={async (e) => {
+                          onClick={async (
+                            e
+                          ) => {
                             e.stopPropagation();
 
                             await deleteDoc(
-                              doc(db, "posts", post.id)
+                              doc(
+                                db,
+                                "posts",
+                                post.id
+                              )
                             );
                           }}
                           className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all flex items-center justify-center z-10"
@@ -204,18 +224,26 @@ export default function CalendarView({
                         </button>
 
                         <div className="font-bold text-cyan-100 truncate pr-6">
-                          {post.platform || "Task"}
+                          {post.platform ||
+                            "Task"}
                         </div>
 
                         <div className="text-white/70 truncate">
-                          {post.caption?.slice(0, 24)}
+                          {post.caption?.slice(
+                            0,
+                            24
+                          )}
                         </div>
                       </div>
                     ))}
 
-                  {matchingPosts.length > 2 && (
+                  {matchingPosts.length >
+                    2 && (
                     <button className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs hover:bg-white/10 transition-all">
-                      +{matchingPosts.length - 2} more...
+                      +
+                      {matchingPosts.length -
+                        2}{" "}
+                      more...
                     </button>
                   )}
                 </div>
