@@ -1,4 +1,6 @@
 import GlassCard from "../layout/GlassCard";
+import { doc, deleteDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -96,13 +98,11 @@ export default function FeedView({
                       </button>
 
                       <button
-                        onClick={() =>
-                          setItems((prev) =>
-                            prev.filter(
-                              (p) => p.id !== item.id
-                            )
-                          )
-                        }
+                       onClick={async () => {
+                        await deleteDoc(
+                          doc(db, "posts", item.id)
+  );
+}}
                         className="h-11 px-4 rounded-2xl border border-red-300/20 bg-red-500/10"
                       >
                         Delete
