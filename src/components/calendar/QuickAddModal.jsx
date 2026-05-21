@@ -7,6 +7,9 @@ export default function QuickAddModal({
   setItems
 }) {
   const [caption, setCaption] = useState("");
+
+  const [imageUrl, setImageUrl] = useState("");
+
   const [platform, setPlatform] = useState("Instagram");
 
   const handleSave = () => {
@@ -16,15 +19,25 @@ export default function QuickAddModal({
       ...prev,
       {
         id: String(Date.now()),
+
         caption,
+
         platform,
+
+        imageUrl,
+
         date: quickAddDate.toISOString(),
+
         status: "Scheduled"
       }
     ]);
 
     setCaption("");
+
+    setImageUrl("");
+
     setPlatform("Instagram");
+
     setQuickAddDate(null);
   };
 
@@ -57,10 +70,20 @@ export default function QuickAddModal({
             className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
           >
             <option>Instagram</option>
+
             <option>Facebook</option>
+
             <option>TikTok</option>
+
             <option>YouTube</option>
           </select>
+
+          <input
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="Paste IMGUR image link..."
+            className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+          />
 
           <textarea
             value={caption}
@@ -71,7 +94,7 @@ export default function QuickAddModal({
 
           <button
             onClick={handleSave}
-            className="h-14 rounded-[1.4rem] bg-gradient-to-r from-orange-400 to-fuchsia-500 font-black text-white"
+            className="h-14 rounded-[1.4rem] bg-gradient-to-r from-orange-400 to-fuchsia-500 font-black text-white hover:scale-[1.01] transition-all"
           >
             Save To Calendar
           </button>
