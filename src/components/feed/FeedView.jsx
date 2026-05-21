@@ -1,25 +1,29 @@
 import GlassCard from "../layout/GlassCard";
-import { doc, deleteDoc } from "firebase/firestore";
-import { db } from "../../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import {
+  doc,
+  deleteDoc,
+  collection,
+  addDoc
+} from "firebase/firestore";
+
 import { db } from "../../firebase";
 
 export default function FeedView({
-  items,
-  setItems
+  items
 }) {
   const addTestPost = async () => {
-  await addDoc(collection(db, "posts"), {
-    caption: "Test Instagram Post",
-    platform: "Instagram",
-    status: "Scheduled",
-    imageUrl: "https://i.imgur.com/CzifUhZ.jpeg",
-    date: new Date().toISOString(),
-    createdAt: Date.now()
-  });
+    await addDoc(collection(db, "posts"), {
+      caption: "Test Instagram Post",
+      platform: "Instagram",
+      status: "Scheduled",
+      imageUrl: "https://i.imgur.com/CzifUhZ.jpeg",
+      date: new Date().toISOString(),
+      createdAt: Date.now()
+    });
 
-  alert("Saved to Firebase");
-};
+    alert("Saved to Firebase");
+  };
+
   return (
     <div className="grid gap-5">
       <GlassCard>
@@ -34,14 +38,14 @@ export default function FeedView({
             </div>
           </div>
 
-         <div className="grid gap-4">
+          <div className="grid gap-4">
+            <button
+              onClick={addTestPost}
+              className="h-12 px-5 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-300/20"
+            >
+              Save Test Post
+            </button>
 
-  <button
-    onClick={addTestPost}
-    className="h-12 px-5 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-300/20"
-  >
-    Save Test Post
-  </button>
             {items.length === 0 && (
               <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
                 No scheduled posts yet.
@@ -98,11 +102,11 @@ export default function FeedView({
                       </button>
 
                       <button
-                       onClick={async () => {
-                        await deleteDoc(
-                          doc(db, "posts", item.id)
-  );
-}}
+                        onClick={async () => {
+                          await deleteDoc(
+                            doc(db, "posts", item.id)
+                          );
+                        }}
                         className="h-11 px-4 rounded-2xl border border-red-300/20 bg-red-500/10"
                       >
                         Delete
