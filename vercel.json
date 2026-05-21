@@ -1,7 +1,8 @@
 {
-  "functions": {
-    "api/*.mjs": {
-      "runtime": "@vercel/node"
+  "crons": [
+    {
+      "path": "/api/publishScheduledPosts",
+      "schedule": "* * * * *"
     }
-  }
+  ]
 }
