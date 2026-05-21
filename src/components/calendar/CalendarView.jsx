@@ -1,26 +1,44 @@
-
 import { useState } from "react";
 import GlassCard from "../layout/GlassCard";
 
-export default function CalendarView() {
+export default function CalendarView({
+  items,
+  setItems,
+  openCalendarQuickAdd
+}) {
   const [calendarDate, setCalendarDate] = useState(new Date());
-  const [events, setEvents] = useState([]);
+
+  const today = new Date();
 
   const currentMonth = calendarDate.getMonth();
   const currentYear = calendarDate.getFullYear();
 
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDay = new Date(
+    currentYear,
+    currentMonth,
+    1
+  ).getDay();
+
+  const daysInMonth = new Date(
+    currentYear,
+    currentMonth + 1,
+    0
+  ).getDate();
 
   const calendarDays = [
     ...Array(firstDay).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    ...Array.from(
+      { length: daysInMonth },
+      (_, i) => i + 1
+    )
   ];
 
   const changeMonth = (direction) => {
     setCalendarDate((prev) => {
       const next = new Date(prev);
+
       next.setMonth(prev.getMonth() + direction);
+
       return next;
     });
   };
@@ -28,10 +46,19 @@ export default function CalendarView() {
   const handleDrop = (e, day) => {
     const id = e.dataTransfer.getData("eventId");
 
-    setEvents((prev) =>
+    const droppedDate = new Date(
+      currentYear,
+      currentMonth,
+      day
+    );
+
+    setItems((prev) =>
       prev.map((item) =>
         item.id === id
-          ? { ...item, day }
+          ? {
+              ...item,
+              date: droppedDate.toISOString()
+            }
           : item
       )
     );
@@ -41,17 +68,19 @@ export default function CalendarView() {
     <GlassCard>
       <div className="grid gap-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-4xl font-black">Content Calendar</h2>
+          <h2 className="text-4xl leading-tight pb-2 font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+            Content Calendar
+          </h2>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => changeMonth(-1)}
-              className="w-10 h-10 rounded-2xl border border-white/10"
+              className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
             >
               ←
             </button>
 
-            <div>
+            <div className="text-cyan-100 font-bold">
               {calendarDate.toLocaleString("default", {
                 month: "long",
                 year: "numeric"
@@ -60,61 +89,97 @@ export default function CalendarView() {
 
             <button
               onClick={() => changeMonth(1)}
-              className="w-10 h-10 rounded-2xl border border-white/10"
+              className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
             >
               →
             </button>
           </div>
         </div>
 
+        <div className="grid grid-cols-7 gap-3 text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50">
+          {[
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+          ].map((day) => (
+            <div key={day}>{day}</div>
+          ))}
+        </div>
+
         <div className="grid grid-cols-7 gap-3">
-          {calendarDays.map((day, i) => (
-            <div
-              key={i}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => handleDrop(e, day)}
-              className="min-h-[160px] rounded-3xl border border-white/10 p-3 bg-white/5"
-            >
-              <div className="flex justify-between mb-3">
-                <div>{day}</div>
+          {calendarDays.map((day, i) => {
+            const matchingPosts = items.filter((item) => {
+              if (!item.date || !day) return false;
 
-                {day && (
-                  <button
-                    onClick={() =>
-                      setEvents((prev) => [
-                        ...prev,
-                        {
-                          id: String(Date.now()),
-                          title: "New Post",
-                          day
-                        }
-                      ])
-                    }
-                    className="w-8 h-8 rounded-xl bg-orange-500/20"
-                  >
-                    +
-                  </button>
-                )}
-              </div>
+              const itemDate = new Date(item.date);
 
-              <div className="grid gap-2">
-                {events
-                  .filter((event) => event.day === day)
-                  .map((event) => (
+              return (
+                itemDate.getDate() === day &&
+                itemDate.getMonth() === currentMonth &&
+                itemDate.getFullYear() === currentYear
+              );
+            });
+
+            return (
+              <div
+                key={i}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => handleDrop(e, day)}
+                className={`min-h-[160px] rounded-[1.8rem] border p-3 transition-all relative ${
+                  day === today.getDate() &&
+                  currentMonth === today.getMonth() &&
+                  currentYear === today.getFullYear()
+                    ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
+                    : "border-white/10 bg-white/5"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm font-bold text-cyan-100">
+                    {day || ""}
+                  </div>
+
+                  {day && (
+                    <button
+                      onClick={() =>
+                        openCalendarQuickAdd(day)
+                      }
+                      className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
+                    >
+                      +
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  {matchingPosts.map((post) => (
                     <div
-                      key={event.id}
+                      key={post.id}
                       draggable
                       onDragStart={(e) =>
-                        e.dataTransfer.setData("eventId", event.id)
+                        e.dataTransfer.setData(
+                          "eventId",
+                          post.id
+                        )
                       }
-                      className="rounded-2xl bg-fuchsia-500/10 border border-fuchsia-300/20 p-2 text-sm cursor-move"
+                      className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs cursor-move"
                     >
-                      {event.title}
+                      <div className="font-bold text-cyan-100 truncate">
+                        {post.platform || "Task"}
+                      </div>
+
+                      <div className="text-white/70 truncate">
+                        {post.caption?.slice(0, 24)}
+                      </div>
                     </div>
                   ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </GlassCard>
