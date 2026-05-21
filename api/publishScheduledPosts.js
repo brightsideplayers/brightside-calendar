@@ -6,61 +6,31 @@ export default async function handler(
 ) {
   const now = new Date();
 
-const snapshot =
-  await db
-    .collection("posts")
-    .where(
-      "status",
-      "==",
-      "scheduled"
-    )
-    .get();
+  const snapshot =
+    await db
+      .collection("posts")
+      .where(
+        "status",
+        "==",
+        "scheduled"
+      )
+      .get();
 
   const posts = snapshot.docs
-  .map((doc) => ({
-    id: doc.id,
-    ...doc.data()
-  }))
-  .filter(
-    (post) =>
-      new Date(
-        post.scheduledFor
-      ) <= now
-  );
-for (const post of posts) {
-  const createMediaRes =
-    await fetch(
-      `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body: JSON.stringify({
-          image_url:
-            post.imageUrl,
-
-          caption:
-            post.caption,
-
-          access_token:
-            process.env
-              .INSTAGRAM_ACCESS_TOKEN
-        })
-      }
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+    .filter(
+      (post) =>
+        new Date(
+          post.scheduledFor
+        ) <= now
     );
 
-  const mediaData =
-    await createMediaRes.json();
-
   return res.status(200).json({
-  success: true,
-  mediaData
-});
-  
-  console.log(posts);
-
-  
+    success: true,
+    now,
+    posts
+  });
+}
