@@ -72,12 +72,37 @@ export default function QuickAddModal({
             <option>YouTube</option>
           </select>
 
-          <input
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="Paste IMGUR direct image link..."
-            className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-          />
+         <input
+  type="file"
+  accept="image/*"
+  onChange={async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    formData.append(
+      "upload_preset",
+      "brightside_unassigned"
+    );
+
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const data = await res.json();
+
+    setImageUrl(data.secure_url);
+  }}
+  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 py-2 file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
+/>
 
           <textarea
             value={caption}
