@@ -154,9 +154,54 @@ export default function CalendarView({
                   )}
                 </div>
 
-                <div className="grid gap-2">
-                  {matchingPosts.map((post) => (
-                    <div
+               <div className="grid gap-2 max-h-[140px] overflow-hidden">
+  {matchingPosts
+    .slice(0, 2)
+    .map((post) => (
+      <div
+        key={post.id}
+        draggable
+        onDragStart={(e) =>
+          e.dataTransfer.setData(
+            "eventId",
+            post.id
+          )
+        }
+        className="group relative rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs cursor-move overflow-hidden transition-all hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+
+            setItems((prev) =>
+              prev.filter(
+                (p) => p.id !== post.id
+              )
+            );
+          }}
+          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
+        >
+          ✕
+        </button>
+
+        <div className="font-bold text-cyan-100 truncate pr-6">
+          {post.platform || "Task"}
+        </div>
+
+        <div className="text-white/70 truncate">
+          {post.caption?.slice(0, 24)}
+        </div>
+      </div>
+    ))}
+
+  {matchingPosts.length > 2 && (
+    <button
+      className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs hover:bg-white/10 transition-all"
+    >
+      +{matchingPosts.length - 2} more...
+    </button>
+  )}
+</div>
   key={post.id}
   draggable
   onDragStart={(e) =>
