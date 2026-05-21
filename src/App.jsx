@@ -12,12 +12,22 @@ export default function App() {
   const [view, setView] = useState("feed");
 
   const views = {
-    feed: <FeedView />,
-    calendar: <CalendarView
-  items={items}
-  setItems={setItems}
-  openCalendarQuickAdd={openCalendarQuickAdd}
-/>
+  feed: <FeedView />,
+
+  calendar: (
+    <CalendarView
+      items={items}
+      setItems={setItems}
+      openCalendarQuickAdd={openCalendarQuickAdd}
+    />
+  ),
+
+  contacts: <ContactsView />,
+  costumes: <CostumesView />,
+  props: <PropsView />,
+  promo: <PromoView />,
+  tiktok: <TikTokView />
+};
     contacts: <ContactsView />,
     costumes: <CostumesView />,
     props: <PropsView />,
