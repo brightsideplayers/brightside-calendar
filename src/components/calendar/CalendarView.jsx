@@ -165,9 +165,24 @@ export default function CalendarView({
                           post.id
                         )
                       }
-                      className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs cursor-move"
+                      className="relative rounded-2xl border-2 border-cyan-300/40 bg-cyan-400/10 p-2 text-xs cursor-move shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:scale-[1.02] hover:border-cyan-200 transition-all"
                     >
-                      <div className="font-bold text-cyan-100 truncate">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          setItems((prev) =>
+                            prev.filter(
+                              (p) => p.id !== post.id
+                            )
+                          );
+                        }}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500/80 text-white text-[10px] flex items-center justify-center hover:scale-110 transition-all z-10"
+                      >
+                        ✕
+                      </button>
+
+                      <div className="font-bold text-cyan-100 truncate pr-6">
                         {post.platform || "Task"}
                       </div>
 
