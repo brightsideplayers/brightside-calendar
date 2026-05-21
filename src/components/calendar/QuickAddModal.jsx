@@ -13,7 +13,8 @@ export default function QuickAddModal({
   const [imageUrl, setImageUrl] = useState("");
 
   const [platform, setPlatform] = useState("Instagram");
-
+  const [scheduledTime, setScheduledTime] =
+  useState("12:00");
   const handleSave = async () => {
     if (!caption.trim()) return;
 
