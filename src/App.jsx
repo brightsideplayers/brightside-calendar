@@ -10,7 +10,13 @@ import TikTokView from "./components/tiktok/TikTokView";
 
 export default function App() {
   const [view, setView] = useState("feed");
+  const openCalendarQuickAdd = (day) => {
+  const date = new Date();
 
+  date.setDate(day);
+
+  setQuickAddDate(date);
+};
   const views = {
   feed: <FeedView />,
 
