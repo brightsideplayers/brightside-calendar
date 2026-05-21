@@ -157,30 +157,30 @@ export default function CalendarView({
                 <div className="grid gap-2">
                   {matchingPosts.map((post) => (
                     <div
-                      key={post.id}
-                      draggable
-                      onDragStart={(e) =>
-                        e.dataTransfer.setData(
-                          "eventId",
-                          post.id
-                        )
-                      }
-                      className="relative rounded-2xl border-2 border-cyan-300/40 bg-cyan-400/10 p-2 text-xs cursor-move shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:scale-[1.02] hover:border-cyan-200 transition-all"
-                    >
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
+  key={post.id}
+  draggable
+  onDragStart={(e) =>
+    e.dataTransfer.setData(
+      "eventId",
+      post.id
+    )
+  }
+  className="group relative rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs cursor-move overflow-hidden transition-all hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
+>
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
 
-                          setItems((prev) =>
-                            prev.filter(
-                              (p) => p.id !== post.id
-                            )
-                          );
-                        }}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500/80 text-white text-[10px] flex items-center justify-center hover:scale-110 transition-all z-10"
-                      >
-                        ✕
-                      </button>
+      setItems((prev) =>
+        prev.filter(
+          (p) => p.id !== post.id
+        )
+      );
+    }}
+    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
+  >
+    ✕
+  </button>
 
                       <div className="font-bold text-cyan-100 truncate pr-6">
                         {post.platform || "Task"}
