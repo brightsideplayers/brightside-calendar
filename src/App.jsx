@@ -1,4 +1,5 @@
 
+import QuickAddModal from "./components/calendar/QuickAddModal";
 import { useState } from "react";
 import FeedView from "./components/feed/FeedView";
 import CalendarView from "./components/calendar/CalendarView";
