@@ -132,7 +132,7 @@ export default function CalendarView({
             const matchingPosts =
               items.filter((item) => {
                 if 
-                  (!item.scheduledFor || !day)
+                  (!item.scheduledFor || !day
                 )
                   return false;
 
