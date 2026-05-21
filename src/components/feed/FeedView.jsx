@@ -1,4 +1,6 @@
 import GlassCard from "../layout/GlassCard";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 export default function FeedView({
   items,
