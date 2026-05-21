@@ -16,11 +16,16 @@ const snapshot =
     )
     .get();
 
-  const posts = snapshot.docs.map(
-    (doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })
+  const posts = snapshot.docs
+  .map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  }))
+  .filter(
+    (post) =>
+      new Date(
+        post.scheduledFor
+      ) <= now
   );
 
   console.log(posts);
