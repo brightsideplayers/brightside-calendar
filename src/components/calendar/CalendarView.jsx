@@ -1,4 +1,8 @@
-import { doc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  deleteDoc,
+  updateDoc
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import { useState } from "react";
 import GlassCard from "../layout/GlassCard";
@@ -45,7 +49,22 @@ export default function CalendarView({
     });
   };
 
-  const handleDrop = (e, day) => {
+  const handleDrop = async (e, day) => {
+  const id = e.dataTransfer.getData("eventId");
+
+  const droppedDate = new Date(
+    currentYear,
+    currentMonth,
+    day
+  );
+
+  await updateDoc(
+    doc(db, "posts", id),
+    {
+      date: droppedDate.toISOString()
+    }
+  );
+};
     const id = e.dataTransfer.getData("eventId");
 
     const droppedDate = new Date(
@@ -179,7 +198,7 @@ export default function CalendarView({
                               doc(db, "posts", post.id)
                             );
                           }}
-                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all flex items-center justify-center z-10"
                         >
                           ✕
                         </button>
