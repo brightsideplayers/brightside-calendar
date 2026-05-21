@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "./firebase";
 
 import FeedView from "./components/feed/FeedView";
 import CalendarView from "./components/calendar/CalendarView";
@@ -16,6 +18,22 @@ export default function App() {
   const [items, setItems] = useState([]);
 
   const [quickAddDate, setQuickAddDate] = useState(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, "posts"),
+      (snapshot) => {
+        setItems(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+        );
+      }
+    );
+
+    return () => unsub();
+  }, []);
 
   const openCalendarQuickAdd = (day) => {
     const date = new Date();
