@@ -131,9 +131,8 @@ export default function CalendarView({
           {calendarDays.map((day, i) => {
             const matchingPosts =
               items.filter((item) => {
-                if (
-                  !item.date ||
-                  !day
+                if 
+                  (!item.scheduledFor || !day)
                 )
                   return false;
 
