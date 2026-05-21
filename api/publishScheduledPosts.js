@@ -56,12 +56,11 @@ for (const post of posts) {
   const mediaData =
     await createMediaRes.json();
 
-  console.log(mediaData);
-}
+  return res.status(200).json({
+  success: true,
+  mediaData
+});
+  
   console.log(posts);
 
-  return res.status(200).json({
-    success: true,
-    posts
-  });
-}
+  
