@@ -4,10 +4,17 @@ export default async function handler(
   req,
   res
 ) {
-  const snapshot =
-    await db
-      .collection("posts")
-      .get();
+  const now = new Date();
+
+const snapshot =
+  await db
+    .collection("posts")
+    .where(
+      "status",
+      "==",
+      "scheduled"
+    )
+    .get();
 
   const posts = snapshot.docs.map(
     (doc) => ({
