@@ -58,6 +58,14 @@ export default function QuickAddModal({
           <div className="text-cyan-100">
             {quickAddDate.toLocaleDateString()}
           </div>
+          <input
+            type="time"
+            value={scheduledTime}
+            onChange={(e) =>
+               setScheduledTime(e.target.value)
+  }
+  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+/>
 
           <select
             value={platform}
