@@ -21,20 +21,14 @@ export default function App() {
       openCalendarQuickAdd={openCalendarQuickAdd}
     />
   ),
-
+    
   contacts: <ContactsView />,
   costumes: <CostumesView />,
   props: <PropsView />,
   promo: <PromoView />,
   tiktok: <TikTokView />
 };
-    contacts: <ContactsView />,
-    costumes: <CostumesView />,
-    props: <PropsView />,
-    promo: <PromoView />,
-    tiktok: <TikTokView />
-  };
-
+  
   return (
     <div className="min-h-screen bg-[#020617] text-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto grid gap-5">
