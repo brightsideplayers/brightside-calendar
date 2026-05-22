@@ -16,7 +16,8 @@ export default function FeedView({
       caption: "Test Instagram Post",
       platform: "Instagram",
       status: "Scheduled",
-      imageUrl: "https://i.imgur.com/CzifUhZ.jpeg",
+      imageUrl:
+        "https://i.imgur.com/CzifUhZ.jpeg",
       date: new Date().toISOString(),
       createdAt: Date.now()
     });
@@ -82,8 +83,9 @@ export default function FeedView({
 
                       <div className="text-xs text-cyan-100/50">
                         {new Date(
-  item.scheduledFor || item.date
-).toLocaleString()
+                          item.scheduledFor ||
+                            item.date
+                        ).toLocaleString()}
                       </div>
                     </div>
 
@@ -106,7 +108,11 @@ export default function FeedView({
                       <button
                         onClick={async () => {
                           await deleteDoc(
-                            doc(db, "posts", item.id)
+                            doc(
+                              db,
+                              "posts",
+                              item.id
+                            )
                           );
                         }}
                         className="h-11 px-4 rounded-2xl border border-red-300/20 bg-red-500/10"
