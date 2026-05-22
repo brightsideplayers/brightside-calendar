@@ -188,13 +188,7 @@ export default function CalendarView({
                   {day && (
                     <button
                       onClick={() =>
-                        openCalendarQuickAdd(
-                          new Date(
-                            currentYear,
-                            currentMonth,
-                            day
-                          )
-                        )
+                      openCalendarQuickAdd(day)
                       }
                       className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
                     >
