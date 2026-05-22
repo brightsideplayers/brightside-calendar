@@ -11,22 +11,22 @@ export default function FeedView({
   items
 }) {
   const getTaskStatusStyles = (
-    status
-  ) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-500/20 border border-green-300/20 text-green-100";
+  status
+) => {
+  switch (status) {
+    case "completed":
+      return "bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.18)]";
 
-      case "in-progress":
-        return "bg-cyan-500/20 border border-cyan-300/20 text-cyan-100";
+    case "in-progress":
+      return "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100 shadow-[0_0_25px_rgba(217,70,239,0.18)]";
 
-      case "blocked":
-        return "bg-red-500/20 border border-red-300/20 text-red-100";
+    case "blocked":
+      return "bg-rose-500/15 border border-rose-300/20 text-rose-100 shadow-[0_0_25px_rgba(244,63,94,0.18)]";
 
-      default:
-        return "bg-yellow-500/20 border border-yellow-300/20 text-yellow-100";
-    }
-  };
+    default:
+      return "bg-amber-400/15 border border-amber-300/20 text-amber-100 shadow-[0_0_25px_rgba(251,191,36,0.18)]";
+  }
+};
 
   const getTaskStatusLabel = (
     status
