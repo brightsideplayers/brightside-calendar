@@ -53,6 +53,9 @@ export default function ContactsView({
     "Music",
     "Costumes",
     "Props"
+    "Set Design"
+    "Current Member"
+    "Past Member"
   ];
 
   const filteredContacts =
