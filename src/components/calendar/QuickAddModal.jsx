@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   collection,
   addDoc
@@ -32,6 +33,9 @@ export default function QuickAddModal({
 
   const [scheduledTime, setScheduledTime] =
     useState("12:00");
+
+  const [taskStatus, setTaskStatus] =
+    useState("todo");
 
   const handleSave = async () => {
     if (
@@ -69,6 +73,8 @@ export default function QuickAddModal({
             caption,
 
           assignedTo,
+
+          taskStatus,
 
           scheduledFor:
             scheduledDate.toISOString(),
@@ -115,12 +121,15 @@ export default function QuickAddModal({
 
     setPlatform("Instagram");
 
+    setTaskStatus("todo");
+
     setType("post");
 
     setQuickAddDate(null);
   };
 
-  if (!quickAddDate) return null;
+  if (!quickAddDate)
+    return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -133,7 +142,9 @@ export default function QuickAddModal({
 
             <button
               onClick={() =>
-                setQuickAddDate(null)
+                setQuickAddDate(
+                  null
+                )
               }
               className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10"
             >
@@ -225,28 +236,62 @@ export default function QuickAddModal({
           />
 
           {type === "task" && (
-            <input
-              type="text"
-              value={taskTitle}
-              onChange={(e) =>
-                setTaskTitle(
-                  e.target.value
-                )
-              }
-              placeholder="Task title..."
-              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-            />
+            <>
+              <input
+                type="text"
+                value={taskTitle}
+                onChange={(e) =>
+                  setTaskTitle(
+                    e.target.value
+                  )
+                }
+                placeholder="Task title..."
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              />
+
+              <select
+                value={
+                  taskStatus
+                }
+                onChange={(e) =>
+                  setTaskStatus(
+                    e.target.value
+                  )
+                }
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              >
+                <option value="todo">
+                  🟡 Todo
+                </option>
+
+                <option value="in-progress">
+                  🔵 In Progress
+                </option>
+
+                <option value="completed">
+                  🟢 Completed
+                </option>
+
+                <option value="blocked">
+                  🔴 Blocked
+                </option>
+              </select>
+            </>
           )}
 
           {type === "post" && (
             <input
               type="file"
               accept="image/*"
-              onChange={async (e) => {
+              onChange={async (
+                e
+              ) => {
                 const file =
-                  e.target.files[0];
+                  e.target
+                    .files[0];
 
-                if (!file) return;
+                if (!file)
+                  return;
 
                 const formData =
                   new FormData();
@@ -265,7 +310,8 @@ export default function QuickAddModal({
                   await fetch(
                     "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
                     {
-                      method: "POST",
+                      method:
+                        "POST",
                       body: formData
                     }
                   );
