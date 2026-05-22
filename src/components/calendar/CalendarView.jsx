@@ -295,25 +295,6 @@ export default function CalendarView({
                                 }`}
                               />
 
-                              <button
-                                onClick={async (
-                                  e
-                                ) => {
-                                  e.stopPropagation();
-
-                                  await deleteDoc(
-                                    doc(
-                                      db,
-                                      "posts",
-                                      post.id
-                                    )
-                                  );
-                                }}
-                                className="absolute top-1 right-1 w-4 h-4 rounded-full bg-yellow-400 text-black text-[9px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center"
-                              >
-                                ✕
-                              </button>
-
                               <div className="flex items-center justify-between gap-2 pl-2">
                                 <div
                                   className={`font-bold truncate ${
@@ -368,7 +349,7 @@ export default function CalendarView({
 
                 setSelectedDayItems([]);
               }}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-yellow-400 text-black font-black text-xl shadow-[0_0_20px_rgba(250,204,21,0.75)] hover:scale-110 transition-all"
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl shadow-[0_0_20px_rgba(34,211,238,0.75)] hover:scale-110 transition-all"
             >
               ✕
             </button>
@@ -379,7 +360,16 @@ export default function CalendarView({
               </div>
 
               <h2 className="text-4xl font-black text-cyan-100">
-                {selectedDay.toLocaleDateString()}
+                {selectedDay.toLocaleDateString(
+                  "default",
+                  {
+                    weekday:
+                      "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric"
+                  }
+                )}
               </h2>
             </div>
 
