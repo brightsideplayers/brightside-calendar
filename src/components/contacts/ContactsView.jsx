@@ -20,6 +20,9 @@ export default function ContactsView({
 }) {
   const [selectedRole, setSelectedRole] =
     useState("All");
+  
+  const [excludedRole, setExcludedRole] =
+  useState("");
 
   const [selectedContact, setSelectedContact] =
     useState(null);
@@ -68,12 +71,32 @@ export default function ContactsView({
               ? [contact.role]
               : []);
 
-          return selectedRole ===
-            "All"
-            ? true
-            : contactRoles.includes(
-                selectedRole
-              );
+          .filter((contact) => {
+  const contactRoles =
+    contact.roles ||
+    (contact.role
+      ? [contact.role]
+      : []);
+
+  const matchesIncluded =
+    selectedRole === "All"
+      ? true
+      : contactRoles.includes(
+          selectedRole
+        );
+
+  const matchesExcluded =
+    excludedRole
+      ? !contactRoles.includes(
+          excludedRole
+        )
+      : true;
+
+  return (
+    matchesIncluded &&
+    matchesExcluded
+  );
+})
         })
         .sort((a, b) =>
           a.name.localeCompare(
@@ -359,6 +382,29 @@ export default function ContactsView({
                 value={
                   selectedRole
                 }
+                <select
+  value={excludedRole}
+  onChange={(e) =>
+    setExcludedRole(
+      e.target.value
+    )
+  }
+  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+>
+  <option value="">
+    Exclude Role
+  </option>
+
+  {roleOptions
+    .filter(
+      (r) => r !== "All"
+    )
+    .map((role) => (
+      <option key={role}>
+        {role}
+      </option>
+    ))}
+</select>
                 onChange={(e) =>
                   setSelectedRole(
                     e.target.value
