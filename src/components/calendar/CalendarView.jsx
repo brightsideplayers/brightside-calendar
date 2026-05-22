@@ -107,7 +107,7 @@ export default function CalendarView({
                 onClick={() =>
                   changeMonth(-1)
                 }
-                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
+                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
               >
                 ←
               </button>
@@ -126,14 +126,14 @@ export default function CalendarView({
                 onClick={() =>
                   changeMonth(1)
                 }
-                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
+                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
               >
                 →
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-3 text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50">
+          <div className="grid grid-cols-7 gap-2 text-center text-[10px] uppercase tracking-[0.25em] text-cyan-200/40">
             {[
               "Sun",
               "Mon",
@@ -149,7 +149,7 @@ export default function CalendarView({
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-3">
+          <div className="grid grid-cols-7 gap-2">
             {calendarDays.map(
               (day, i) => {
                 const matchingPosts =
@@ -209,19 +209,19 @@ export default function CalendarView({
                         matchingPosts
                       );
                     }}
-                    className={`min-h-[170px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden cursor-pointer hover:scale-[1.01] ${
+                    className={`min-h-[135px] md:min-h-[170px] rounded-[1.6rem] border p-2 md:p-3 transition-all relative overflow-hidden cursor-pointer hover:scale-[1.01] ${
                       day ===
                         today.getDate() &&
                       currentMonth ===
                         today.getMonth() &&
                       currentYear ===
                         today.getFullYear()
-                        ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
+                        ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.35)] bg-fuchsia-500/10"
                         : "border-white/10 bg-white/5"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="text-sm font-bold text-cyan-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xs md:text-sm font-bold text-cyan-100">
                         {day || ""}
                       </div>
 
@@ -234,68 +234,120 @@ export default function CalendarView({
                               day
                             );
                           }}
-                          className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
+                          className="w-7 h-7 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-sm font-bold hover:scale-105 transition-all"
                         >
                           +
                         </button>
                       )}
                     </div>
 
-                    <div className="grid gap-2">
+                    <div className="grid gap-1.5">
                       {matchingPosts
-                        .slice(0, 2)
-                        .map((post) => (
-                          <div
-                            key={post.id}
-                            draggable
-                            onDragStart={(
-                              e
-                            ) =>
-                              e.dataTransfer.setData(
-                                "eventId",
-                                post.id
-                              )
-                            }
-                            className={`group relative rounded-2xl p-2 text-xs overflow-hidden transition-all ${
-                              post.type ===
-                              "task"
-                                ? "border border-amber-300/20 bg-amber-400/10"
-                                : "border border-cyan-300/20 bg-cyan-400/10"
-                            }`}
-                          >
+                        .slice(0, 3)
+                        .map((post) => {
+                          const time =
+                            new Date(
+                              post.scheduledFor
+                            ).toLocaleTimeString(
+                              [],
+                              {
+                                hour:
+                                  "numeric",
+                                minute:
+                                  "2-digit"
+                              }
+                            );
+
+                          return (
                             <div
-                              className={`font-bold truncate pr-6 ${
+                              key={post.id}
+                              draggable
+                              onClick={(e) =>
+                                e.stopPropagation()
+                              }
+                              onDragStart={(
+                                e
+                              ) =>
+                                e.dataTransfer.setData(
+                                  "eventId",
+                                  post.id
+                                )
+                              }
+                              className={`group relative rounded-xl p-2 text-[10px] md:text-xs overflow-hidden transition-all backdrop-blur-sm ${
                                 post.type ===
                                 "task"
-                                  ? "text-amber-200"
-                                  : "text-cyan-100"
+                                  ? "border border-amber-300/20 bg-amber-400/10 hover:border-amber-200"
+                                  : post.platform ===
+                                    "Facebook"
+                                  ? "border border-blue-300/20 bg-blue-400/10 hover:border-blue-200"
+                                  : "border border-fuchsia-300/20 bg-fuchsia-400/10 hover:border-fuchsia-200"
                               }`}
                             >
-                              {post.type ===
-                              "task"
-                                ? post.title
-                                : post.platform}
-                            </div>
+                              <div
+                                className={`absolute left-0 top-0 bottom-0 w-1 ${
+                                  post.type ===
+                                  "task"
+                                    ? "bg-amber-300"
+                                    : post.platform ===
+                                      "Facebook"
+                                    ? "bg-blue-300"
+                                    : "bg-fuchsia-300"
+                                }`}
+                              />
 
-                            <div className="text-white/70 truncate">
-                              {post.type ===
-                              "task"
-                                ? post.description
-                                : post.caption?.slice(
-                                    0,
-                                    32
-                                  )}
+                              <button
+                                onClick={async (
+                                  e
+                                ) => {
+                                  e.stopPropagation();
+
+                                  await deleteDoc(
+                                    doc(
+                                      db,
+                                      "posts",
+                                      post.id
+                                    )
+                                  );
+                                }}
+                                className="absolute top-1 right-1 w-4 h-4 rounded-full bg-yellow-400 text-black text-[9px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center"
+                              >
+                                ✕
+                              </button>
+
+                              <div className="flex items-center justify-between gap-2 pl-2">
+                                <div
+                                  className={`font-bold truncate ${
+                                    post.type ===
+                                    "task"
+                                      ? "text-amber-100"
+                                      : "text-white"
+                                  }`}
+                                >
+                                  {post.type ===
+                                  "task"
+                                    ? post.title
+                                    : post.platform}
+                                </div>
+
+                                <div className="text-[9px] text-white/40 shrink-0">
+                                  {time}
+                                </div>
+                              </div>
+
+                              <div className="text-white/60 truncate pl-2 mt-1">
+                                {post.type ===
+                                "task"
+                                  ? post.description
+                                  : post.caption}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
 
                       {matchingPosts.length >
-                        2 && (
-                        <div className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs flex items-center justify-center">
-                          +
-                          {matchingPosts.length -
-                            2}{" "}
-                          more
+                        3 && (
+                        <div className="h-7 rounded-xl border border-white/10 bg-white/5 text-cyan-100/60 text-[10px] flex items-center justify-center">
+                          •••
                         </div>
                       )}
                     </div>
@@ -340,7 +392,10 @@ export default function CalendarView({
                       item.type ===
                       "task"
                         ? "border-amber-300/20 bg-amber-500/10"
-                        : "border-cyan-300/20 bg-cyan-500/10"
+                        : item.platform ===
+                          "Facebook"
+                        ? "border-blue-300/20 bg-blue-500/10"
+                        : "border-fuchsia-300/20 bg-fuchsia-500/10"
                     }`}
                   >
                     <button
@@ -384,7 +439,7 @@ export default function CalendarView({
                           item.type ===
                           "task"
                             ? "text-amber-200"
-                            : "text-cyan-100"
+                            : "text-white"
                         }`}
                       >
                         {item.type ===
