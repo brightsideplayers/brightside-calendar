@@ -10,6 +10,42 @@ import { db } from "../../firebase";
 export default function FeedView({
   items
 }) {
+  const getTaskStatusStyles = (
+    status
+  ) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/20 border border-green-300/20 text-green-100";
+
+      case "in-progress":
+        return "bg-cyan-500/20 border border-cyan-300/20 text-cyan-100";
+
+      case "blocked":
+        return "bg-red-500/20 border border-red-300/20 text-red-100";
+
+      default:
+        return "bg-yellow-500/20 border border-yellow-300/20 text-yellow-100";
+    }
+  };
+
+  const getTaskStatusLabel = (
+    status
+  ) => {
+    switch (status) {
+      case "completed":
+        return "Completed";
+
+      case "in-progress":
+        return "In Progress";
+
+      case "blocked":
+        return "Blocked";
+
+      default:
+        return "Todo";
+    }
+  };
+
   return (
     <div className="grid gap-5">
       <GlassCard>
@@ -20,14 +56,17 @@ export default function FeedView({
             </h2>
 
             <div className="text-cyan-100/70 mt-2">
-              Scheduled content & production tasks
+              Scheduled content &
+              production tasks
             </div>
           </div>
 
           <div className="grid gap-4">
-            {items.length === 0 && (
+            {items.length ===
+              0 && (
               <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-                Nothing scheduled yet.
+                Nothing scheduled
+                yet.
               </div>
             )}
 
@@ -37,10 +76,19 @@ export default function FeedView({
               .map((item) => (
                 <div
                   key={item.id}
-                  className={`rounded-[1.8rem] border overflow-hidden backdrop-blur-sm ${
+                  className={`rounded-[1.8rem] border overflow-hidden backdrop-blur-sm transition-all ${
                     item.type ===
                     "task"
-                      ? "border-amber-300/20 bg-amber-500/10"
+                      ? item.taskStatus ===
+                        "completed"
+                        ? "border-green-300/20 bg-green-500/10"
+                        : item.taskStatus ===
+                          "in-progress"
+                        ? "border-cyan-300/20 bg-cyan-500/10"
+                        : item.taskStatus ===
+                          "blocked"
+                        ? "border-red-300/20 bg-red-500/10"
+                        : "border-amber-300/20 bg-amber-500/10"
                       : item.platform ===
                         "Facebook"
                       ? "border-blue-300/20 bg-blue-500/10"
@@ -49,7 +97,9 @@ export default function FeedView({
                 >
                   {item.imageUrl && (
                     <img
-                      src={item.imageUrl}
+                      src={
+                        item.imageUrl
+                      }
                       alt=""
                       className="w-full aspect-square object-cover"
                     />
@@ -62,7 +112,7 @@ export default function FeedView({
                           className={`px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] ${
                             item.type ===
                             "task"
-                              ? "bg-amber-500/20 border border-amber-300/20 text-amber-100"
+                              ? "bg-white/10 border border-white/10 text-white"
                               : item.platform ===
                                 "Facebook"
                               ? "bg-blue-500/20 border border-blue-300/20 text-blue-100"
@@ -76,14 +126,16 @@ export default function FeedView({
                         </div>
 
                         <div
-                          className={`px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] ${
-                            item.type ===
-                            "task"
-                              ? "bg-yellow-500/20 border border-yellow-300/20 text-yellow-100"
-                              : "bg-cyan-500/20 border border-cyan-300/20 text-cyan-100"
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] ${getTaskStatusStyles(
+                            item.taskStatus
+                          )}`}
                         >
-                          {item.status}
+                          {item.type ===
+                          "task"
+                            ? getTaskStatusLabel(
+                                item.taskStatus
+                              )
+                            : item.status}
                         </div>
                       </div>
 
@@ -98,16 +150,28 @@ export default function FeedView({
                     {item.type ===
                     "task" ? (
                       <div className="grid gap-3">
-                        <div className="text-2xl font-black text-amber-200">
-                          {item.title}
+                        <div className="grid gap-1">
+                          <div className="text-2xl font-black text-white">
+                            {item.title}
+                          </div>
+
+                          {item.assignedTo && (
+                            <div className="text-sm text-cyan-200/70">
+                              Assigned to{" "}
+                              <span className="text-white">
+                                {
+                                  item.assignedTo
+                                }
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         <div className="rounded-[1.4rem] border border-white/10 bg-black/20 p-4 text-white/80 leading-relaxed">
-                          {item.description
-                            ?.slice(
-                              0,
-                              180
-                            )}
+                          {item.description?.slice(
+                            0,
+                            180
+                          )}
 
                           {item.description
                             ?.length >
@@ -125,20 +189,20 @@ export default function FeedView({
                           Social Post
                         </div>
 
+                        {item.assignedTo && (
+                          <div className="text-sm text-cyan-200/70">
+                            Assigned to{" "}
+                            <span className="text-white">
+                              {
+                                item.assignedTo
+                              }
+                            </span>
+                          </div>
+                        )}
+
                         <div className="text-white/90 whitespace-pre-wrap leading-relaxed">
                           {item.caption}
                         </div>
-                      </div>
-                    )}
-
-                    {item.assignedTo && (
-                      <div className="text-sm text-cyan-200/70">
-                        Assigned to:{" "}
-                        <span className="text-white">
-                          {
-                            item.assignedTo
-                          }
-                        </span>
                       </div>
                     )}
 
