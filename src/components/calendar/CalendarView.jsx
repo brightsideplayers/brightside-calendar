@@ -237,17 +237,23 @@ export default function CalendarView({
                           ✕
                         </button>
 
-                        <div className="font-bold text-cyan-100 truncate pr-6">
-                          {post.platform ||
-                            "Task"}
-                        </div>
+                       <div
+  className={`font-bold truncate pr-6 ${
+    post.type === "task"
+      ? "text-amber-200"
+      : "text-cyan-100"
+  }`}
+>
+  {post.type === "task"
+    ? "Task"
+    : post.platform || "Post"}
+</div>
 
-                        <div className="text-white/70 truncate">
-                          {post.caption?.slice(
-                            0,
-                            24
-                          )}
-                        </div>
+<div className="text-white/70 truncate">
+  {post.type === "task"
+    ? post.title
+    : post.caption?.slice(0, 24)}
+</div>
                       </div>
                     ))}
 
