@@ -28,7 +28,10 @@ export default async function handler(
             post.scheduledFor
           ) <= now
       );
-
+return res.status(200).json({
+  FACEBOOK_PAGE_ID:
+    process.env.FACEBOOK_PAGE_ID
+});
     const results = [];
 
     for (const post of posts) {
