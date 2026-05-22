@@ -20,9 +20,9 @@ export default function ContactsView({
 }) {
   const [selectedRole, setSelectedRole] =
     useState("All");
-  
+
   const [excludedRole, setExcludedRole] =
-  useState("");
+    useState("");
 
   const [selectedContact, setSelectedContact] =
     useState(null);
@@ -55,9 +55,9 @@ export default function ContactsView({
     "Director",
     "Music",
     "Costumes",
-    "Props"
-    "Set Design"
-    "Current Member"
+    "Props",
+    "Set Design",
+    "Current Member",
     "Past Member"
   ];
 
@@ -71,39 +71,36 @@ export default function ContactsView({
               ? [contact.role]
               : []);
 
-          .filter((contact) => {
-  const contactRoles =
-    contact.roles ||
-    (contact.role
-      ? [contact.role]
-      : []);
+          const matchesIncluded =
+            selectedRole ===
+            "All"
+              ? true
+              : contactRoles.includes(
+                  selectedRole
+                );
 
-  const matchesIncluded =
-    selectedRole === "All"
-      ? true
-      : contactRoles.includes(
-          selectedRole
-        );
+          const matchesExcluded =
+            excludedRole
+              ? !contactRoles.includes(
+                  excludedRole
+                )
+              : true;
 
-  const matchesExcluded =
-    excludedRole
-      ? !contactRoles.includes(
-          excludedRole
-        )
-      : true;
-
-  return (
-    matchesIncluded &&
-    matchesExcluded
-  );
-})
+          return (
+            matchesIncluded &&
+            matchesExcluded
+          );
         })
         .sort((a, b) =>
-          a.name.localeCompare(
-            b.name
+          (a.name || "").localeCompare(
+            b.name || ""
           )
         );
-    }, [contacts, selectedRole]);
+    }, [
+      contacts,
+      selectedRole,
+      excludedRole
+    ]);
 
   const groupedContacts =
     filteredContacts.reduce(
@@ -378,50 +375,54 @@ export default function ContactsView({
                 </button>
               </div>
 
-              <select
-                value={
-                  selectedRole
-                }
+              <div className="flex gap-2 flex-wrap">
                 <select
-  value={excludedRole}
-  onChange={(e) =>
-    setExcludedRole(
-      e.target.value
-    )
-  }
-  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
->
-  <option value="">
-    Exclude Role
-  </option>
+                  value={selectedRole}
+                  onChange={(e) =>
+                    setSelectedRole(
+                      e.target.value
+                    )
+                  }
+                  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+                >
+                  {roleOptions.map(
+                    (role) => (
+                      <option
+                        key={role}
+                      >
+                        {role}
+                      </option>
+                    )
+                  )}
+                </select>
 
-  {roleOptions
-    .filter(
-      (r) => r !== "All"
-    )
-    .map((role) => (
-      <option key={role}>
-        {role}
-      </option>
-    ))}
-</select>
-                onChange={(e) =>
-                  setSelectedRole(
-                    e.target.value
-                  )
-                }
-                className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-              >
-                {roleOptions.map(
-                  (role) => (
-                    <option
-                      key={role}
-                    >
-                      {role}
-                    </option>
-                  )
-                )}
-              </select>
+                <select
+                  value={excludedRole}
+                  onChange={(e) =>
+                    setExcludedRole(
+                      e.target.value
+                    )
+                  }
+                  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+                >
+                  <option value="">
+                    Exclude Role
+                  </option>
+
+                  {roleOptions
+                    .filter(
+                      (r) =>
+                        r !== "All"
+                    )
+                    .map((role) => (
+                      <option
+                        key={role}
+                      >
+                        {role}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </div>
 
             <div className="grid gap-6">
@@ -513,7 +514,7 @@ export default function ContactsView({
                   false
                 );
               }}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl shadow-[0_0_20px_rgba(34,211,238,0.75)]"
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl"
             >
               ✕
             </button>
