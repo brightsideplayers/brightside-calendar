@@ -4,23 +4,27 @@ export default async function handler(
   req,
   res
 ) {
-  const now = new Date();
+  try {
+    const snapshot =
+      await db
+        .collection("posts")
+        .get();
 
-  const snapshot =
-    await db
-      .collection("posts")
-      .get();
+    const posts =
+      snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
-  const posts = snapshot.docs.map(
-    (doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })
-  );
-
-  return res.status(200).json({
-    success: true,
-    now,
-    posts
-  });
+    return res.status(200).json({
+      success: true,
+      posts
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
 }
