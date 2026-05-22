@@ -11,20 +11,7 @@ import { db } from "../../firebase";
 export default function FeedView({
   items
 }) {
-  const addTestPost = async () => {
-    await addDoc(collection(db, "posts"), {
-      caption: "Test Instagram Post",
-      platform: "Instagram",
-      status: "Scheduled",
-      imageUrl:
-        "https://i.imgur.com/CzifUhZ.jpeg",
-      date: new Date().toISOString(),
-      createdAt: Date.now()
-    });
-
-    alert("Saved to Firebase");
-  };
-
+  
   return (
     <div className="grid gap-5">
       <GlassCard>
@@ -40,13 +27,7 @@ export default function FeedView({
           </div>
 
           <div className="grid gap-4">
-            <button
-              onClick={addTestPost}
-              className="h-12 px-5 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-300/20"
-            >
-              Save Test Post
-            </button>
-
+            
             {items.length === 0 && (
               <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
                 No scheduled posts yet.
