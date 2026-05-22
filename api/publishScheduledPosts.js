@@ -9,24 +9,14 @@ export default async function handler(
   const snapshot =
     await db
       .collection("posts")
-      .where(
-        "status",
-        "==",
-        "scheduled"
-      )
       .get();
 
-  const posts = snapshot.docs
-    .map((doc) => ({
+  const posts = snapshot.docs.map(
+    (doc) => ({
       id: doc.id,
       ...doc.data()
-    }))
-    .filter(
-      (post) =>
-        new Date(
-          post.scheduledFor
-        ) <= now
-    );
+    })
+  );
 
   return res.status(200).json({
     success: true,
