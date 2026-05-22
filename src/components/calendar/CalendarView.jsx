@@ -137,7 +137,9 @@ export default function CalendarView({
                   return false;
 
                 const itemDate =
-                  new Date(item.scheduledFor);
+                 new Date(
+                     item.scheduledFor || item.date
+);
 
                 return (
                   itemDate.getDate() ===
