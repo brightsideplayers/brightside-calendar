@@ -8,7 +8,10 @@ import {
 
 import { db } from "../../firebase";
 
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState
+} from "react";
 
 import GlassCard from "../layout/GlassCard";
 
@@ -28,7 +31,7 @@ export default function ContactsView({
     useState("");
 
   const [roles, setRoles] =
-  useState([]);
+    useState([]);
 
   const [phone, setPhone] =
     useState("");
@@ -41,6 +44,7 @@ export default function ContactsView({
 
   const roleOptions = [
     "All",
+    "Executive",
     "Cast",
     "Crew",
     "Marketing",
@@ -54,12 +58,20 @@ export default function ContactsView({
   const filteredContacts =
     useMemo(() => {
       return contacts
-        .filter((contact) =>
-          selectedRole === "All"
+        .filter((contact) => {
+          const contactRoles =
+            contact.roles ||
+            (contact.role
+              ? [contact.role]
+              : []);
+
+          return selectedRole ===
+            "All"
             ? true
-            : contact.role ===
-              selectedRole
-        )
+            : contactRoles.includes(
+                selectedRole
+              );
+        })
         .sort((a, b) =>
           a.name.localeCompare(
             b.name
@@ -95,9 +107,18 @@ export default function ContactsView({
     setEditingContact(false);
 
     setName(contact.name || "");
-    setRole(contact.role || "");
+
+    setRoles(
+      contact.roles ||
+        (contact.role
+          ? [contact.role]
+          : [])
+    );
+
     setPhone(contact.phone || "");
+
     setEmail(contact.email || "");
+
     setNotes(contact.notes || "");
   };
 
@@ -114,7 +135,7 @@ export default function ContactsView({
         ),
         {
           name,
-          role,
+          roles,
           phone,
           email,
           notes
@@ -124,7 +145,7 @@ export default function ContactsView({
       setSelectedContact({
         ...selectedContact,
         name,
-        role,
+        roles,
         phone,
         email,
         notes
@@ -141,7 +162,7 @@ export default function ContactsView({
         collection(db, "contacts"),
         {
           name,
-          role,
+          roles,
           phone,
           email,
           notes,
@@ -150,28 +171,41 @@ export default function ContactsView({
       );
 
       setName("");
-      setRole("");
+      setRoles([]);
       setPhone("");
       setEmail("");
       setNotes("");
     };
 
+  const copyEmails =
+    async () => {
+      const emails =
+        filteredContacts
+          .map((c) => c.email)
+          .filter(Boolean)
+          .join(", ");
+
+      await navigator.clipboard.writeText(
+        emails
+      );
+    };
+
   return (
     <>
-      <div ="grid gap-5">
+      <div className="grid gap-5">
         <GlassCard>
-          <div ="grid gap-5">
+          <div className="grid gap-5">
             <div>
-              <h2 ="text-4xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
                 Contacts
               </h2>
 
-              <div ="text-cyan-100/60 mt-2">
+              <div className="text-cyan-100/60 mt-2">
                 Production directory
               </div>
             </div>
 
-            <div ="grid md:grid-cols-5 gap-3">
+            <div className="grid gap-3">
               <input
                 value={name}
                 onChange={(e) =>
@@ -180,118 +214,80 @@ export default function ContactsView({
                   )
                 }
                 placeholder="Name"
-                ="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
               />
 
-             <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 grid gap-3">
-  <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/50">
-    Roles
-  </div>
+              <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 grid gap-3">
+                <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/50">
+                  Roles
+                </div>
 
-  <select
-    onChange={(e) => {
-      const selected =
-        e.target.value;
+                <select
+                  onChange={(e) => {
+                    const selected =
+                      e.target.value;
 
-      if (
-        selected &&
-        !roles.includes(
-          selected
-        )
-      ) {
-        setRoles([
-          ...roles,
-          selected
-        ]);
-      }
-    }}
-    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-  >
-    <option value="">
-      Add Role
-    </option>
+                    if (
+                      selected &&
+                      !roles.includes(
+                        selected
+                      )
+                    ) {
+                      setRoles([
+                        ...roles,
+                        selected
+                      ]);
+                    }
+                  }}
+                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+                >
+                  <option value="">
+                    Add Role
+                  </option>
 
-    {roleOptions
-      .filter(
-        (r) => r !== "All"
-      )
-      .map((r) => (
-        <option
-          key={r}
-          value={r}
-        >
-          {r}
-        </option>
-      ))}
-  </select>
+                  {roleOptions
+                    .filter(
+                      (r) =>
+                        r !== "All"
+                    )
+                    .map((r) => (
+                      <option
+                        key={r}
+                        value={r}
+                      >
+                        {r}
+                      </option>
+                    ))}
+                </select>
 
-  <div className="flex flex-wrap gap-2">
-    {roles.map((r) => (
-      <div
-        key={r}
-        className="h-10 px-4 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/20 text-white flex items-center gap-2"
-      >
-        <span>{r}</span>
+                <div className="flex flex-wrap gap-2">
+                  {roles.map((r) => (
+                    <div
+                      key={r}
+                      className="h-10 px-4 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/20 text-white flex items-center gap-2"
+                    >
+                      <span>{r}</span>
 
-        <button
-          type="button"
-          onClick={() =>
-            setRoles(
-              roles.filter(
-                (x) =>
-                  x !== r
-              )
-            )
-          }
-          className="text-cyan-200"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
-</div>
-
-  <div className="flex flex-wrap gap-2">
-    {roleOptions
-      .filter(
-        (r) => r !== "All"
-      )
-      .map((r) => {
-        const active =
-          roles.includes(r);
-
-        return (
-          <button
-            key={r}
-            type="button"
-            onClick={() => {
-              if (active) {
-                setRoles(
-                  roles.filter(
-                    (x) =>
-                      x !== r
-                  )
-                );
-              } else {
-                setRoles([
-                  ...roles,
-                  r
-                ]);
-              }
-            }}
-            className={`h-10 px-4 rounded-2xl border transition-all text-sm ${
-              active
-                ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
-                : "border-white/10 bg-white/5 text-white/60"
-            }`}
-          >
-            {r}
-          </button>
-        );
-      })}
-  </div>
-</div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setRoles(
+                            roles.filter(
+                              (
+                                x
+                              ) =>
+                                x !== r
+                            )
+                          )
+                        }
+                        className="text-cyan-200"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               <input
                 value={phone}
@@ -315,6 +311,17 @@ export default function ContactsView({
                 className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
               />
 
+              <textarea
+                value={notes}
+                onChange={(e) =>
+                  setNotes(
+                    e.target.value
+                  )
+                }
+                placeholder="Notes"
+                className="min-h-[120px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
+              />
+
               <button
                 onClick={
                   addNewContact
@@ -330,8 +337,19 @@ export default function ContactsView({
         <GlassCard>
           <div className="grid gap-5">
             <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="text-sm uppercase tracking-[0.25em] text-cyan-200/50">
-                Directory
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="text-sm uppercase tracking-[0.25em] text-cyan-200/50">
+                  Directory
+                </div>
+
+                <button
+                  onClick={
+                    copyEmails
+                  }
+                  className="h-10 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-sm"
+                >
+                  Copy Emails
+                </button>
               </div>
 
               <select
@@ -398,9 +416,16 @@ export default function ContactsView({
                               </div>
 
                               <div className="text-sm text-cyan-100/50 truncate">
-                                {
-                                  contact.role
-                                }
+                                {(
+                                  contact.roles ||
+                                  (contact.role
+                                    ? [
+                                        contact.role
+                                      ]
+                                    : [])
+                                ).join(
+                                  ", "
+                                )}
                               </div>
                             </div>
                           </div>
@@ -439,7 +464,7 @@ export default function ContactsView({
                   false
                 );
               }}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl shadow-[0_0_20px_rgba(34,211,238,0.75)] hover:scale-110 transition-all"
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl shadow-[0_0_20px_rgba(34,211,238,0.75)]"
             >
               ✕
             </button>
@@ -453,160 +478,96 @@ export default function ContactsView({
 
               <div className="min-w-0">
                 <div className="text-4xl font-black text-white break-words">
-                  {editingContact
-                    ? null
-                    : selectedContact.name}
+                  {selectedContact.name}
                 </div>
 
-                <div className="text-cyan-200/60 uppercase tracking-[0.25em] mt-2">
-                  {editingContact
-                    ? null
-                    : selectedContact.role}
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {(selectedContact.roles ||
+                    []).map(
+                    (r) => (
+                      <div
+                        key={r}
+                        className="px-3 py-1 rounded-full border border-fuchsia-300/20 bg-fuchsia-500/20 text-xs uppercase tracking-[0.2em]"
+                      >
+                        {r}
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             </div>
 
-            {editingContact ? (
-              <div className="grid gap-4">
-                <input
-                  value={name}
-                  onChange={(e) =>
-                    setName(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Name"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <input
-                  value={role}
-                  onChange={(e) =>
-                    setRole(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Role"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <input
-                  value={phone}
-                  onChange={(e) =>
-                    setPhone(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Phone"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <input
-                  value={email}
-                  onChange={(e) =>
-                    setEmail(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Email"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <textarea
-                  value={notes}
-                  onChange={(e) =>
-                    setNotes(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Notes"
-                  className="min-h-[160px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
-                />
-
-                <button
-                  onClick={
-                    saveContact
-                  }
-                  className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold"
-                >
-                  Save Contact
-                </button>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5 grid gap-4">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
-                      Phone
-                    </div>
-
-                    <div className="text-xl text-white">
-                      {
-                        selectedContact.phone
-                      }
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
-                      Email
-                    </div>
-
-                    <div className="text-xl text-white break-all">
-                      {
-                        selectedContact.email
-                      }
-                    </div>
-                  </div>
-
-                  {selectedContact.notes && (
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
-                        Notes
-                      </div>
-
-                      <div className="text-white/80 leading-relaxed whitespace-pre-wrap">
-                        {
-                          selectedContact.notes
-                        }
-                      </div>
-                    </div>
-                  )}
+            <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5 grid gap-4">
+              <div>
+                <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
+                  Phone
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() =>
-                      setEditingContact(
-                        true
-                      )
+                <div className="text-xl text-white">
+                  {
+                    selectedContact.phone
+                  }
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
+                  Email
+                </div>
+
+                <div className="text-xl text-white break-all">
+                  {
+                    selectedContact.email
+                  }
+                </div>
+              </div>
+
+              {selectedContact.notes && (
+                <div>
+                  <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
+                    Notes
+                  </div>
+
+                  <div className="text-white/80 leading-relaxed whitespace-pre-wrap">
+                    {
+                      selectedContact.notes
                     }
-                    className="h-12 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      await deleteDoc(
-                        doc(
-                          db,
-                          "contacts",
-                          selectedContact.id
-                        )
-                      );
-
-                      setSelectedContact(
-                        null
-                      );
-                    }}
-                    className="h-12 rounded-2xl border border-red-300/20 bg-red-500/10 text-red-100 font-bold"
-                  >
-                    Delete
-                  </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() =>
+                  setEditingContact(
+                    true
+                  )
+                }
+                className="h-12 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold"
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={async () => {
+                  await deleteDoc(
+                    doc(
+                      db,
+                      "contacts",
+                      selectedContact.id
+                    )
+                  );
+
+                  setSelectedContact(
+                    null
+                  );
+                }}
+                className="h-12 rounded-2xl border border-red-300/20 bg-red-500/10 text-red-100 font-bold"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
