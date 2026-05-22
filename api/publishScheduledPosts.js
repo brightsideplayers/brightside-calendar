@@ -42,9 +42,41 @@ export default async function handler(
         continue;
       }
 
-      const createMediaRes =
-        await fetch(
-          `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media`,
+      if (post.platform === "Facebook") {
+  const facebookRes =
+    await fetch(
+      `https://graph.facebook.com/v23.0/${process.env.FACEBOOK_PAGE_ID}/photos`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          url: post.imageUrl,
+
+          caption:
+            post.caption,
+
+          access_token:
+            process.env
+              .INSTAGRAM_ACCESS_TOKEN
+        })
+      }
+    );
+
+  const facebookData =
+    await facebookRes.json();
+
+  results.push({
+    postId: post.id,
+    facebookData
+  });
+
+  continue;
+}
           {
             method: "POST",
 
