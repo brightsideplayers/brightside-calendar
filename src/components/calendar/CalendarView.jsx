@@ -5,7 +5,9 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
+
 import { useState } from "react";
+
 import GlassCard from "../layout/GlassCard";
 
 export default function CalendarView({
@@ -56,19 +58,25 @@ export default function CalendarView({
     });
   };
 
-  const handleDrop = async (e, day) => {
+  const handleDrop = async (
+    e,
+    day
+  ) => {
     e.preventDefault();
 
     const id =
-      e.dataTransfer.getData("eventId");
+      e.dataTransfer.getData(
+        "eventId"
+      );
 
     if (!id || !day) return;
 
-    const droppedDate = new Date(
-      currentYear,
-      currentMonth,
-      day
-    );
+    const droppedDate =
+      new Date(
+        currentYear,
+        currentMonth,
+        day
+      );
 
     await updateDoc(
       doc(db, "posts", id),
@@ -114,6 +122,7 @@ export default function CalendarView({
               className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
             >
               →
+
             </button>
           </div>
         </div>
@@ -128,142 +137,180 @@ export default function CalendarView({
             "Fri",
             "Sat"
           ].map((day) => (
-            <div key={day}>{day}</div>
+            <div key={day}>
+              {day}
+            </div>
           ))}
         </div>
 
         <div className="grid grid-cols-7 gap-3">
-          {calendarDays.map((day, i) => {
-            const matchingPosts =
-              items.filter((item) => {
-                if (
-                  !(item.scheduledFor ||
-                    item.date) ||
-                  !day
-                ) {
-                  return false;
-                }
+          {calendarDays.map(
+            (day, i) => {
+              const matchingPosts =
+                items.filter(
+                  (item) => {
+                    if (
+                      !(
+                        item.scheduledFor ||
+                        item.date
+                      ) ||
+                      !day
+                    ) {
+                      return false;
+                    }
 
-                const itemDate =
-                  new Date(
-                    item.scheduledFor ||
-                      item.date
-                  );
+                    const itemDate =
+                      new Date(
+                        item.scheduledFor ||
+                          item.date
+                      );
 
-                return (
-                  itemDate.getDate() ===
-                    day &&
-                  itemDate.getMonth() ===
-                    currentMonth &&
-                  itemDate.getFullYear() ===
-                    currentYear
+                    return (
+                      itemDate.getDate() ===
+                        day &&
+                      itemDate.getMonth() ===
+                        currentMonth &&
+                      itemDate.getFullYear() ===
+                        currentYear
+                    );
+                  }
                 );
-              });
 
-            return (
-              <div
-                key={i}
-                onDragOver={(e) =>
-                  e.preventDefault()
-                }
-                onDrop={(e) =>
-                  handleDrop(e, day)
-                }
-                className={`min-h-[160px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden ${
-                  day ===
-                    today.getDate() &&
-                  currentMonth ===
-                    today.getMonth() &&
-                  currentYear ===
-                    today.getFullYear()
-                    ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
-                    : "border-white/10 bg-white/5"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm font-bold text-cyan-100">
-                    {day || ""}
-                  </div>
+              return (
+                <div
+                  key={i}
+                  onDragOver={(e) =>
+                    e.preventDefault()
+                  }
+                  onDrop={(e) =>
+                    handleDrop(
+                      e,
+                      day
+                    )
+                  }
+                  className={`min-h-[170px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden ${
+                    day ===
+                      today.getDate() &&
+                    currentMonth ===
+                      today.getMonth() &&
+                    currentYear ===
+                      today.getFullYear()
+                      ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
+                      : "border-white/10 bg-white/5"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm font-bold text-cyan-100">
+                      {day || ""}
+                    </div>
 
-                  {day && (
-                    <button
-                      onClick={() =>
-                      openCalendarQuickAdd(day)
-                      }
-                      className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
-                    >
-                      +
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid gap-2">
-                  {matchingPosts
-                    .slice(0, 2)
-                    .map((post) => (
-                      <div
-                        key={post.id}
-                        draggable
-                        onDragStart={(e) =>
-                          e.dataTransfer.setData(
-                            "eventId",
-                            post.id
+                    {day && (
+                      <button
+                        onClick={() =>
+                          openCalendarQuickAdd(
+                            day
                           )
                         }
-                        className="group relative rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-2 text-xs cursor-move overflow-hidden transition-all hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
+                        className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
                       >
-                        <button
-                          onClick={async (
+                        +
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2">
+                    {matchingPosts
+                      .slice(0, 2)
+                      .map((post) => (
+                        <div
+                          key={post.id}
+                          draggable
+                          onDragStart={(
                             e
-                          ) => {
-                            e.stopPropagation();
-
-                            await deleteDoc(
-                              doc(
-                                db,
-                                "posts",
-                                post.id
-                              )
-                            );
-                          }}
-                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
+                          ) =>
+                            e.dataTransfer.setData(
+                              "eventId",
+                              post.id
+                            )
+                          }
+                          onClick={() =>
+                            alert(
+                              post.type ===
+                                "task"
+                                ? `${post.title}\n\n${
+                                    post.description ||
+                                    ""
+                                  }`
+                                : post.caption
+                            )
+                          }
+                          className={`group relative rounded-2xl p-2 text-xs cursor-pointer overflow-hidden transition-all hover:scale-[1.02] ${
+                            post.type ===
+                            "task"
+                              ? "border border-amber-300/20 bg-amber-400/10 hover:border-amber-200 hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]"
+                              : "border border-cyan-300/20 bg-cyan-400/10 hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
+                          }`}
                         >
-                          ✕
-                        </button>
+                          <button
+                            onClick={async (
+                              e
+                            ) => {
+                              e.stopPropagation();
 
-                       <div
-  className={`font-bold truncate pr-6 ${
-    post.type === "task"
-      ? "text-amber-200"
-      : "text-cyan-100"
-  }`}
->
-  {post.type === "task"
-    ? "Task"
-    : post.platform || "Post"}
-</div>
+                              await deleteDoc(
+                                doc(
+                                  db,
+                                  "posts",
+                                  post.id
+                                )
+                              );
+                            }}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
+                          >
+                            ✕
+                          </button>
 
-<div className="text-white/70 truncate">
-  {post.type === "task"
-    ? post.title
-    : post.caption?.slice(0, 24)}
-</div>
+                          <div
+                            className={`font-bold truncate pr-6 ${
+                              post.type ===
+                              "task"
+                                ? "text-amber-200"
+                                : "text-cyan-100"
+                            }`}
+                          >
+                            {post.type ===
+                            "task"
+                              ? post.title
+                              : post.platform ||
+                                "Post"}
+                          </div>
+
+                          <div className="text-white/70 truncate">
+                            {post.type ===
+                            "task"
+                              ? post.description
+                              : post.caption?.slice(
+                                  0,
+                                  32
+                                )}
+                          </div>
+                        </div>
+                      ))}
+
+                    {matchingPosts.length >
+                      2 && (
+                      <div className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs flex items-center justify-center">
+                        +
+                        {matchingPosts.length -
+                          2}{" "}
+                        more...
                       </div>
-                    ))}
-
-                  {matchingPosts.length >
-                    2 && (
-                    <div className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs flex items-center justify-center">
-                      +
-                      {matchingPosts.length -
-                        2}{" "}
-                      more...
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            }
+          )}
         </div>
       </div>
     </GlassCard>
