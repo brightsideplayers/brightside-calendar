@@ -17,6 +17,9 @@ export default function CalendarView({
   const [calendarDate, setCalendarDate] =
     useState(new Date());
 
+  const [selectedItem, setSelectedItem] =
+    useState(null);
+
   const today = new Date();
 
   const currentMonth =
@@ -88,231 +91,300 @@ export default function CalendarView({
   };
 
   return (
-    <GlassCard>
-      <div className="grid gap-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-4xl leading-tight pb-2 font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
-            Content Calendar
-          </h2>
+    <>
+      <GlassCard>
+        <div className="grid gap-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-4xl leading-tight pb-2 font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+              Content Calendar
+            </h2>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() =>
-                changeMonth(-1)
-              }
-              className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
-            >
-              ←
-            </button>
-
-            <div className="text-cyan-100 font-bold">
-              {calendarDate.toLocaleString(
-                "default",
-                {
-                  month: "long",
-                  year: "numeric"
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() =>
+                  changeMonth(-1)
                 }
-              )}
+                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
+              >
+                ←
+              </button>
+
+              <div className="text-cyan-100 font-bold">
+                {calendarDate.toLocaleString(
+                  "default",
+                  {
+                    month: "long",
+                    year: "numeric"
+                  }
+                )}
+              </div>
+
+              <button
+                onClick={() =>
+                  changeMonth(1)
+                }
+                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
+              >
+                →
+              </button>
             </div>
-
-            <button
-              onClick={() =>
-                changeMonth(1)
-              }
-              className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5"
-            >
-              →
-
-            </button>
           </div>
-        </div>
 
-        <div className="grid grid-cols-7 gap-3 text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50">
-          {[
-            "Sun",
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat"
-          ].map((day) => (
-            <div key={day}>
-              {day}
-            </div>
-          ))}
-        </div>
+          <div className="grid grid-cols-7 gap-3 text-center text-xs uppercase tracking-[0.2em] text-cyan-200/50">
+            {[
+              "Sun",
+              "Mon",
+              "Tue",
+              "Wed",
+              "Thu",
+              "Fri",
+              "Sat"
+            ].map((day) => (
+              <div key={day}>
+                {day}
+              </div>
+            ))}
+          </div>
 
-        <div className="grid grid-cols-7 gap-3">
-          {calendarDays.map(
-            (day, i) => {
-              const matchingPosts =
-                items.filter(
-                  (item) => {
-                    if (
-                      !(
-                        item.scheduledFor ||
-                        item.date
-                      ) ||
-                      !day
-                    ) {
-                      return false;
-                    }
-
-                    const itemDate =
-                      new Date(
-                        item.scheduledFor ||
+          <div className="grid grid-cols-7 gap-3">
+            {calendarDays.map(
+              (day, i) => {
+                const matchingPosts =
+                  items.filter(
+                    (item) => {
+                      if (
+                        !(
+                          item.scheduledFor ||
                           item.date
+                        ) ||
+                        !day
+                      ) {
+                        return false;
+                      }
+
+                      const itemDate =
+                        new Date(
+                          item.scheduledFor ||
+                            item.date
+                        );
+
+                      return (
+                        itemDate.getDate() ===
+                          day &&
+                        itemDate.getMonth() ===
+                          currentMonth &&
+                        itemDate.getFullYear() ===
+                          currentYear
                       );
+                    }
+                  );
 
-                    return (
-                      itemDate.getDate() ===
-                        day &&
-                      itemDate.getMonth() ===
-                        currentMonth &&
-                      itemDate.getFullYear() ===
-                        currentYear
-                    );
-                  }
-                );
+                return (
+                  <div
+                    key={i}
+                    onDragOver={(e) =>
+                      e.preventDefault()
+                    }
+                    onDrop={(e) =>
+                      handleDrop(
+                        e,
+                        day
+                      )
+                    }
+                    className={`min-h-[170px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden ${
+                      day ===
+                        today.getDate() &&
+                      currentMonth ===
+                        today.getMonth() &&
+                      currentYear ===
+                        today.getFullYear()
+                        ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
+                        : "border-white/10 bg-white/5"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm font-bold text-cyan-100">
+                        {day || ""}
+                      </div>
 
-              return (
-                <div
-                  key={i}
-                  onDragOver={(e) =>
-                    e.preventDefault()
-                  }
-                  onDrop={(e) =>
-                    handleDrop(
-                      e,
-                      day
-                    )
-                  }
-                  className={`min-h-[170px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden ${
-                    day ===
-                      today.getDate() &&
-                    currentMonth ===
-                      today.getMonth() &&
-                    currentYear ===
-                      today.getFullYear()
-                      ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.45)] bg-fuchsia-500/10"
-                      : "border-white/10 bg-white/5"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm font-bold text-cyan-100">
-                      {day || ""}
+                      {day && (
+                        <button
+                          onClick={() =>
+                            openCalendarQuickAdd(
+                              day
+                            )
+                          }
+                          className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
+                        >
+                          +
+                        </button>
+                      )}
                     </div>
 
-                    {day && (
-                      <button
-                        onClick={() =>
-                          openCalendarQuickAdd(
-                            day
-                          )
-                        }
-                        className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
-                      >
-                        +
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid gap-2">
-                    {matchingPosts
-                      .slice(0, 2)
-                      .map((post) => (
-                        <div
-                          key={post.id}
-                          draggable
-                          onDragStart={(
-                            e
-                          ) =>
-                            e.dataTransfer.setData(
-                              "eventId",
-                              post.id
-                            )
-                          }
-                          onClick={() =>
-                            alert(
-                              post.type ===
-                                "task"
-                                ? `${post.title}\n\n${
-                                    post.description ||
-                                    ""
-                                  }`
-                                : post.caption
-                            )
-                          }
-                          className={`group relative rounded-2xl p-2 text-xs cursor-pointer overflow-hidden transition-all hover:scale-[1.02] ${
-                            post.type ===
-                            "task"
-                              ? "border border-amber-300/20 bg-amber-400/10 hover:border-amber-200 hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]"
-                              : "border border-cyan-300/20 bg-cyan-400/10 hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
-                          }`}
-                        >
-                          <button
-                            onClick={async (
-                              e
-                            ) => {
-                              e.stopPropagation();
-
-                              await deleteDoc(
-                                doc(
-                                  db,
-                                  "posts",
-                                  post.id
-                                )
-                              );
-                            }}
-                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
-                          >
-                            ✕
-                          </button>
-
+                    <div className="grid gap-2">
+                      {matchingPosts
+                        .slice(0, 2)
+                        .map((post) => (
                           <div
-                            className={`font-bold truncate pr-6 ${
+                            key={post.id}
+                            draggable
+                            onDragStart={(
+                              e
+                            ) =>
+                              e.dataTransfer.setData(
+                                "eventId",
+                                post.id
+                              )
+                            }
+                            onClick={() =>
+                              setSelectedItem(
+                                post
+                              )
+                            }
+                            className={`group relative rounded-2xl p-2 text-xs cursor-pointer overflow-hidden transition-all hover:scale-[1.02] ${
                               post.type ===
                               "task"
-                                ? "text-amber-200"
-                                : "text-cyan-100"
+                                ? "border border-amber-300/20 bg-amber-400/10 hover:border-amber-200 hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]"
+                                : "border border-cyan-300/20 bg-cyan-400/10 hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
                             }`}
                           >
-                            {post.type ===
-                            "task"
-                              ? post.title
-                              : post.platform ||
-                                "Post"}
-                          </div>
+                            <button
+                              onClick={async (
+                                e
+                              ) => {
+                                e.stopPropagation();
 
-                          <div className="text-white/70 truncate">
-                            {post.type ===
-                            "task"
-                              ? post.description
-                              : post.caption?.slice(
-                                  0,
-                                  32
-                                )}
+                                await deleteDoc(
+                                  doc(
+                                    db,
+                                    "posts",
+                                    post.id
+                                  )
+                                );
+                              }}
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
+                            >
+                              ✕
+                            </button>
+
+                            <div
+                              className={`font-bold truncate pr-6 ${
+                                post.type ===
+                                "task"
+                                  ? "text-amber-200"
+                                  : "text-cyan-100"
+                              }`}
+                            >
+                              {post.type ===
+                              "task"
+                                ? post.title
+                                : post.platform ||
+                                  "Post"}
+                            </div>
+
+                            <div className="text-white/70 truncate">
+                              {post.type ===
+                              "task"
+                                ? post.description
+                                : post.caption?.slice(
+                                    0,
+                                    32
+                                  )}
+                            </div>
                           </div>
+                        ))}
+
+                      {matchingPosts.length >
+                        2 && (
+                        <div className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs flex items-center justify-center">
+                          +
+                          {matchingPosts.length -
+                            2}{" "}
+                          more...
                         </div>
-                      ))}
-
-                    {matchingPosts.length >
-                      2 && (
-                      <div className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs flex items-center justify-center">
-                        +
-                        {matchingPosts.length -
-                          2}{" "}
-                        more...
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            }
-          )}
+                );
+              }
+            )}
+          </div>
         </div>
-      </div>
-    </GlassCard>
+      </GlassCard>
+
+      {selectedItem && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)]">
+            <button
+              onClick={() =>
+                setSelectedItem(
+                  null
+                )
+              }
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-yellow-400 text-black font-black text-xl shadow-[0_0_20px_rgba(250,204,21,0.75)] hover:scale-110 transition-all"
+            >
+              ✕
+            </button>
+
+            <div className="grid gap-2">
+              <div className="text-xs uppercase tracking-[0.3em] text-cyan-300/60">
+                {selectedItem.type ===
+                "task"
+                  ? "Task"
+                  : selectedItem.platform}
+              </div>
+
+              <h2
+                className={`text-4xl font-black leading-tight ${
+                  selectedItem.type ===
+                  "task"
+                    ? "text-amber-200"
+                    : "text-cyan-100"
+                }`}
+              >
+                {selectedItem.type ===
+                "task"
+                  ? selectedItem.title
+                  : "Social Post"}
+              </h2>
+            </div>
+
+            {selectedItem.imageUrl && (
+              <img
+                src={
+                  selectedItem.imageUrl
+                }
+                alt=""
+                className="w-full rounded-[1.8rem] border border-white/10"
+              />
+            )}
+
+            <div className="rounded-[1.8rem] border border-white/10 bg-black/20 p-5 whitespace-pre-wrap leading-relaxed text-white/80">
+              {selectedItem.type ===
+              "task"
+                ? selectedItem.description
+                : selectedItem.caption}
+            </div>
+
+            {selectedItem.assignedTo && (
+              <div className="text-sm text-cyan-200/70">
+                Assigned to:{" "}
+                <span className="text-white">
+                  {
+                    selectedItem.assignedTo
+                  }
+                </span>
+              </div>
+            )}
+
+            <div className="text-xs text-cyan-100/40">
+              {new Date(
+                selectedItem.scheduledFor
+              ).toLocaleString()}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
