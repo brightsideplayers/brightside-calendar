@@ -2,8 +2,6 @@ import GlassCard from "../layout/GlassCard";
 import {
   doc,
   deleteDoc,
-  collection,
-  addDoc
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
