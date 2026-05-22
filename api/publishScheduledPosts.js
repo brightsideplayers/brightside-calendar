@@ -68,12 +68,45 @@ export default async function handler(
         );
 
       const mediaData =
-        await createMediaRes.json();
+  await createMediaRes.json();
 
-      results.push({
-        postId: post.id,
-        mediaData
-      });
+if (mediaData.id) {
+  const publishRes =
+    await fetch(
+      `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media_publish`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          creation_id:
+            mediaData.id,
+
+          access_token:
+            process.env
+              .INSTAGRAM_ACCESS_TOKEN
+        })
+      }
+    );
+
+  const publishData =
+    await publishRes.json();
+
+  results.push({
+    postId: post.id,
+    mediaData,
+    publishData
+  });
+} else {
+  results.push({
+    postId: post.id,
+    mediaData
+  });
+}
     }
 
     return res.status(200).json({
