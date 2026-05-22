@@ -1,4 +1,4 @@
-import { db } from "../firebaseAdmin.js";
+import admin from "firebase-admin";
 
 const privateKey =
   process.env.FIREBASE_PRIVATE_KEY
