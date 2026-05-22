@@ -27,8 +27,8 @@ export default function ContactsView({
   const [name, setName] =
     useState("");
 
-  const [role, setRole] =
-    useState("");
+  const [roles, setRoles] =
+  useState([]);
 
   const [phone, setPhone] =
     useState("");
@@ -183,16 +183,51 @@ export default function ContactsView({
                 className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
               />
 
-              <input
-                value={role}
-                onChange={(e) =>
-                  setRole(
-                    e.target.value
+             <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 grid gap-3">
+  <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/50">
+    Roles
+  </div>
+
+  <div className="flex flex-wrap gap-2">
+    {roleOptions
+      .filter(
+        (r) => r !== "All"
+      )
+      .map((r) => {
+        const active =
+          roles.includes(r);
+
+        return (
+          <button
+            key={r}
+            type="button"
+            onClick={() => {
+              if (active) {
+                setRoles(
+                  roles.filter(
+                    (x) =>
+                      x !== r
                   )
-                }
-                placeholder="Role"
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-              />
+                );
+              } else {
+                setRoles([
+                  ...roles,
+                  r
+                ]);
+              }
+            }}
+            className={`h-10 px-4 rounded-2xl border transition-all text-sm ${
+              active
+                ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
+                : "border-white/10 bg-white/5 text-white/60"
+            }`}
+          >
+            {r}
+          </button>
+        );
+      })}
+  </div>
+</div>
 
               <input
                 value={phone}
