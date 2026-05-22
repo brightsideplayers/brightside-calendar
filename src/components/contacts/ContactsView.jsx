@@ -158,20 +158,20 @@ export default function ContactsView({
 
   return (
     <>
-      <div className="grid gap-5">
+      <div ="grid gap-5">
         <GlassCard>
-          <div className="grid gap-5">
+          <div ="grid gap-5">
             <div>
-              <h2 className="text-4xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+              <h2 ="text-4xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
                 Contacts
               </h2>
 
-              <div className="text-cyan-100/60 mt-2">
+              <div ="text-cyan-100/60 mt-2">
                 Production directory
               </div>
             </div>
 
-            <div className="grid md:grid-cols-5 gap-3">
+            <div ="grid md:grid-cols-5 gap-3">
               <input
                 value={name}
                 onChange={(e) =>
@@ -180,13 +180,77 @@ export default function ContactsView({
                   )
                 }
                 placeholder="Name"
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                ="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
               />
 
              <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 grid gap-3">
   <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/50">
     Roles
   </div>
+
+  <select
+    onChange={(e) => {
+      const selected =
+        e.target.value;
+
+      if (
+        selected &&
+        !roles.includes(
+          selected
+        )
+      ) {
+        setRoles([
+          ...roles,
+          selected
+        ]);
+      }
+    }}
+    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+  >
+    <option value="">
+      Add Role
+    </option>
+
+    {roleOptions
+      .filter(
+        (r) => r !== "All"
+      )
+      .map((r) => (
+        <option
+          key={r}
+          value={r}
+        >
+          {r}
+        </option>
+      ))}
+  </select>
+
+  <div className="flex flex-wrap gap-2">
+    {roles.map((r) => (
+      <div
+        key={r}
+        className="h-10 px-4 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/20 text-white flex items-center gap-2"
+      >
+        <span>{r}</span>
+
+        <button
+          type="button"
+          onClick={() =>
+            setRoles(
+              roles.filter(
+                (x) =>
+                  x !== r
+              )
+            )
+          }
+          className="text-cyan-200"
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
 
   <div className="flex flex-wrap gap-2">
     {roleOptions
