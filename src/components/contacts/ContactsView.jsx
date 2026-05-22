@@ -13,7 +13,7 @@ import { useMemo, useState } from "react";
 import GlassCard from "../layout/GlassCard";
 
 export default function ContactsView({
-  contacts
+  contacts = []
 }) {
   const [selectedRole, setSelectedRole] =
     useState("All");
