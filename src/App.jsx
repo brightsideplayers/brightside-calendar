@@ -16,7 +16,8 @@ export default function App() {
   const [view, setView] = useState("feed");
 
   const [items, setItems] = useState([]);
-
+  const [contacts, setContacts] =
+  useState([]);
   const [quickAddDate, setQuickAddDate] = useState(null);
 
   useEffect(() => {
@@ -31,7 +32,21 @@ export default function App() {
         );
       }
     );
+useEffect(() => {
+  const unsub = onSnapshot(
+    collection(db, "contacts"),
+    (snapshot) => {
+      setContacts(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+      );
+    }
+  );
 
+  return () => unsub();
+}, []);
     return () => unsub();
   }, []);
 
@@ -59,7 +74,11 @@ export default function App() {
       />
     ),
 
-    contacts: <ContactsView />,
+    contacts: (
+  <ContactsView
+    contacts={contacts}
+  />
+),
 
     costumes: <CostumesView />,
 
