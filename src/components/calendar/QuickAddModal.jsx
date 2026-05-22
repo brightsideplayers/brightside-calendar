@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc
+} from "firebase/firestore";
+
 import { db } from "../../firebase";
 
 import GlassCard from "../layout/GlassCard";
@@ -8,44 +12,92 @@ export default function QuickAddModal({
   quickAddDate,
   setQuickAddDate
 }) {
-  const [caption, setCaption] = useState("");
+  const [type, setType] =
+    useState("post");
 
-  const [imageUrl, setImageUrl] = useState("");
+  const [caption, setCaption] =
+    useState("");
 
-  const [platform, setPlatform] = useState("Instagram");
+  const [imageUrl, setImageUrl] =
+    useState("");
+
+  const [platform, setPlatform] =
+    useState("Instagram");
+
+  const [assignedTo, setAssignedTo] =
+    useState("");
+
   const [scheduledTime, setScheduledTime] =
-  useState("12:00");
+    useState("12:00");
+
   const handleSave = async () => {
     if (!caption.trim()) return;
-const [hours, minutes] =
-  scheduledTime.split(":");
 
-const scheduledDate = new Date(
-  quickAddDate
-);
+    const [hours, minutes] =
+      scheduledTime.split(":");
 
-scheduledDate.setHours(hours);
-scheduledDate.setMinutes(minutes);
+    const scheduledDate =
+      new Date(quickAddDate);
 
-await addDoc(collection(db, "posts"), {
-  caption,
-  platform,
-  imageUrl,
+    scheduledDate.setHours(hours);
 
-  scheduledFor:
-    scheduledDate.toISOString(),
+    scheduledDate.setMinutes(minutes);
 
-  status: "scheduled",
+    // TASK
+    if (type === "task") {
+      await addDoc(
+        collection(db, "posts"),
+        {
+          type: "task",
 
-  createdAt: Date.now()
-});
-    
+          title: caption,
+
+          assignedTo,
+
+          scheduledFor:
+            scheduledDate.toISOString(),
+
+          status: "open",
+
+          createdAt: Date.now()
+        }
+      );
+    }
+
+    // POST
+    else {
+      await addDoc(
+        collection(db, "posts"),
+        {
+          type: "post",
+
+          caption,
+
+          platform,
+
+          imageUrl,
+
+          assignedTo,
+
+          scheduledFor:
+            scheduledDate.toISOString(),
+
+          status: "scheduled",
+
+          createdAt: Date.now()
+        }
+      );
+    }
 
     setCaption("");
 
     setImageUrl("");
 
+    setAssignedTo("");
+
     setPlatform("Instagram");
+
+    setType("post");
 
     setQuickAddDate(null);
   };
@@ -62,7 +114,9 @@ await addDoc(collection(db, "posts"), {
             </h2>
 
             <button
-              onClick={() => setQuickAddDate(null)}
+              onClick={() =>
+                setQuickAddDate(null)
+              }
               className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10"
             >
               ✕
@@ -72,65 +126,141 @@ await addDoc(collection(db, "posts"), {
           <div className="text-cyan-100">
             {quickAddDate.toLocaleDateString()}
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() =>
+                setType("post")
+              }
+              className={`h-12 rounded-2xl border transition-all ${
+                type === "post"
+                  ? "bg-fuchsia-500/20 border-fuchsia-300/30"
+                  : "bg-black/30 border-white/10"
+              }`}
+            >
+              Post
+            </button>
+
+            <button
+              onClick={() =>
+                setType("task")
+              }
+              className={`h-12 rounded-2xl border transition-all ${
+                type === "task"
+                  ? "bg-amber-500/20 border-amber-300/30"
+                  : "bg-black/30 border-white/10"
+              }`}
+            >
+              Task
+            </button>
+          </div>
+
           <input
             type="time"
             value={scheduledTime}
             onChange={(e) =>
-               setScheduledTime(e.target.value)
-  }
-  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-/>
-
-          <select
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value)}
+              setScheduledTime(
+                e.target.value
+              )
+            }
             className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-          >
-            <option>Instagram</option>
+          />
 
-            <option>Facebook</option>
+          {type === "post" && (
+            <select
+              value={platform}
+              onChange={(e) =>
+                setPlatform(
+                  e.target.value
+                )
+              }
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+            >
+              <option>
+                Instagram
+              </option>
 
-            <option>TikTok</option>
+              <option>
+                Facebook
+              </option>
 
-            <option>YouTube</option>
-          </select>
+              <option>
+                TikTok
+              </option>
 
-         <input
-  type="file"
-  accept="image/*"
-  onChange={async (e) => {
-    const file = e.target.files[0];
+              <option>
+                YouTube
+              </option>
+            </select>
+          )}
 
-    if (!file) return;
+          <input
+            type="text"
+            value={assignedTo}
+            onChange={(e) =>
+              setAssignedTo(
+                e.target.value
+              )
+            }
+            placeholder="Assign to..."
+            className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+          />
 
-    const formData = new FormData();
+          {type === "post" && (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file =
+                  e.target.files[0];
 
-    formData.append("file", file);
+                if (!file) return;
 
-    formData.append(
-      "upload_preset",
-      "brightside_unassigned"
-    );
+                const formData =
+                  new FormData();
 
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
-      {
-        method: "POST",
-        body: formData
-      }
-    );
+                formData.append(
+                  "file",
+                  file
+                );
 
-    const data = await res.json();
+                formData.append(
+                  "upload_preset",
+                  "brightside_unassigned"
+                );
 
-    setImageUrl(data.secure_url);
-  }}
-  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 py-2 file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
-/>
+                const res =
+                  await fetch(
+                    "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
+                    {
+                      method: "POST",
+                      body: formData
+                    }
+                  );
+
+                const data =
+                  await res.json();
+
+                setImageUrl(
+                  data.secure_url
+                );
+              }}
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 py-2 file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
+            />
+          )}
 
           <textarea
             value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Write your caption or task..."
+            onChange={(e) =>
+              setCaption(
+                e.target.value
+              )
+            }
+            placeholder={
+              type === "task"
+                ? "Describe the task..."
+                : "Write your caption..."
+            }
             className="min-h-[180px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
           />
 
