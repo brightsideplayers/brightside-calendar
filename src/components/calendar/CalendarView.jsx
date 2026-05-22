@@ -57,8 +57,12 @@ export default function CalendarView({
   };
 
   const handleDrop = async (e, day) => {
+    e.preventDefault();
+
     const id =
       e.dataTransfer.getData("eventId");
+
+    if (!id || !day) return;
 
     const droppedDate = new Date(
       currentYear,
@@ -69,7 +73,8 @@ export default function CalendarView({
     await updateDoc(
       doc(db, "posts", id),
       {
-        date: droppedDate.toISOString()
+        scheduledFor:
+          droppedDate.toISOString()
       }
     );
   };
@@ -131,15 +136,19 @@ export default function CalendarView({
           {calendarDays.map((day, i) => {
             const matchingPosts =
               items.filter((item) => {
-                if 
-                  (!item.scheduledFor || !day
-                )
+                if (
+                  !(item.scheduledFor ||
+                    item.date) ||
+                  !day
+                ) {
                   return false;
+                }
 
                 const itemDate =
-                 new Date(
-                     item.scheduledFor || item.date
-);
+                  new Date(
+                    item.scheduledFor ||
+                      item.date
+                  );
 
                 return (
                   itemDate.getDate() ===
@@ -180,7 +189,11 @@ export default function CalendarView({
                     <button
                       onClick={() =>
                         openCalendarQuickAdd(
-                          day
+                          new Date(
+                            currentYear,
+                            currentMonth,
+                            day
+                          )
                         )
                       }
                       className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
@@ -190,7 +203,7 @@ export default function CalendarView({
                   )}
                 </div>
 
-                <div className="grid gap-2 max-h-[140px] overflow-hidden">
+                <div className="grid gap-2">
                   {matchingPosts
                     .slice(0, 2)
                     .map((post) => (
@@ -219,7 +232,7 @@ export default function CalendarView({
                               )
                             );
                           }}
-                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all flex items-center justify-center z-10"
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
                         >
                           ✕
                         </button>
@@ -240,12 +253,12 @@ export default function CalendarView({
 
                   {matchingPosts.length >
                     2 && (
-                    <button className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs hover:bg-white/10 transition-all">
+                    <div className="h-9 rounded-2xl border border-white/10 bg-white/5 text-cyan-100 text-xs flex items-center justify-center">
                       +
                       {matchingPosts.length -
                         2}{" "}
                       more...
-                    </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -256,4 +269,3 @@ export default function CalendarView({
     </GlassCard>
   );
 }
-
