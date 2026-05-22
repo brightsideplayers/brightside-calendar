@@ -17,8 +17,11 @@ export default function CalendarView({
   const [calendarDate, setCalendarDate] =
     useState(new Date());
 
-  const [selectedItem, setSelectedItem] =
+  const [selectedDay, setSelectedDay] =
     useState(null);
+
+  const [selectedDayItems, setSelectedDayItems] =
+    useState([]);
 
   const today = new Date();
 
@@ -191,7 +194,22 @@ export default function CalendarView({
                         day
                       )
                     }
-                    className={`min-h-[170px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden ${
+                    onClick={() => {
+                      if (!day) return;
+
+                      setSelectedDay(
+                        new Date(
+                          currentYear,
+                          currentMonth,
+                          day
+                        )
+                      );
+
+                      setSelectedDayItems(
+                        matchingPosts
+                      );
+                    }}
+                    className={`min-h-[170px] rounded-[1.8rem] border p-3 transition-all relative overflow-hidden cursor-pointer hover:scale-[1.01] ${
                       day ===
                         today.getDate() &&
                       currentMonth ===
@@ -209,11 +227,13 @@ export default function CalendarView({
 
                       {day && (
                         <button
-                          onClick={() =>
+                          onClick={(e) => {
+                            e.stopPropagation();
+
                             openCalendarQuickAdd(
                               day
-                            )
-                          }
+                            );
+                          }}
                           className="w-8 h-8 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-lg font-bold hover:scale-105 transition-all"
                         >
                           +
@@ -236,37 +256,13 @@ export default function CalendarView({
                                 post.id
                               )
                             }
-                            onClick={() =>
-                              setSelectedItem(
-                                post
-                              )
-                            }
-                            className={`group relative rounded-2xl p-2 text-xs cursor-pointer overflow-hidden transition-all hover:scale-[1.02] ${
+                            className={`group relative rounded-2xl p-2 text-xs overflow-hidden transition-all ${
                               post.type ===
                               "task"
-                                ? "border border-amber-300/20 bg-amber-400/10 hover:border-amber-200 hover:shadow-[0_0_16px_rgba(251,191,36,0.25)]"
-                                : "border border-cyan-300/20 bg-cyan-400/10 hover:border-cyan-200 hover:shadow-[0_0_16px_rgba(34,211,238,0.25)]"
+                                ? "border border-amber-300/20 bg-amber-400/10"
+                                : "border border-cyan-300/20 bg-cyan-400/10"
                             }`}
                           >
-                            <button
-                              onClick={async (
-                                e
-                              ) => {
-                                e.stopPropagation();
-
-                                await deleteDoc(
-                                  doc(
-                                    db,
-                                    "posts",
-                                    post.id
-                                  )
-                                );
-                              }}
-                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-yellow-400 text-black text-[10px] font-black opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10"
-                            >
-                              ✕
-                            </button>
-
                             <div
                               className={`font-bold truncate pr-6 ${
                                 post.type ===
@@ -278,8 +274,7 @@ export default function CalendarView({
                               {post.type ===
                               "task"
                                 ? post.title
-                                : post.platform ||
-                                  "Post"}
+                                : post.platform}
                             </div>
 
                             <div className="text-white/70 truncate">
@@ -300,7 +295,7 @@ export default function CalendarView({
                           +
                           {matchingPosts.length -
                             2}{" "}
-                          more...
+                          more
                         </div>
                       )}
                     </div>
@@ -312,15 +307,15 @@ export default function CalendarView({
         </div>
       </GlassCard>
 
-      {selectedItem && (
+      {selectedDay && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)]">
+          <div className="w-full max-w-3xl rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)] max-h-[90vh] overflow-y-auto">
             <button
-              onClick={() =>
-                setSelectedItem(
-                  null
-                )
-              }
+              onClick={() => {
+                setSelectedDay(null);
+
+                setSelectedDayItems([]);
+              }}
               className="absolute top-4 right-4 w-10 h-10 rounded-full bg-yellow-400 text-black font-black text-xl shadow-[0_0_20px_rgba(250,204,21,0.75)] hover:scale-110 transition-all"
             >
               ✕
@@ -328,59 +323,120 @@ export default function CalendarView({
 
             <div className="grid gap-2">
               <div className="text-xs uppercase tracking-[0.3em] text-cyan-300/60">
-                {selectedItem.type ===
-                "task"
-                  ? "Task"
-                  : selectedItem.platform}
+                Daily Agenda
               </div>
 
-              <h2
-                className={`text-4xl font-black leading-tight ${
-                  selectedItem.type ===
-                  "task"
-                    ? "text-amber-200"
-                    : "text-cyan-100"
-                }`}
-              >
-                {selectedItem.type ===
-                "task"
-                  ? selectedItem.title
-                  : "Social Post"}
+              <h2 className="text-4xl font-black text-cyan-100">
+                {selectedDay.toLocaleDateString()}
               </h2>
             </div>
 
-            {selectedItem.imageUrl && (
-              <img
-                src={
-                  selectedItem.imageUrl
-                }
-                alt=""
-                className="w-full rounded-[1.8rem] border border-white/10"
-              />
-            )}
+            <div className="grid gap-4">
+              {selectedDayItems.map(
+                (item) => (
+                  <div
+                    key={item.id}
+                    className={`rounded-[1.8rem] border p-5 grid gap-4 relative ${
+                      item.type ===
+                      "task"
+                        ? "border-amber-300/20 bg-amber-500/10"
+                        : "border-cyan-300/20 bg-cyan-500/10"
+                    }`}
+                  >
+                    <button
+                      onClick={async () => {
+                        await deleteDoc(
+                          doc(
+                            db,
+                            "posts",
+                            item.id
+                          )
+                        );
 
-            <div className="rounded-[1.8rem] border border-white/10 bg-black/20 p-5 whitespace-pre-wrap leading-relaxed text-white/80">
-              {selectedItem.type ===
-              "task"
-                ? selectedItem.description
-                : selectedItem.caption}
-            </div>
+                        setSelectedDayItems(
+                          (
+                            prev
+                          ) =>
+                            prev.filter(
+                              (
+                                p
+                              ) =>
+                                p.id !==
+                                item.id
+                            )
+                        );
+                      }}
+                      className="absolute top-4 right-4 w-8 h-8 rounded-full bg-yellow-400 text-black text-sm font-black shadow-[0_0_20px_rgba(250,204,21,0.75)]"
+                    >
+                      ✕
+                    </button>
 
-            {selectedItem.assignedTo && (
-              <div className="text-sm text-cyan-200/70">
-                Assigned to:{" "}
-                <span className="text-white">
-                  {
-                    selectedItem.assignedTo
-                  }
-                </span>
-              </div>
-            )}
+                    <div className="grid gap-1">
+                      <div className="text-xs uppercase tracking-[0.25em] text-white/50">
+                        {item.type ===
+                        "task"
+                          ? "Task"
+                          : item.platform}
+                      </div>
 
-            <div className="text-xs text-cyan-100/40">
-              {new Date(
-                selectedItem.scheduledFor
-              ).toLocaleString()}
+                      <div
+                        className={`text-2xl font-black ${
+                          item.type ===
+                          "task"
+                            ? "text-amber-200"
+                            : "text-cyan-100"
+                        }`}
+                      >
+                        {item.type ===
+                        "task"
+                          ? item.title
+                          : "Social Post"}
+                      </div>
+                    </div>
+
+                    {item.imageUrl && (
+                      <img
+                        src={
+                          item.imageUrl
+                        }
+                        alt=""
+                        className="w-full rounded-[1.5rem] border border-white/10"
+                      />
+                    )}
+
+                    <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 whitespace-pre-wrap leading-relaxed text-white/80">
+                      {item.type ===
+                      "task"
+                        ? item.description
+                        : item.caption}
+                    </div>
+
+                    {item.assignedTo && (
+                      <div className="text-sm text-cyan-200/70">
+                        Assigned to:{" "}
+                        <span className="text-white">
+                          {
+                            item.assignedTo
+                          }
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="text-xs text-cyan-100/40">
+                      {new Date(
+                        item.scheduledFor
+                      ).toLocaleString()}
+                    </div>
+                  </div>
+                )
+              )}
+
+              {selectedDayItems.length ===
+                0 && (
+                <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
+                  Nothing scheduled.
+                </div>
+              )}
             </div>
           </div>
         </div>
