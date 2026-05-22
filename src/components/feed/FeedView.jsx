@@ -52,13 +52,20 @@ export default function FeedView({
                     <div className="flex items-center justify-between flex-wrap gap-3">
                       <div className="flex items-center gap-2">
                         <div className="px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-300/20 text-xs uppercase tracking-[0.2em]">
-                          {item.platform}
+                          {item.type === "task"
+                            ? "Task"
+                              : item.platform}
                         </div>
 
-                        <div className="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-300/20 text-xs uppercase tracking-[0.2em]">
-                          {item.status}
-                        </div>
-                      </div>
+                        <div
+                             className={`px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] ${
+                             item.type === "task"
+                             ? "bg-amber-500/20 border border-amber-300/20 text-amber-100"
+                             : "bg-cyan-500/20 border border-cyan-300/20 text-cyan-100"
+                         }`}
+                             >
+                      {item.status}
+                     </div>
 
                       <div className="text-xs text-cyan-100/50">
                         {new Date(
@@ -68,9 +75,30 @@ export default function FeedView({
                       </div>
                     </div>
 
-                    <div className="text-white/90 whitespace-pre-wrap leading-relaxed">
-                      {item.caption}
-                    </div>
+                    <div className="grid gap-2">
+  {item.type === "task" ? (
+    <>
+      <div className="text-amber-200 text-xl font-black">
+        {item.title}
+      </div>
+
+      <div className="text-white/80 leading-relaxed">
+        {item.description
+          ?.slice(0, 140)}
+        {item.description
+          ?.length > 140 && (
+          <span className="text-cyan-300">
+            ...more
+          </span>
+        )}
+      </div>
+    </>
+  ) : (
+    <div className="text-white/90 whitespace-pre-wrap leading-relaxed">
+      {item.caption}
+    </div>
+  )}
+</div>
 
                     <div className="flex gap-2">
                       <button
