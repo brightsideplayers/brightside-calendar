@@ -5,26 +5,85 @@ export default async function handler(
   res
 ) {
   try {
+    const now = new Date();
+
     const snapshot =
       await db
         .collection("posts")
+        .where(
+          "status",
+          "==",
+          "scheduled"
+        )
         .get();
 
-    const posts =
-      snapshot.docs.map((doc) => ({
+    const posts = snapshot.docs
+      .map((doc) => ({
         id: doc.id,
         ...doc.data()
-      }));
+      }))
+      .filter(
+        (post) =>
+          new Date(
+            post.scheduledFor
+          ) <= now
+      );
+
+    const results = [];
+
+    for (const post of posts) {
+      if (!post.imageUrl) {
+        results.push({
+          id: post.id,
+          error:
+            "Missing imageUrl"
+        });
+
+        continue;
+      }
+
+      const createMediaRes =
+        await fetch(
+          `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              image_url:
+                post.imageUrl,
+
+              caption:
+                post.caption,
+
+              access_token:
+                process.env
+                  .INSTAGRAM_ACCESS_TOKEN
+            })
+          }
+        );
+
+      const mediaData =
+        await createMediaRes.json();
+
+      results.push({
+        postId: post.id,
+        mediaData
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      posts
+      results
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error.message,
-      stack: error.stack
+      error: error.message
     });
   }
 }
