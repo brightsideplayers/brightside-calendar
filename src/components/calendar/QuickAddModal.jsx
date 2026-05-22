@@ -18,6 +18,9 @@ export default function QuickAddModal({
   const [caption, setCaption] =
     useState("");
 
+  const [taskTitle, setTaskTitle] =
+    useState("");
+
   const [imageUrl, setImageUrl] =
     useState("");
 
@@ -31,7 +34,17 @@ export default function QuickAddModal({
     useState("12:00");
 
   const handleSave = async () => {
-    if (!caption.trim()) return;
+    if (
+      type === "task" &&
+      !taskTitle.trim()
+    )
+      return;
+
+    if (
+      type === "post" &&
+      !caption.trim()
+    )
+      return;
 
     const [hours, minutes] =
       scheduledTime.split(":");
@@ -50,7 +63,10 @@ export default function QuickAddModal({
         {
           type: "task",
 
-          title: caption,
+          title: taskTitle,
+
+          description:
+            caption,
 
           assignedTo,
 
@@ -90,6 +106,8 @@ export default function QuickAddModal({
     }
 
     setCaption("");
+
+    setTaskTitle("");
 
     setImageUrl("");
 
@@ -205,6 +223,20 @@ export default function QuickAddModal({
             placeholder="Assign to..."
             className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
           />
+
+          {type === "task" && (
+            <input
+              type="text"
+              value={taskTitle}
+              onChange={(e) =>
+                setTaskTitle(
+                  e.target.value
+                )
+              }
+              placeholder="Task title..."
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+            />
+          )}
 
           {type === "post" && (
             <input
