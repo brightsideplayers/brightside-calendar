@@ -1,10 +1,4 @@
 import { useMemo, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  Plus,
-} from "lucide-react";
 
 export default function CalendarView({ posts = [] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -89,7 +83,7 @@ export default function CalendarView({ posts = [] }) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <Calendar className="w-8 h-8 text-cyan-400" />
+              <span className="text-cyan-400 text-3xl">📅</span>
               Content Calendar
             </h1>
 
@@ -103,14 +97,14 @@ export default function CalendarView({ posts = [] }) {
               onClick={previousMonth}
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
             >
-              <ChevronLeft className="w-5 h-5 text-white" />
+              <span className="text-white">←</span>
             </button>
 
             <button
               onClick={nextMonth}
               className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
             >
-              <ChevronRight className="w-5 h-5 text-white" />
+              <span className="text-white">→</span>
             </button>
           </div>
         </div>
@@ -258,7 +252,7 @@ export default function CalendarView({ posts = [] }) {
               ) : (
                 <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center">
                   <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
-                    <Plus className="w-8 h-8 text-cyan-300" />
+                    <span className="text-cyan-300 text-3xl">+</span>
                   </div>
 
                   <h3 className="text-2xl font-black text-white">
