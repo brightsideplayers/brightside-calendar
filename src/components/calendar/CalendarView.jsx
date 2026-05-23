@@ -1,629 +1,71 @@
-import {
-  doc,
-  deleteDoc,
-  updateDoc
-} from "firebase/firestore";
+import { useEffect, useMemo, useState } from "react";
 
-import { db } from "../../firebase";
-
-import { useState } from "react";
-
-import GlassCard from "../layout/GlassCard";
-
-export default function CalendarView({
-  items,
-  openCalendarQuickAdd
-}) {
-  const [calendarDate, setCalendarDate] =
-    useState(new Date());
-
-  const [selectedDay, setSelectedDay] =
-    useState(null);
-
-  const [selectedDayItems, setSelectedDayItems] =
-    useState([]);
-
-  const today = new Date();
-
-  const currentMonth =
-    calendarDate.getMonth();
-
-  const currentYear =
-    calendarDate.getFullYear();
-
-  const firstDay = new Date(
-    currentYear,
-    currentMonth,
-    1
-  ).getDay();
-
-  const daysInMonth = new Date(
-    currentYear,
-    currentMonth + 1,
-    0
-  ).getDate();
-
-  const calendarDays = [
-    ...Array(firstDay).fill(null),
-
-    ...Array.from(
-      { length: daysInMonth },
-      (_, i) => i + 1
-    )
-  ];
-
-  const changeMonth = (
-    direction
-  ) => {
-    setCalendarDate((prev) => {
-      const next = new Date(prev);
-
-      next.setMonth(
-        prev.getMonth() +
-          direction
-      );
-
-      return next;
-    });
-  };
-
-  const handleDrop = async (
-    e,
-    day
-  ) => {
-    e.preventDefault();
-
-    const id =
-      e.dataTransfer.getData(
-        "eventId"
-      );
-
-    if (!id || !day) return;
-
-    const droppedDate =
-      new Date(
-        currentYear,
-        currentMonth,
-        day
-      );
-
-    await updateDoc(
-      doc(db, "posts", id),
-      {
-        scheduledFor:
-          droppedDate.toISOString()
-      }
-    );
-  };
-
-  const getTaskStyles = (
-    status
-  ) => {
-    switch (status) {
-      case "completed":
-        return "border-cyan-300/20 bg-cyan-500/10 shadow-[0_0_30px_rgba(34,211,238,0.08)]";
-
-      case "in-progress":
-        return "border-fuchsia-300/20 bg-fuchsia-500/10 shadow-[0_0_30px_rgba(217,70,239,0.08)]";
-
-      case "blocked":
-        return "border-rose-300/20 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.08)]";
-
-      default:
-        return "border-amber-300/20 bg-amber-500/10 shadow-[0_0_30px_rgba(251,191,36,0.08)]";
-    }
-  };
-
-  const getTaskStatusPill =
-    (status) => {
-      switch (status) {
-        case "completed":
-          return "bg-cyan-400/15 border border-cyan-300/20 text-cyan-100";
-
-        case "in-progress":
-          return "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100";
-
-        case "blocked":
-          return "bg-rose-500/15 border border-rose-300/20 text-rose-100";
-
-        default:
-          return "bg-amber-400/15 border border-amber-300/20 text-amber-100";
-      }
-    };
-
-  const getTaskStatusLabel =
-    (status) => {
-      switch (status) {
-        case "completed":
-          return "Completed";
-
-        case "in-progress":
-          return "In Progress";
-
-        case "blocked":
-          return "Blocked";
-
-        default:
-          return "Todo";
-      }
-    };
-
-  return (
-    <>
-      <GlassCard>
-        <div className="grid gap-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-4xl leading-tight pb-2 font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
-              Content Calendar
-            </h2>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() =>
-                  changeMonth(-1)
-                }
-                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
-              >
-                ←
-              </button>
-
-              <div className="text-cyan-100 font-bold">
-                {calendarDate.toLocaleString(
-                  "default",
-                  {
-                    month: "long",
-                    year: "numeric"
-                  }
-                )}
-              </div>
-
-              <button
-                onClick={() =>
-                  changeMonth(1)
-                }
-                className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
-              >
-                →
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-7 gap-2 text-center text-[10px] uppercase tracking-[0.25em] text-cyan-200/40">
-            {[
-              "Sun",
-              "Mon",
-              "Tue",
-              "Wed",
-              "Thu",
-              "Fri",
-              "Sat"
-            ].map((day) => (
-              <div key={day}>
-                {day}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-2">
-            {calendarDays.map(
-              (day, i) => {
-                const matchingPosts =
-                  items.filter(
-                    (item) => {
-                      if (
-                        !(
-                          item.scheduledFor ||
-                          item.date
-                        ) ||
-                        !day
-                      ) {
-                        return false;
-                      }
-
-                      const itemDate =
-                        new Date(
-                          item.scheduledFor ||
-                            item.date
-                        );
-
-                      const currentCellDate =
-                        new Date(
-                          currentYear,
-                          currentMonth,
-                          day
-                        );
-
-                      const sameDay =
-                        itemDate.getDate() ===
-                          day &&
-                        itemDate.getMonth() ===
-                          currentMonth &&
-                        itemDate.getFullYear() ===
-                          currentYear;
-
-                      const isRollingTask =
-                        item.type ===
-                          "task" &&
-                        item.taskStatus !==
-                          "completed" &&
-                        itemDate <
-                          currentCellDate;
-
-                      return (
-                        sameDay ||
-                        isRollingTask
-                      );
-                    }
-                  );
-
-                return (
+            {/* POSTS */}
+            <div className="grid gap-4 pb-8">
+              {selectedDayItems.length > 0 ? (
+                selectedDayItems.map((item, index) => (
                   <div
-                    key={i}
-                    onDragOver={(e) =>
-                      e.preventDefault()
-                    }
-                    onDrop={(e) =>
-                      handleDrop(
-                        e,
-                        day
-                      )
-                    }
-                    onClick={() => {
-                      if (!day) return;
-
-                      setSelectedDay(
-                        new Date(
-                          currentYear,
-                          currentMonth,
-                          day
-                        )
-                      );
-
-                      setSelectedDayItems(
-                        matchingPosts
-                      );
-                    }}
-                    className={`h-[110px] md:min-h-[170px] rounded-[1.6rem] border p-2 md:p-3 transition-all relative overflow-hidden cursor-pointer hover:scale-[1.01] ${
-                      day ===
-                        today.getDate() &&
-                      currentMonth ===
-                        today.getMonth() &&
-                      currentYear ===
-                        today.getFullYear()
-                        ? "border-fuchsia-300 shadow-[0_0_24px_rgba(236,72,153,0.35)] bg-fuchsia-500/10"
-                        : "border-white/10 bg-white/5"
-                    }`}
+                    key={index}
+                    className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 grid gap-4"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-xs md:text-sm font-bold text-cyan-100">
-                        {day || ""}
+                    {/* PLATFORM */}
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div className="rounded-full bg-cyan-400/15 border border-cyan-400/20 px-4 py-2 text-sm font-bold text-cyan-300 uppercase tracking-wide">
+                        {item.platform || "SOCIAL POST"}
                       </div>
 
-                      {day && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-
-                            openCalendarQuickAdd(
-                              day
-                            );
-                          }}
-                          className="w-7 h-7 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 text-sm font-bold hover:scale-105 transition-all"
-                        >
-                          +
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="hidden md:grid gap-1.5">
-                      {matchingPosts
-                        .slice(0, 3)
-                        .map((post) => {
-                          const time =
-                            new Date(
-                              post.scheduledFor
-                            ).toLocaleTimeString(
-                              [],
-                              {
-                                hour:
-                                  "numeric",
-                                minute:
-                                  "2-digit"
-                              }
-                            );
-
-                          return (
-                            <div
-                              key={post.id}
-                              draggable
-                              onClick={(e) =>
-                                e.stopPropagation()
-                              }
-                              onDragStart={(
-                                e
-                              ) =>
-                                e.dataTransfer.setData(
-                                  "eventId",
-                                  post.id
-                                )
-                              }
-                              className={`group relative rounded-xl p-2 text-[10px] md:text-xs overflow-hidden transition-all backdrop-blur-sm ${
-                                post.type ===
-                                "task"
-                                  ? getTaskStyles(
-                                      post.taskStatus
-                                    )
-                                  : post.platform ===
-                                    "Facebook"
-                                  ? "border border-cyan-300/20 bg-cyan-400/10"
-                                  : "border border-fuchsia-300/20 bg-fuchsia-400/10"
-                              }`}
-                            >
-                              <div
-                                className={`absolute left-0 top-0 bottom-0 w-1 ${
-                                  post.type ===
-                                  "task"
-                                    ? "bg-white"
-                                    : post.platform ===
-                                      "Facebook"
-                                    ? "bg-cyan-300"
-                                    : "bg-fuchsia-300"
-                                }`}
-                              />
-
-                              <div className="flex items-center justify-between gap-2 pl-2">
-                                <div className="font-bold truncate text-white">
-                                  {post.platform ||
-                                   post.title}
-                                </div>
-
-                                <div className="text-[9px] text-white/40 shrink-0">
-                                  {time}
-                                </div>
-                              </div>
-
-                              <div className="text-white/60 truncate pl-2 mt-1">
-                                {post.type ===
-                                "task"
-                                  ? post.description
-                                  : post.caption}
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-
-                    <div className="md:hidden flex flex-wrap gap-1 mt-2">
-                      {matchingPosts
-                        .slice(0, 6)
-                        .map((post) => (
-                          <div
-                            key={post.id}
-                            className={`w-2.5 h-2.5 rounded-full ${
-                              post.type ===
-                              "task"
-                                ? post.taskStatus ===
-                                  "completed"
-                                  ? "bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.9)]"
-                                  : post.taskStatus ===
-                                    "blocked"
-                                  ? "bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.9)]"
-                                  : "bg-fuchsia-300 shadow-[0_0_10px_rgba(217,70,239,0.9)]"
-                                : "bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.9)]"
-                            }`}
-                          />
-                        ))}
-
-                      {matchingPosts.length >
-                        6 && (
-                        <div className="text-[10px] text-cyan-100/50 ml-1">
-                          +
-                          {matchingPosts.length -
-                            6}
+                      {item.time && (
+                        <div className="text-sm text-white/50">
+                          {item.time}
                         </div>
                       )}
                     </div>
-                  </div>
-                );
-              }
-            )}
-          </div>
-        </div>
-      </GlassCard>
 
-      {selectedDay && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-        <div className="w-full h-full md:h-auto md:max-w-3xl rounded-none md:rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)] overflow-y-auto">
-            <button
-              onClick={() => {
-                setSelectedDay(null);
-
-                setSelectedDayItems([]);
-              }}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl shadow-[0_0_20px_rgba(34,211,238,0.75)] hover:scale-110 transition-all"
-            >
-              ✕
-            </button>
-
-            <div className="grid gap-2">
-              <div className="text-xs uppercase tracking-[0.3em] text-cyan-300/60">
-                Daily Agenda
-              </div>
-
-              <h2 className="text-4xl font-black text-cyan-100">
-                {selectedDay.toLocaleDateString(
-                  "default",
-                  {
-                    weekday:
-                      "long",
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric"
-                  }
-                )}
-              </h2>
-            </div>
-
-            <div className="grid gap-4">
-              {selectedDayItems.map(
-                (item) => (
-                  <div
-                    key={item.id}
-                    className={`rounded-[1.8rem] border p-5 grid gap-4 relative ${
-                      item.type ===
-                      "task"
-                        ? getTaskStyles(
-                            item.taskStatus
-                          )
-                        : item.platform ===
-                          "Facebook"
-                        ? "border-cyan-300/20 bg-cyan-500/10"
-                        : "border-fuchsia-300/20 bg-fuchsia-500/10"
-                    }`}
-                  >
-                    <button
-                      onClick={async () => {
-                        await deleteDoc(
-                          doc(
-                            db,
-                            "posts",
-                            item.id
-                          )
-                        );
-
-                        setSelectedDayItems(
-                          (
-                            prev
-                          ) =>
-                            prev.filter(
-                              (
-                                p
-                              ) =>
-                                p.id !==
-                                item.id
-                            )
-                        );
-                      }}
-                      className="absolute top-4 right-4 w-8 h-8 rounded-full bg-yellow-400 text-black text-sm font-black shadow-[0_0_20px_rgba(250,204,21,0.75)]"
-                    >
-                      ✕
-                    </button>
-
-                    <div className="grid gap-2">
-                      <div className="text-xs uppercase tracking-[0.25em] text-white/50">
-                       {item.platform ||
-                        item.type}
-                      </div>
-
-                      <div className="text-2xl font-black text-white">
-                        {item.type ===
-                        "task"
-                          ? item.title
-                          : "Social Post"}
-                      </div>
-
-                      {item.type ===
-                        "task" && (
-                        <div
-                          className={`inline-flex w-fit px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] ${getTaskStatusPill(
-                            item.taskStatus
-                          )}`}
-                        >
-                          {getTaskStatusLabel(
-                            item.taskStatus
-                          )}
-                        </div>
-                      )}
-
-                      {item.type ===
-                        "task" &&
-                        item.taskStatus !==
-                          "completed" && (
-                          <button
-                            onClick={async () => {
-                              await updateDoc(
-                                doc(
-                                  db,
-                                  "posts",
-                                  item.id
-                                ),
-                                {
-                                  taskStatus:
-                                    "completed"
-                                }
-                              );
-
-                              setSelectedDayItems(
-                                (prev) =>
-                                  prev.map(
-                                    (
-                                      p
-                                    ) =>
-                                      p.id ===
-                                      item.id
-                                        ? {
-                                            ...p,
-                                            taskStatus:
-                                              "completed"
-                                          }
-                                        : p
-                                  )
-                              );
-                            }}
-                            className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold w-fit"
-                          >
-                            Complete Task
-                          </button>
-                        )}
-                    </div>
-
-                    {item.imageUrl && (
-                      <img
-                        src={
-                          item.imageUrl
-                        }
-                        alt=""
-                        className="w-full rounded-[1.5rem] border border-white/10"
-                      />
-                    )}
-
-                    <div className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 whitespace-pre-wrap leading-relaxed text-white/80">
-                      {item.type ===
-                      "task"
-                        ? item.description
-                        : item.caption}
-                    </div>
-
-                    {item.assignedTo && (
-                      <div className="text-sm text-cyan-200/70">
-                        Assigned to:{" "}
-                        <span className="text-white">
-                          {
-                            item.assignedTo
-                          }
-                        </span>
+                    {/* TITLE */}
+                    {item.title && (
+                      <div>
+                        <h3 className="text-xl font-black text-white">
+                          {item.title}
+                        </h3>
                       </div>
                     )}
 
-                    <div className="text-xs text-cyan-100/40">
-                      {new Date(
-                        item.scheduledFor
-                      ).toLocaleString()}
-                    </div>
-                  </div>
-                )
-              )}
+                    {/* CAPTION */}
+                    {item.caption && (
+                      <div className="rounded-2xl bg-black/20 border border-white/5 p-4 text-white/80 whitespace-pre-wrap leading-relaxed">
+                        {item.caption}
+                      </div>
+                    )}
 
-              {selectedDayItems.length ===
-                0 && (
-                <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-                  Nothing scheduled.
+                    {/* HASHTAGS */}
+                    {item.hashtags && (
+                      <div className="text-cyan-300 text-sm leading-relaxed whitespace-pre-wrap">
+                        {item.hashtags}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center grid gap-4">
+                  <div className="mx-auto w-16 h-16 rounded-full bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
+                    <Plus className="w-8 h-8 text-cyan-300" />
+                  </div>
+
+                  <div>
+                    <h3 className="text-2xl font-black text-white">
+                      No Posts Scheduled
+                    </h3>
+
+                    <p className="text-white/50 mt-2">
+                      There are no scheduled posts for this day yet.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
