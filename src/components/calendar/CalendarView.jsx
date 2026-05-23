@@ -52,12 +52,15 @@ export default function CalendarView({
     )
   ];
 
-  const changeMonth = (direction) => {
+  const changeMonth = (
+    direction
+  ) => {
     setCalendarDate((prev) => {
       const next = new Date(prev);
 
       next.setMonth(
-        prev.getMonth() + direction
+        prev.getMonth() +
+          direction
       );
 
       return next;
@@ -92,6 +95,58 @@ export default function CalendarView({
       }
     );
   };
+
+  const getTaskStyles = (
+    status
+  ) => {
+    switch (status) {
+      case "completed":
+        return "border-cyan-300/20 bg-cyan-500/10 shadow-[0_0_30px_rgba(34,211,238,0.08)]";
+
+      case "in-progress":
+        return "border-fuchsia-300/20 bg-fuchsia-500/10 shadow-[0_0_30px_rgba(217,70,239,0.08)]";
+
+      case "blocked":
+        return "border-rose-300/20 bg-rose-500/10 shadow-[0_0_30px_rgba(244,63,94,0.08)]";
+
+      default:
+        return "border-amber-300/20 bg-amber-500/10 shadow-[0_0_30px_rgba(251,191,36,0.08)]";
+    }
+  };
+
+  const getTaskStatusPill =
+    (status) => {
+      switch (status) {
+        case "completed":
+          return "bg-cyan-400/15 border border-cyan-300/20 text-cyan-100";
+
+        case "in-progress":
+          return "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100";
+
+        case "blocked":
+          return "bg-rose-500/15 border border-rose-300/20 text-rose-100";
+
+        default:
+          return "bg-amber-400/15 border border-amber-300/20 text-amber-100";
+      }
+    };
+
+  const getTaskStatusLabel =
+    (status) => {
+      switch (status) {
+        case "completed":
+          return "Completed";
+
+        case "in-progress":
+          return "In Progress";
+
+        case "blocked":
+          return "Blocked";
+
+        default:
+          return "Todo";
+      }
+    };
 
   return (
     <>
@@ -276,34 +331,29 @@ export default function CalendarView({
                               className={`group relative rounded-xl p-2 text-[10px] md:text-xs overflow-hidden transition-all backdrop-blur-sm ${
                                 post.type ===
                                 "task"
-                                  ? "border border-amber-300/20 bg-amber-400/10 hover:border-amber-200"
+                                  ? getTaskStyles(
+                                      post.taskStatus
+                                    )
                                   : post.platform ===
                                     "Facebook"
-                                  ? "border border-blue-300/20 bg-blue-400/10 hover:border-blue-200"
-                                  : "border border-fuchsia-300/20 bg-fuchsia-400/10 hover:border-fuchsia-200"
+                                  ? "border border-cyan-300/20 bg-cyan-400/10"
+                                  : "border border-fuchsia-300/20 bg-fuchsia-400/10"
                               }`}
                             >
                               <div
                                 className={`absolute left-0 top-0 bottom-0 w-1 ${
                                   post.type ===
                                   "task"
-                                    ? "bg-amber-300"
+                                    ? "bg-white"
                                     : post.platform ===
                                       "Facebook"
-                                    ? "bg-blue-300"
+                                    ? "bg-cyan-300"
                                     : "bg-fuchsia-300"
                                 }`}
                               />
 
                               <div className="flex items-center justify-between gap-2 pl-2">
-                                <div
-                                  className={`font-bold truncate ${
-                                    post.type ===
-                                    "task"
-                                      ? "text-amber-100"
-                                      : "text-white"
-                                  }`}
-                                >
+                                <div className="font-bold truncate text-white">
                                   {post.type ===
                                   "task"
                                     ? post.title
@@ -381,10 +431,12 @@ export default function CalendarView({
                     className={`rounded-[1.8rem] border p-5 grid gap-4 relative ${
                       item.type ===
                       "task"
-                        ? "border-amber-300/20 bg-amber-500/10"
+                        ? getTaskStyles(
+                            item.taskStatus
+                          )
                         : item.platform ===
                           "Facebook"
-                        ? "border-blue-300/20 bg-blue-500/10"
+                        ? "border-cyan-300/20 bg-cyan-500/10"
                         : "border-fuchsia-300/20 bg-fuchsia-500/10"
                     }`}
                   >
@@ -416,7 +468,7 @@ export default function CalendarView({
                       ✕
                     </button>
 
-                    <div className="grid gap-1">
+                    <div className="grid gap-2">
                       <div className="text-xs uppercase tracking-[0.25em] text-white/50">
                         {item.type ===
                         "task"
@@ -424,19 +476,25 @@ export default function CalendarView({
                           : item.platform}
                       </div>
 
-                      <div
-                        className={`text-2xl font-black ${
-                          item.type ===
-                          "task"
-                            ? "text-amber-200"
-                            : "text-white"
-                        }`}
-                      >
+                      <div className="text-2xl font-black text-white">
                         {item.type ===
                         "task"
                           ? item.title
                           : "Social Post"}
                       </div>
+
+                      {item.type ===
+                        "task" && (
+                        <div
+                          className={`inline-flex w-fit px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] ${getTaskStatusPill(
+                            item.taskStatus
+                          )}`}
+                        >
+                          {getTaskStatusLabel(
+                            item.taskStatus
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {item.imageUrl && (
