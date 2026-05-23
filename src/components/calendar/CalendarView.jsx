@@ -442,11 +442,6 @@ export default function CalendarView({
                 )
               ) : (
                 <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center grid gap-5">
-                  <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
-                    <span className="text-cyan-300 text-3xl">
-                      +
-                    </span>
-                  </div>
 
                   <h3 className="text-2xl font-black text-white">
                     Nothing Scheduled
