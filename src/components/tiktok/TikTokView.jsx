@@ -136,6 +136,42 @@ export default function TikTokView() {
                 className="h-12 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 font-bold"
               >
                 Copy Hashtags
+                <button
+  onClick={async () => {
+    await addDoc(
+      collection(db, "posts"),
+      {
+        type: "task",
+
+        category: "TikTok",
+
+        platform: "TikTok",
+
+        title:
+          selectedPreset,
+
+        description:
+          caption,
+
+        videoLink,
+
+        status:
+          "in-progress",
+
+        completed: false,
+
+        scheduledFor:
+          new Date().toISOString(),
+
+        createdAt:
+          Date.now()
+      }
+    );
+  }}
+  className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-bold"
+>
+  Save To Planner
+</button>
               </button>
             </div>
           </div>
