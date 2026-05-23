@@ -29,6 +29,8 @@ import TikTokView from "./components/tiktok/TikTokView";
 export default function App() {
   const [view, setView] =
     useState("feed");
+const [currentProduction, setCurrentProduction] =
+  useState("The Little Mermaid");
 
   const [items, setItems] =
     useState([]);
@@ -133,6 +135,25 @@ export default function App() {
               <div className="text-cyan-100/70">
                 Production Dashboard
               </div>
+              <div className="pt-4">
+  <select
+    value={currentProduction}
+    onChange={(e) =>
+      setCurrentProduction(
+        e.target.value
+      )
+    }
+    className="h-12 rounded-2xl bg-black/30 border border-fuchsia-300/20 px-5 text-white font-medium shadow-[0_0_25px_rgba(217,70,239,0.12)]"
+  >
+    <option>
+      The Little Mermaid
+    </option>
+
+    <option>
+      Robin Hood
+    </option>
+  </select>
+</div>
             </div>
           </div>
 
