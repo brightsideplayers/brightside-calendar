@@ -4,6 +4,11 @@ import GlassCard from "../layout/GlassCard";
 
 export default function CostumesView() {
   const [items, setItems] = useState([
+  const [newCostume, setNewCostume] =
+  useState("");
+
+const [selectedStatus, setSelectedStatus] =
+  useState("Needed");
     { id: 1, text: "Prince Costume", checked: false }
   ]);
 
