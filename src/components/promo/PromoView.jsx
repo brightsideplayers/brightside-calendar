@@ -16,7 +16,23 @@ import { db } from "../../firebase";
 export default function PromoView() {
   const [items, setItems] =
     useState([]);
+useEffect(() => {
+  const unsub = onSnapshot(
+    collection(db, "promo"),
+    (snapshot) => {
+      setItems(
+        snapshot.docs.map(
+          (doc) => ({
+            id: doc.id,
+            ...doc.data()
+          })
+        )
+      );
+    }
+  );
 
+  return () => unsub();
+}, []);
   const [title, setTitle] =
     useState("");
 
