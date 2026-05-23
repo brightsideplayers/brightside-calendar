@@ -314,6 +314,42 @@ export default function CalendarView({
                           +
                         </button>
                       )}
+                      {item.type ===
+  "task" &&
+  item.taskStatus !==
+    "completed" && (
+    <button
+      onClick={async () => {
+        await updateDoc(
+          doc(
+            db,
+            "posts",
+            item.id
+          ),
+          {
+            taskStatus:
+              "completed"
+          }
+        );
+
+        setSelectedDayItems(
+          (prev) =>
+            prev.map((p) =>
+              p.id === item.id
+                ? {
+                    ...p,
+                    taskStatus:
+                      "completed"
+                  }
+                : p
+            )
+        );
+      }}
+      className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold w-fit"
+    >
+      Complete Task
+    </button>
+  )}
                     </div>
 
                     <div className="grid gap-1.5">
