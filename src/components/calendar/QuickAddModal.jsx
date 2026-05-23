@@ -22,9 +22,6 @@ export default function QuickAddModal({
   const [caption, setCaption] =
     useState("");
 
-  const [hashtags, setHashtags] =
-    useState("");
-
   const [taskTitle, setTaskTitle] =
     useState("");
 
@@ -63,37 +60,6 @@ export default function QuickAddModal({
       );
     }
   }, [quickAddDate]);
-
-  // HASHTAG GENERATOR
-  const generateHashtags = (
-    text
-  ) => {
-    if (!text) return "";
-
-    const words = text
-      .toLowerCase()
-      .replace(/[^\w\s]/gi, "")
-      .split(" ")
-      .filter(
-        (word) =>
-          word.length > 3
-      )
-      .slice(0, 5);
-
-    const tags = words.map(
-      (word) => `#${word}`
-    );
-
-    tags.push(
-      "#fyp",
-      "#theatre",
-      "#viral"
-    );
-
-    return [
-      ...new Set(tags)
-    ].join(" ");
-  };
 
   const handleSave = async () => {
     if (
@@ -153,8 +119,6 @@ export default function QuickAddModal({
 
           caption,
 
-          hashtags,
-
           platform,
 
           imageUrl,
@@ -176,8 +140,6 @@ export default function QuickAddModal({
 
     // RESET
     setCaption("");
-
-    setHashtags("");
 
     setTaskTitle("");
 
@@ -285,7 +247,7 @@ export default function QuickAddModal({
                   e.target.value
                 )
               }
-              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
+              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
             >
               <option>
                 Instagram
@@ -315,7 +277,7 @@ export default function QuickAddModal({
               )
             }
             placeholder="Assign to..."
-            className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
+            className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
           />
 
           {/* TASK */}
@@ -330,7 +292,7 @@ export default function QuickAddModal({
                   )
                 }
                 placeholder="Task title..."
-                className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
+                className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
               />
 
               <select
@@ -342,7 +304,7 @@ export default function QuickAddModal({
                     e.target.value
                   )
                 }
-                className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
+                className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
               >
                 <option value="todo">
                   🟣 Todo
@@ -408,59 +370,25 @@ export default function QuickAddModal({
                   data.secure_url
                 );
               }}
-              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-4 py-3 file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
+              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-4 py-3 text-white file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
             />
           )}
 
           {/* CONTENT */}
           <textarea
             value={caption}
-            onChange={(e) => {
+            onChange={(e) =>
               setCaption(
                 e.target.value
-              );
-
-              if (
-                platform ===
-                "TikTok"
-              ) {
-                setHashtags(
-                  generateHashtags(
-                    e.target.value
-                  )
-                );
-              }
-            }}
+              )
+            }
             placeholder={
               type === "task"
                 ? "Describe the task..."
                 : "Write your caption..."
             }
-            className="min-h-[220px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
+            className="min-h-[220px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5 text-white"
           />
-
-          {/* TIKTOK HASHTAGS */}
-          {platform ===
-            "TikTok" && (
-            <div className="grid gap-2">
-              <div className="text-sm uppercase tracking-[0.2em] text-cyan-100/50">
-                Suggested
-                Hashtags
-              </div>
-
-              <textarea
-                value={
-                  hashtags
-                }
-                onChange={(e) =>
-                  setHashtags(
-                    e.target.value
-                  )
-                }
-                className="min-h-[100px] rounded-[1.4rem] bg-black/30 border border-white/10 p-4 text-cyan-100"
-              />
-            </div>
-          )}
 
           {/* SAVE */}
           <button
