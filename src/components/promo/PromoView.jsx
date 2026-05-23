@@ -97,6 +97,14 @@ export default function PromoView() {
               className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 py-2 file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
             />
 
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt=""
+                className="w-40 rounded-[1.4rem] border border-white/10"
+              />
+            )}
+
             <button
               onClick={addPromo}
               className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold hover:scale-[1.02] transition-all"
@@ -109,65 +117,58 @@ export default function PromoView() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
         {items.map((item) => (
-         <GlassCard
-  key={item.id}
->
-  <div className="grid gap-4 relative">
-    <img
-      src={item.imageUrl}
-      alt=""
-      className="w-full aspect-square object-cover rounded-[1.6rem] border border-white/10"
-    />
-
-    <div className="flex items-start justify-between gap-3">
-      <div className="text-xl font-black text-white">
-        {item.title}
-      </div>
-
-      <details className="relative shrink-0">
-        <summary className="list-none cursor-pointer w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
-          ⋮
-        </summary>
-
-        <div className="absolute right-0 mt-2 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-          <a
-            href={item.imageUrl}
-            download
-            target="_blank"
-            rel="noreferrer"
-            className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 flex items-center justify-center"
+          <GlassCard
+            key={item.id}
           >
-            Download
-          </a>
-
-          <button
-            onClick={() =>
-              setItems((prev) =>
-                prev.filter(
-                  (i) =>
-                    i.id !==
-                    item.id
-                )
-              )
-            }
-            className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
-          >
-            Delete
-          </button>
-        </div>
-      </details>
-    </div>
-  </div>
-</GlassCard>
-            <div className="grid gap-4">
+            <div className="grid gap-4 relative">
               <img
                 src={item.imageUrl}
                 alt=""
                 className="w-full aspect-square object-cover rounded-[1.6rem] border border-white/10"
               />
 
-              <div className="text-xl font-black text-white">
-                {item.title}
+              <div className="flex items-start justify-between gap-3">
+                <div className="text-xl font-black text-white">
+                  {item.title}
+                </div>
+
+                <details className="relative shrink-0">
+                  <summary className="list-none cursor-pointer w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+                    ⋮
+                  </summary>
+
+                  <div className="absolute right-0 mt-2 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                    <a
+                      href={
+                        item.imageUrl
+                      }
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 flex items-center justify-center"
+                    >
+                      Download
+                    </a>
+
+                    <button
+                      onClick={() =>
+                        setItems(
+                          (prev) =>
+                            prev.filter(
+                              (
+                                i
+                              ) =>
+                                i.id !==
+                                item.id
+                            )
+                        )
+                      }
+                      className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </details>
               </div>
             </div>
           </GlassCard>
