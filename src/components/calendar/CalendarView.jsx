@@ -228,10 +228,12 @@ export default function CalendarView({
                     openDay(day);
                   }}
                   className={`relative h-[140px] md:h-[180px] rounded-[1.5rem] p-2 md:p-3 text-left overflow-hidden transition-all ${
-                    day
-                      ? "bg-[#060b16] border border-white/[0.03] hover:bg-cyan-500/[0.04]"
-                      : "bg-transparent"
-                  }`}
+  day
+    ? isToday
+      ? "bg-cyan-500/[0.08] border border-cyan-300/20 shadow-[0_0_25px_rgba(34,211,238,0.18)]"
+      : "bg-[#060b16] border border-white/[0.03] hover:bg-cyan-500/[0.04]"
+    : "bg-transparent"
+}`}
                 >
                   {day && (
                     <>
