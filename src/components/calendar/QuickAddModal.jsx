@@ -1,4 +1,7 @@
-import { useState } from "react";
+import {
+  useState,
+  useEffect
+} from "react";
 
 import {
   collection,
@@ -31,11 +34,32 @@ export default function QuickAddModal({
   const [assignedTo, setAssignedTo] =
     useState("");
 
-  const [scheduledTime, setScheduledTime] =
-    useState("12:00");
+  const [
+    scheduledDate,
+    setScheduledDate
+  ] = useState("");
 
   const [taskStatus, setTaskStatus] =
     useState("todo");
+
+  // PREFILL DATE
+  useEffect(() => {
+    if (quickAddDate) {
+      const local =
+        new Date(quickAddDate);
+
+      local.setMinutes(
+        local.getMinutes() -
+          local.getTimezoneOffset()
+      );
+
+      setScheduledDate(
+        local
+          .toISOString()
+          .slice(0, 16)
+      );
+    }
+  }, [quickAddDate]);
 
   const handleSave = async () => {
     if (
@@ -50,15 +74,12 @@ export default function QuickAddModal({
     )
       return;
 
-    const [hours, minutes] =
-      scheduledTime.split(":");
-
-    const scheduledDate =
-      new Date(quickAddDate);
-
-    scheduledDate.setHours(hours);
-
-    scheduledDate.setMinutes(minutes);
+    const finalDate =
+      scheduledDate
+        ? new Date(
+            scheduledDate
+          )
+        : new Date();
 
     // TASK
     if (type === "task") {
@@ -76,8 +97,11 @@ export default function QuickAddModal({
 
           taskStatus,
 
+          date:
+            finalDate.toISOString(),
+
           scheduledFor:
-            scheduledDate.toISOString(),
+            finalDate.toISOString(),
 
           status: "open",
 
@@ -101,8 +125,11 @@ export default function QuickAddModal({
 
           assignedTo,
 
+          date:
+            finalDate.toISOString(),
+
           scheduledFor:
-            scheduledDate.toISOString(),
+            finalDate.toISOString(),
 
           status: "scheduled",
 
@@ -111,6 +138,7 @@ export default function QuickAddModal({
       );
     }
 
+    // RESET
     setCaption("");
 
     setTaskTitle("");
@@ -125,6 +153,8 @@ export default function QuickAddModal({
 
     setType("post");
 
+    setScheduledDate("");
+
     setQuickAddDate(null);
   };
 
@@ -132,13 +162,22 @@ export default function QuickAddModal({
     return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
       <GlassCard className="w-full max-w-2xl border-fuchsia-300/20">
         <div className="grid gap-5">
+          {/* HEADER */}
           <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
-              Quick Add
-            </h2>
+            <div>
+              <h2 className="text-4xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
+                Quick Add
+              </h2>
+
+              <div className="text-cyan-100/60 mt-1">
+                Add a post or task
+                to your production
+                calendar.
+              </div>
+            </div>
 
             <button
               onClick={() =>
@@ -146,55 +185,60 @@ export default function QuickAddModal({
                   null
                 )
               }
-              className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10"
+              className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
             >
               ✕
             </button>
           </div>
 
-          <div className="text-cyan-100">
-            {quickAddDate.toLocaleDateString()}
-          </div>
-
+          {/* TYPE */}
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() =>
                 setType("post")
               }
-              className={`h-12 rounded-2xl border transition-all ${
+              className={`h-14 rounded-[1.4rem] border font-bold transition-all ${
                 type === "post"
-                  ? "bg-fuchsia-500/20 border-fuchsia-300/30"
-                  : "bg-black/30 border-white/10"
+                  ? "bg-fuchsia-500/20 border-fuchsia-300/30 text-white"
+                  : "bg-black/30 border-white/10 text-white/60"
               }`}
             >
-              Post
+              Social Post
             </button>
 
             <button
               onClick={() =>
                 setType("task")
               }
-              className={`h-12 rounded-2xl border transition-all ${
+              className={`h-14 rounded-[1.4rem] border font-bold transition-all ${
                 type === "task"
-                  ? "bg-amber-500/20 border-amber-300/30"
-                  : "bg-black/30 border-white/10"
+                  ? "bg-amber-500/20 border-amber-300/30 text-white"
+                  : "bg-black/30 border-white/10 text-white/60"
               }`}
             >
               Task
             </button>
           </div>
 
-          <input
-            type="time"
-            value={scheduledTime}
-            onChange={(e) =>
-              setScheduledTime(
-                e.target.value
-              )
-            }
-            className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-          />
+          {/* DATE */}
+          <div className="grid gap-2">
+            <div className="text-sm uppercase tracking-[0.2em] text-cyan-100/50">
+              Scheduled Date
+            </div>
 
+            <input
+              type="datetime-local"
+              value={scheduledDate}
+              onChange={(e) =>
+                setScheduledDate(
+                  e.target.value
+                )
+              }
+              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
+            />
+          </div>
+
+          {/* PLATFORM */}
           {type === "post" && (
             <select
               value={platform}
@@ -203,7 +247,7 @@ export default function QuickAddModal({
                   e.target.value
                 )
               }
-              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
             >
               <option>
                 Instagram
@@ -223,6 +267,7 @@ export default function QuickAddModal({
             </select>
           )}
 
+          {/* ASSIGNED */}
           <input
             type="text"
             value={assignedTo}
@@ -232,9 +277,10 @@ export default function QuickAddModal({
               )
             }
             placeholder="Assign to..."
-            className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+            className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
           />
 
+          {/* TASK */}
           {type === "task" && (
             <>
               <input
@@ -246,7 +292,7 @@ export default function QuickAddModal({
                   )
                 }
                 placeholder="Task title..."
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
               />
 
               <select
@@ -258,7 +304,7 @@ export default function QuickAddModal({
                     e.target.value
                   )
                 }
-                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+                className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
               >
                 <option value="todo">
                   🟡 Todo
@@ -279,6 +325,7 @@ export default function QuickAddModal({
             </>
           )}
 
+          {/* IMAGE */}
           {type === "post" && (
             <input
               type="file"
@@ -323,10 +370,11 @@ export default function QuickAddModal({
                   data.secure_url
                 );
               }}
-              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 py-2 file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
+              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-4 py-3 file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
             />
           )}
 
+          {/* CONTENT */}
           <textarea
             value={caption}
             onChange={(e) =>
@@ -339,12 +387,13 @@ export default function QuickAddModal({
                 ? "Describe the task..."
                 : "Write your caption..."
             }
-            className="min-h-[180px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
+            className="min-h-[220px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
           />
 
+          {/* SAVE */}
           <button
             onClick={handleSave}
-            className="h-14 rounded-[1.4rem] bg-gradient-to-r from-orange-400 to-fuchsia-500 font-black text-white hover:scale-[1.01] transition-all"
+            className="h-16 rounded-[1.6rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.01] transition-all shadow-[0_0_40px_rgba(217,70,239,0.28)]"
           >
             Save To Calendar
           </button>
