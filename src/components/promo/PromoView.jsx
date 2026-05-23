@@ -4,6 +4,7 @@ import {
 } from "react";
 
 import GlassCard from "../layout/GlassCard";
+
 import {
   collection,
   addDoc,
@@ -13,52 +14,50 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
+
 export default function PromoView() {
   const [items, setItems] =
     useState([]);
-useEffect(() => {
-  const unsub = onSnapshot(
-    collection(db, "promo"),
-    (snapshot) => {
-      setItems(
-        snapshot.docs.map(
-          (doc) => ({
-            id: doc.id,
-            ...doc.data()
-          })
-        )
-      );
-    }
-  );
 
-  return () => unsub();
-}, []);
   const [title, setTitle] =
     useState("");
 
   const [imageUrl, setImageUrl] =
     useState("");
 
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, "promo"),
+      (snapshot) => {
+        setItems(
+          snapshot.docs.map(
+            (doc) => ({
+              id: doc.id,
+              ...doc.data()
+            })
+          )
+        );
+      }
+    );
+
+    return () => unsub();
+  }, []);
+
   const addPromo = async () => {
-  if (!title || !imageUrl)
-    return;
+    if (!title || !imageUrl)
+      return;
 
-  await addDoc(
-    collection(db, "promo"),
-    {
-      title,
-      imageUrl,
-      createdAt: Date.now()
-    }
-  );
-
-  setTitle("");
-
-  setImageUrl("");
-};
-    ]);
+    await addDoc(
+      collection(db, "promo"),
+      {
+        title,
+        imageUrl,
+        createdAt: Date.now()
+      }
+    );
 
     setTitle("");
+
     setImageUrl("");
   };
 
@@ -184,18 +183,15 @@ useEffect(() => {
                     </a>
 
                     <button
-                      onClick={() =>
-                        setItems(
-                          (prev) =>
-                            prev.filter(
-                              (
-                                i
-                              ) =>
-                                i.id !==
-                                item.id
-                            )
-                        )
-                      }
+                      onClick={async () => {
+                        await deleteDoc(
+                          doc(
+                            db,
+                            "promo",
+                            item.id
+                          )
+                        );
+                      }}
                       className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
                     >
                       Delete
