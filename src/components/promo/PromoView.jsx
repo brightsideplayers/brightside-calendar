@@ -1,7 +1,18 @@
-import { useState } from "react";
+import {
+  useState,
+  useEffect
+} from "react";
 
 import GlassCard from "../layout/GlassCard";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc
+} from "firebase/firestore";
 
+import { db } from "../../firebase";
 export default function PromoView() {
   const [items, setItems] =
     useState([]);
