@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 
-export default function CalendarView({ posts = [] }) {
+export default function CalendarView({
+  posts = [],
+  openCalendarQuickAdd
+}) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDayItems, setSelectedDayItems] = useState([]);
@@ -147,7 +150,15 @@ export default function CalendarView({ posts = [] }) {
               return (
                 <button
                   key={index}
-                  onClick={() => day && openDay(day)}
+                  onClick={() => {
+  if (!day) return;
+
+  openDay(day);
+
+  if (openCalendarQuickAdd) {
+    openCalendarQuickAdd(day);
+  }
+}}
                   className="min-h-[120px] md:min-h-[150px] p-3 border-r border-b border-white/5 text-left hover:bg-cyan-400/5 transition-all"
                 >
                   {day && (
