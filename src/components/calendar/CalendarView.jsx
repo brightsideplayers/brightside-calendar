@@ -1,5 +1,12 @@
 import { useMemo, useState } from "react";
 
+import {
+  doc,
+  deleteDoc
+} from "firebase/firestore";
+
+import { db } from "../../firebase";
+
 export default function CalendarView({
   posts = [],
   openCalendarQuickAdd
@@ -139,7 +146,25 @@ export default function CalendarView({
       new Date(year, month + 1, 1)
     );
   };
+const deleteItem = async (
+  id
+) => {
+  try {
+    await deleteDoc(
+      doc(db, "posts", id)
+    );
 
+    setSelectedDayItems(
+      (prev) =>
+        prev.filter(
+          (item) =>
+            item.id !== id
+        )
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
   return (
     <div className="w-full pb-32">
       <div className="grid gap-6">
