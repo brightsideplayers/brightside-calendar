@@ -1,5 +1,12 @@
 import { useState } from "react";
 
+import {
+  collection,
+  addDoc
+} from "firebase/firestore";
+
+import { db } from "../../firebase";
+
 import GlassCard from "../layout/GlassCard";
 
 export default function TikTokView() {
@@ -136,42 +143,53 @@ export default function TikTokView() {
                 className="h-12 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 font-bold"
               >
                 Copy Hashtags
-                <button
-  onClick={async () => {
-    await addDoc(
-      collection(db, "posts"),
-      {
-        type: "task",
+              </button>
 
-        category: "TikTok",
+              <button
+                onClick={async () => {
+                  await addDoc(
+                    collection(
+                      db,
+                      "posts"
+                    ),
+                    {
+                      type: "task",
 
-        platform: "TikTok",
+                      category:
+                        "TikTok",
 
-        title:
-          selectedPreset,
+                      platform:
+                        "TikTok",
 
-        description:
-          caption,
+                      title:
+                        selectedPreset,
 
-        videoLink,
+                      description:
+                        caption,
 
-        status:
-          "in-progress",
+                      videoLink,
 
-        completed: false,
+                      taskStatus:
+                        "in-progress",
 
-        scheduledFor:
-          new Date().toISOString(),
+                      completed:
+                        false,
 
-        createdAt:
-          Date.now()
-      }
-    );
-  }}
-  className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-bold"
->
-  Save To Planner
-</button>
+                      scheduledFor:
+                        new Date().toISOString(),
+
+                      createdAt:
+                        Date.now()
+                    }
+                  );
+
+                  setCaption("");
+
+                  setVideoLink("");
+                }}
+                className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-bold hover:scale-[1.02] transition-all"
+              >
+                Save To Planner
               </button>
             </div>
           </div>
