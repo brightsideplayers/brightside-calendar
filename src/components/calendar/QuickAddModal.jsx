@@ -28,6 +28,9 @@ export default function QuickAddModal({
   const [imageUrl, setImageUrl] =
     useState("");
 
+  const [tiktokLink, setTiktokLink] =
+    useState("");
+
   const [platform, setPlatform] =
     useState("Instagram");
 
@@ -42,7 +45,6 @@ export default function QuickAddModal({
   const [taskStatus, setTaskStatus] =
     useState("todo");
 
-  // PREFILL DATE
   useEffect(() => {
     if (quickAddDate) {
       const local =
@@ -81,80 +83,54 @@ export default function QuickAddModal({
           )
         : new Date();
 
-    // TASK
     if (type === "task") {
       await addDoc(
         collection(db, "posts"),
         {
           type: "task",
-
           title: taskTitle,
-
-          description:
-            caption,
-
+          description: caption,
           assignedTo,
-
           taskStatus,
-
-          date:
-            finalDate.toISOString(),
-
-          scheduledFor:
-            finalDate.toISOString(),
-
+          date: finalDate.toISOString(),
+          scheduledFor: finalDate.toISOString(),
           status: "open",
-
           createdAt: Date.now()
         }
       );
-    }
-
-    // POST
-    else {
+    } else {
       await addDoc(
         collection(db, "posts"),
         {
           type: "post",
-
           caption,
-
           platform,
-
-          imageUrl,
-
+          imageUrl:
+            platform === "TikTok"
+              ? ""
+              : imageUrl,
+          tiktokLink:
+            platform === "TikTok"
+              ? tiktokLink
+              : "",
           assignedTo,
-
-          date:
-            finalDate.toISOString(),
-
-          scheduledFor:
-            finalDate.toISOString(),
-
+          date: finalDate.toISOString(),
+          scheduledFor: finalDate.toISOString(),
           status: "scheduled",
-
           createdAt: Date.now()
         }
       );
     }
 
-    // RESET
     setCaption("");
-
     setTaskTitle("");
-
     setImageUrl("");
-
+    setTiktokLink("");
     setAssignedTo("");
-
     setPlatform("Instagram");
-
     setTaskStatus("todo");
-
     setType("post");
-
     setScheduledDate("");
-
     setQuickAddDate(null);
   };
 
@@ -165,7 +141,6 @@ export default function QuickAddModal({
     <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
       <GlassCard className="w-full max-w-2xl border-fuchsia-300/20">
         <div className="grid gap-5">
-          {/* HEADER */}
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-4xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
@@ -181,9 +156,7 @@ export default function QuickAddModal({
 
             <button
               onClick={() =>
-                setQuickAddDate(
-                  null
-                )
+                setQuickAddDate(null)
               }
               className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
             >
@@ -191,7 +164,6 @@ export default function QuickAddModal({
             </button>
           </div>
 
-          {/* TYPE */}
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() =>
@@ -220,7 +192,6 @@ export default function QuickAddModal({
             </button>
           </div>
 
-          {/* DATE */}
           <div className="grid gap-2">
             <div className="text-sm uppercase tracking-[0.2em] text-cyan-100/50">
               Scheduled Date
@@ -238,15 +209,17 @@ export default function QuickAddModal({
             />
           </div>
 
-          {/* PLATFORM */}
           {type === "post" && (
             <select
               value={platform}
-              onChange={(e) =>
+              onChange={(e) => {
                 setPlatform(
                   e.target.value
-                )
-              }
+                );
+
+                setImageUrl("");
+                setTiktokLink("");
+              }}
               className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
             >
               <option>
@@ -267,7 +240,6 @@ export default function QuickAddModal({
             </select>
           )}
 
-          {/* ASSIGNED */}
           <input
             type="text"
             value={assignedTo}
@@ -280,7 +252,6 @@ export default function QuickAddModal({
             className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
           />
 
-          {/* TASK */}
           {type === "task" && (
             <>
               <input
@@ -296,9 +267,7 @@ export default function QuickAddModal({
               />
 
               <select
-                value={
-                  taskStatus
-                }
+                value={taskStatus}
                 onChange={(e) =>
                   setTaskStatus(
                     e.target.value
@@ -325,56 +294,71 @@ export default function QuickAddModal({
             </>
           )}
 
-          {/* IMAGE */}
           {type === "post" && (
-            <input
-              type="file"
-              accept="image/*"
-              onChange={async (
-                e
-              ) => {
-                const file =
-                  e.target
-                    .files[0];
+            <>
+              {platform === "TikTok" ? (
+                <div className="grid gap-2">
+                  <div className="text-sm uppercase tracking-[0.2em] text-cyan-100/50">
+                    TikTok Link
+                  </div>
 
-                if (!file)
-                  return;
-
-                const formData =
-                  new FormData();
-
-                formData.append(
-                  "file",
-                  file
-                );
-
-                formData.append(
-                  "upload_preset",
-                  "brightside_unassigned"
-                );
-
-                const res =
-                  await fetch(
-                    "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
-                    {
-                      method:
-                        "POST",
-                      body: formData
+                  <input
+                    type="text"
+                    value={tiktokLink}
+                    onChange={(e) =>
+                      setTiktokLink(
+                        e.target.value
+                      )
                     }
-                  );
+                    placeholder="Paste TikTok draft/video link..."
+                    className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5 text-white"
+                  />
+                </div>
+              ) : (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file =
+                      e.target.files[0];
 
-                const data =
-                  await res.json();
+                    if (!file) return;
 
-                setImageUrl(
-                  data.secure_url
-                );
-              }}
-              className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-4 py-3 text-white file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
-            />
+                    const formData =
+                      new FormData();
+
+                    formData.append(
+                      "file",
+                      file
+                    );
+
+                    formData.append(
+                      "upload_preset",
+                      "brightside_unassigned"
+                    );
+
+                    const res =
+                      await fetch(
+                        "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
+                        {
+                          method: "POST",
+                          body: formData
+                        }
+                      );
+
+                    const data =
+                      await res.json();
+
+                    setImageUrl(
+                      data.secure_url
+                    );
+                  }}
+                  className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-4 py-3 text-white file:mr-4 file:px-4 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white"
+                />
+              )}
+            </>
           )}
 
-          {/* CONTENT */}
           <textarea
             value={caption}
             onChange={(e) =>
@@ -390,7 +374,6 @@ export default function QuickAddModal({
             className="min-h-[220px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5 text-white"
           />
 
-          {/* SAVE */}
           <button
             onClick={handleSave}
             className="h-16 rounded-[1.6rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.01] transition-all shadow-[0_0_40px_rgba(217,70,239,0.28)]"
