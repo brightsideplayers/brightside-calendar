@@ -11,22 +11,22 @@ export default function FeedView({
   items
 }) {
   const getTaskStatusStyles = (
-  status
-) => {
-  switch (status) {
-    case "completed":
-      return "bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.18)]";
+    status
+  ) => {
+    switch (status) {
+      case "completed":
+        return "bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.18)]";
 
-    case "in-progress":
-      return "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100 shadow-[0_0_25px_rgba(217,70,239,0.18)]";
+      case "in-progress":
+        return "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100 shadow-[0_0_25px_rgba(217,70,239,0.18)]";
 
-    case "blocked":
-      return "bg-rose-500/15 border border-rose-300/20 text-rose-100 shadow-[0_0_25px_rgba(244,63,94,0.18)]";
+      case "blocked":
+        return "bg-rose-500/15 border border-rose-300/20 text-rose-100 shadow-[0_0_25px_rgba(244,63,94,0.18)]";
 
-    default:
-      return "bg-amber-400/15 border border-amber-300/20 text-amber-100 shadow-[0_0_25px_rgba(251,191,36,0.18)]";
-  }
-};
+      default:
+        return "bg-amber-400/15 border border-amber-300/20 text-amber-100 shadow-[0_0_25px_rgba(251,191,36,0.18)]";
+    }
+  };
 
   const getTaskStatusLabel = (
     status
@@ -51,7 +51,7 @@ export default function FeedView({
       <GlassCard>
         <div className="grid gap-4">
           <div>
-            <h2 className="text-4xl font-black bg-gradient-to-r from-orange-300 to-fuchsia-300 bg-clip-text text-transparent">
+            <h2 className="text-4xl font-black bg-gradient-to-r from-orange-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
               Feed Planner
             </h2>
 
@@ -76,23 +76,23 @@ export default function FeedView({
               .map((item) => (
                 <div
                   key={item.id}
-                  className={`rounded-[1.8rem] border overflow-hidden backdrop-blur-sm transition-all ${
+                  className={`rounded-[1.8rem] border overflow-hidden backdrop-blur-sm transition-all duration-300 ${
                     item.type ===
                     "task"
                       ? item.taskStatus ===
                         "completed"
-                        ? "border-green-300/20 bg-green-500/10"
+                        ? "border-cyan-300/20 bg-cyan-500/10 shadow-[0_0_40px_rgba(34,211,238,0.08)]"
                         : item.taskStatus ===
                           "in-progress"
-                        ? "border-cyan-300/20 bg-cyan-500/10"
+                        ? "border-fuchsia-300/20 bg-fuchsia-500/10 shadow-[0_0_40px_rgba(217,70,239,0.08)]"
                         : item.taskStatus ===
                           "blocked"
-                        ? "border-red-300/20 bg-red-500/10"
-                        : "border-amber-300/20 bg-amber-500/10"
+                        ? "border-rose-300/20 bg-rose-500/10 shadow-[0_0_40px_rgba(244,63,94,0.08)]"
+                        : "border-amber-300/20 bg-amber-500/10 shadow-[0_0_40px_rgba(251,191,36,0.08)]"
                       : item.platform ===
                         "Facebook"
-                      ? "border-blue-300/20 bg-blue-500/10"
-                      : "border-fuchsia-300/20 bg-fuchsia-500/10"
+                      ? "border-cyan-300/20 bg-cyan-500/10 shadow-[0_0_40px_rgba(34,211,238,0.08)]"
+                      : "border-fuchsia-300/20 bg-fuchsia-500/10 shadow-[0_0_40px_rgba(217,70,239,0.08)]"
                   }`}
                 >
                   {item.imageUrl && (
@@ -115,7 +115,7 @@ export default function FeedView({
                               ? "bg-white/10 border border-white/10 text-white"
                               : item.platform ===
                                 "Facebook"
-                              ? "bg-blue-500/20 border border-blue-300/20 text-blue-100"
+                              ? "bg-cyan-500/20 border border-cyan-300/20 text-cyan-100"
                               : "bg-fuchsia-500/20 border border-fuchsia-300/20 text-fuchsia-100"
                           }`}
                         >
@@ -150,19 +150,22 @@ export default function FeedView({
                     {item.type ===
                     "task" ? (
                       <div className="grid gap-3">
-                        <div className="grid gap-1">
+                        <div className="grid gap-2">
                           <div className="text-2xl font-black text-white">
                             {item.title}
                           </div>
 
                           {item.assignedTo && (
-                            <div className="text-sm text-cyan-200/70">
-                              Assigned to{" "}
-                              <span className="text-white">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-xs uppercase tracking-[0.2em] text-cyan-100">
+                                Assigned To
+                              </div>
+
+                              <div className="text-white font-medium">
                                 {
                                   item.assignedTo
                                 }
-                              </span>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -190,13 +193,16 @@ export default function FeedView({
                         </div>
 
                         {item.assignedTo && (
-                          <div className="text-sm text-cyan-200/70">
-                            Assigned to{" "}
-                            <span className="text-white">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-xs uppercase tracking-[0.2em] text-cyan-100">
+                              Assigned To
+                            </div>
+
+                            <div className="text-white font-medium">
                               {
                                 item.assignedTo
                               }
-                            </span>
+                            </div>
                           </div>
                         )}
 
@@ -231,7 +237,7 @@ export default function FeedView({
                             )
                           );
                         }}
-                        className="h-11 px-4 rounded-2xl border border-red-300/20 bg-red-500/10 hover:bg-red-500/20 transition-all"
+                        className="h-11 px-4 rounded-2xl border border-rose-300/20 bg-rose-500/10 hover:bg-rose-500/20 transition-all"
                       >
                         Delete
                       </button>
