@@ -228,30 +228,28 @@ export default function CalendarView({
                     openDay(day);
                   }}
                   className={`relative h-[140px] md:h-[180px] rounded-[1.5rem] p-2 md:p-3 text-left overflow-hidden transition-all ${
-  day
-    ? isToday
-      ? "bg-cyan-500/[0.08] border border-cyan-300/20 shadow-[0_0_25px_rgba(34,211,238,0.18)]"
-      : "bg-[#060b16] border border-white/[0.03] hover:bg-cyan-500/[0.04]"
-    : "bg-transparent"
-}`}
+                    day
+                      ? isToday
+                        ? "bg-cyan-500/[0.08] border border-cyan-300/20 shadow-[0_0_25px_rgba(34,211,238,0.18)]"
+                        : "bg-[#060b16] border border-white/[0.03] hover:bg-cyan-500/[0.04]"
+                      : "bg-transparent"
+                  }`}
                 >
                   {day && (
                     <>
                       {/* DATE */}
-                      {/* DATE */}
-<div
-  className={`absolute top-3 left-3 text-lg md:text-2xl font-black z-10 ${
-    isToday
-      ? "text-cyan-300"
-      : "text-white"
-  }`}
->
-  {day}
-</div>
+                      <div
+                        className={`absolute top-3 left-3 text-lg md:text-2xl font-black z-10 ${
+                          isToday
+                            ? "text-cyan-300"
+                            : "text-white"
+                        }`}
+                      >
+                        {day}
+                      </div>
 
                       {/* EVENTS */}
-                     {/* EVENTS */}
-                     <div className="grid gap-1.5 pt-9">
+                      <div className="grid gap-1.5 pt-9">
                         {items
                           .slice(
                             0,
@@ -262,31 +260,38 @@ export default function CalendarView({
                               item,
                               idx
                             ) => (
-                             <div
-  key={idx}
-  className={`rounded-lg px-2 py-1 text-[11px] md:text-xs text-white truncate border ${
-    item.type === "task"
-      ? "bg-amber-400/20 border-amber-300/20 text-amber-100"
+                              <div
+                                key={
+                                  idx
+                                }
+                                className={`rounded-lg px-2 py-1 text-[11px] md:text-xs text-white truncate border ${
+                                  item.type ===
+                                  "task"
+                                    ? "bg-amber-400/20 border-amber-300/20 text-amber-100"
 
-      : item.platform === "Instagram"
-      ? "bg-fuchsia-500/20 border-fuchsia-300/20 text-fuchsia-100"
+                                    : item.platform ===
+                                      "Instagram"
+                                    ? "bg-fuchsia-500/20 border-fuchsia-300/20 text-fuchsia-100"
 
-      : item.platform === "Facebook"
-      ? "bg-cyan-500/20 border-cyan-300/20 text-cyan-100"
+                                    : item.platform ===
+                                      "Facebook"
+                                    ? "bg-cyan-500/20 border-cyan-300/20 text-cyan-100"
 
-      : item.platform === "TikTok"
-? "bg-gradient-to-r from-[#111111] to-cyan-500/20 border border-cyan-300/20 text-cyan-100 shadow-[0_0_12px_rgba(34,211,238,0.12)]"
+                                    : item.platform ===
+                                      "TikTok"
+                                    ? "bg-gradient-to-r from-[#111111] to-cyan-500/20 border border-cyan-300/20 text-cyan-100 shadow-[0_0_12px_rgba(34,211,238,0.12)]"
 
-      : item.platform === "YouTube"
-      ? "bg-red-500/20 border-red-300/20 text-red-100"
+                                    : item.platform ===
+                                      "YouTube"
+                                    ? "bg-red-500/20 border-red-300/20 text-red-100"
 
-      : "bg-white/10 border-white/10 text-white"
-  }`}
->
-  {item.platform ||
-    item.title ||
-    "Post"}
-</div>
+                                    : "bg-white/10 border-white/10 text-white"
+                                }`}
+                              >
+                                {item.platform ||
+                                  item.title ||
+                                  "Post"}
+                              </div>
                             )
                           )}
 
@@ -436,7 +441,7 @@ export default function CalendarView({
                   )
                 )
               ) : (
-               <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center grid gap-5">
+                <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center grid gap-5">
                   <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
                     <span className="text-cyan-300 text-3xl">
                       +
@@ -452,27 +457,26 @@ export default function CalendarView({
                     scheduled posts or
                     tasks for this day.
                   </p>
-                 <button
-  onClick={() => {
-    if (openCalendarQuickAdd) {
-      const selectedDate =
-        new Date(
-          year,
-          month,
-          selectedDay
-        );
 
-      openCalendarQuickAdd(
-        selectedDate
-      );
+                  <button
+                    onClick={() => {
+                      if (
+                        openCalendarQuickAdd
+                      ) {
+                        openCalendarQuickAdd(
+                          selectedDay
+                        );
 
-      setSelectedDay(null);
-    }
-  }}
-  className="mx-auto h-14 px-8 rounded-[1.4rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(217,70,239,0.25)]"
->
-  + Add Post / Task
-</button>
+                        setSelectedDay(
+                          null
+                        );
+                      }
+                    }}
+                    className="mx-auto h-14 px-8 rounded-[1.4rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(217,70,239,0.25)]"
+                  >
+                    + Add Post /
+                    Task
+                  </button>
                 </div>
               )}
             </div>
