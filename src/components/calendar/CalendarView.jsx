@@ -248,7 +248,8 @@ export default function CalendarView({
 </div>
 
                       {/* EVENTS */}
-                      <div className="grid gap-1.5">
+                     {/* EVENTS */}
+                     <div className="grid gap-1.5 pt-9">
                         {items
                           .slice(
                             0,
