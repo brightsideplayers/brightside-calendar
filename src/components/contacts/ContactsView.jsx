@@ -45,6 +45,9 @@ export default function ContactsView({
   const [notes, setNotes] =
     useState("");
 
+  const [showAddModal, setShowAddModal] =
+  useState(false);
+
   const roleOptions = [
     "All",
     "Executive",
@@ -216,6 +219,7 @@ export default function ContactsView({
   return (
     <>
       <div className="grid gap-5">
+        {showAddModal && (
         <GlassCard>
           <div className="grid gap-5">
             <div>
@@ -356,6 +360,7 @@ export default function ContactsView({
             </div>
           </div>
         </GlassCard>
+      )}
 
         <GlassCard>
           <div className="grid gap-5">
@@ -621,6 +626,14 @@ export default function ContactsView({
           </div>
         </div>
       )}
+      <button
+  onClick={() =>
+    setShowAddModal(true)
+  }
+  className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400 to-fuchsia-500 text-4xl text-white shadow-[0_0_40px_rgba(217,70,239,0.45)] flex items-center justify-center hover:scale-110 transition-all"
+>
+  +
+</button>
     </>
   );
 }
