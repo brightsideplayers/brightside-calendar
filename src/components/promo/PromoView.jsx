@@ -39,17 +39,23 @@ useEffect(() => {
   const [imageUrl, setImageUrl] =
     useState("");
 
-  const addPromo = () => {
-    if (!title || !imageUrl)
-      return;
+  const addPromo = async () => {
+  if (!title || !imageUrl)
+    return;
 
-    setItems((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        title,
-        imageUrl
-      }
+  await addDoc(
+    collection(db, "promo"),
+    {
+      title,
+      imageUrl,
+      createdAt: Date.now()
+    }
+  );
+
+  setTitle("");
+
+  setImageUrl("");
+};
     ]);
 
     setTitle("");
