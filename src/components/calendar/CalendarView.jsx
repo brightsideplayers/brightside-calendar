@@ -150,14 +150,10 @@ export default function CalendarView({
               return (
                 <button
                   key={index}
-                  onClick={() => {
+                 onClick={() => {
   if (!day) return;
 
   openDay(day);
-
-  if (openCalendarQuickAdd) {
-    openCalendarQuickAdd(day);
-  }
 }}
                   className="min-h-[120px] md:min-h-[150px] p-3 border-r border-b border-white/5 text-left hover:bg-cyan-400/5 transition-all"
                 >
