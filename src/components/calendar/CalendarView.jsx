@@ -283,7 +283,7 @@ export default function CalendarView({
                         matchingPosts
                       );
                     }}
-                    className={`min-h-[135px] md:min-h-[170px] rounded-[1.6rem] border p-2 md:p-3 transition-all relative overflow-hidden cursor-pointer hover:scale-[1.01] ${
+                    className={`h-[110px] md:min-h-[170px] rounded-[1.6rem] border p-2 md:p-3 transition-all relative overflow-hidden cursor-pointer hover:scale-[1.01] ${
                       day ===
                         today.getDate() &&
                       currentMonth ===
@@ -315,69 +315,110 @@ export default function CalendarView({
                       )}
                     </div>
 
-                    <div className="grid gap-1.5">
-                      {matchingPosts
-                        .slice(0, 3)
-                        .map((post) => {
-                          const time =
-                            new Date(
-                              post.scheduledFor
-                            ).toLocaleTimeString(
-                              [],
-                              {
-                                hour:
-                                  "numeric",
-                                minute:
-                                  "2-digit"
-                              }
-                            );
+                    <div className="hidden md:grid gap-1.5">
+  {matchingPosts
+    .slice(0, 3)
+    .map((post) => {
+      const time =
+        new Date(
+          post.scheduledFor
+        ).toLocaleTimeString(
+          [],
+          {
+            hour: "numeric",
+            minute: "2-digit"
+          }
+        );
 
-                          return (
-                            <div
-                              key={post.id}
-                              draggable
-                              onClick={(e) =>
-                                e.stopPropagation()
-                              }
-                              onDragStart={(
-                                e
-                              ) =>
-                                e.dataTransfer.setData(
-                                  "eventId",
-                                  post.id
-                                )
-                              }
-                              className={`group relative rounded-xl p-2 text-[10px] md:text-xs overflow-hidden transition-all backdrop-blur-sm ${
-                                post.type ===
-                                "task"
-                                  ? getTaskStyles(
-                                      post.taskStatus
-                                    )
-                                  : post.platform ===
-                                    "Facebook"
-                                  ? "border border-cyan-300/20 bg-cyan-400/10"
-                                  : "border border-fuchsia-300/20 bg-fuchsia-400/10"
-                              }`}
-                            >
-                              <div
-                                className={`absolute left-0 top-0 bottom-0 w-1 ${
-                                  post.type ===
-                                  "task"
-                                    ? "bg-white"
-                                    : post.platform ===
-                                      "Facebook"
-                                    ? "bg-cyan-300"
-                                    : "bg-fuchsia-300"
-                                }`}
-                              />
+      return (
+        <div
+          key={post.id}
+          draggable
+          onClick={(e) =>
+            e.stopPropagation()
+          }
+          onDragStart={(e) =>
+            e.dataTransfer.setData(
+              "eventId",
+              post.id
+            )
+          }
+          className={`group relative rounded-xl p-2 text-[10px] md:text-xs overflow-hidden transition-all backdrop-blur-sm ${
+            post.type ===
+            "task"
+              ? getTaskStyles(
+                  post.taskStatus
+                )
+              : post.platform ===
+                "Facebook"
+              ? "border border-cyan-300/20 bg-cyan-400/10"
+              : "border border-fuchsia-300/20 bg-fuchsia-400/10"
+          }`}
+        >
+          <div
+            className={`absolute left-0 top-0 bottom-0 w-1 ${
+              post.type ===
+              "task"
+                ? "bg-white"
+                : post.platform ===
+                  "Facebook"
+                ? "bg-cyan-300"
+                : "bg-fuchsia-300"
+            }`}
+          />
 
-                              <div className="flex items-center justify-between gap-2 pl-2">
-                                <div className="font-bold truncate text-white">
-                                  {post.type ===
-                                  "task"
-                                    ? post.title
-                                    : post.platform}
-                                </div>
+          <div className="flex items-center justify-between gap-2 pl-2">
+            <div className="font-bold truncate text-white">
+              {post.type ===
+              "task"
+                ? post.title
+                : post.platform}
+            </div>
+
+            <div className="text-[9px] text-white/40 shrink-0">
+              {time}
+            </div>
+          </div>
+
+          <div className="text-white/60 truncate pl-2 mt-1">
+            {post.type ===
+            "task"
+              ? post.description
+              : post.caption}
+          </div>
+        </div>
+      );
+    })}
+</div>
+
+<div className="md:hidden flex flex-wrap gap-1 mt-2">
+  {matchingPosts
+    .slice(0, 6)
+    .map((post) => (
+      <div
+        key={post.id}
+        className={`w-2.5 h-2.5 rounded-full ${
+          post.type ===
+          "task"
+            ? post.taskStatus ===
+              "completed"
+              ? "bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.9)]"
+              : post.taskStatus ===
+                "blocked"
+              ? "bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.9)]"
+              : "bg-fuchsia-300 shadow-[0_0_10px_rgba(217,70,239,0.9)]"
+            : "bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.9)]"
+        }`}
+      />
+    ))}
+
+  {matchingPosts.length >
+    6 && (
+    <div className="text-[10px] text-cyan-100/50 ml-1">
+      +{matchingPosts.length - 6}
+    </div>
+  )}
+</div>
 
                                 <div className="text-[9px] text-white/40 shrink-0">
                                   {time}
