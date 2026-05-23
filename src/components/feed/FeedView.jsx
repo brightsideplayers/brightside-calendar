@@ -206,9 +206,9 @@ export default function FeedView({
                           </div>
                         )}
 
-                        <div className="text-white/90 whitespace-pre-wrap leading-relaxed">
-                          {item.caption}
-                        </div>
+                     <div className="text-white/90 whitespace-pre-wrap leading-relaxed">
+  {item.caption || item.description}
+</div>
                       </div>
                     )}
 
@@ -217,9 +217,9 @@ export default function FeedView({
                         "task" && (
                         <button
                           onClick={() =>
-                            navigator.clipboard.writeText(
-                              item.caption
-                            )
+                            nnavigator.clipboard.writeText(
+  item.caption || item.description
+)
                           }
                           className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all"
                         >
