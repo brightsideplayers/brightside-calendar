@@ -146,7 +146,8 @@ export default function TikTokView() {
                     "posts"
                   ),
                   {
-                    type: "task",
+                    type: "post",
+                    status: "scheduled",
 
                     category:
                       "TikTok",
