@@ -424,15 +424,15 @@ export default function CalendarView({
                         </div>
 
                         <button
-                          onClick={() =>
-                            deleteItem(
-                              item.id
-                            )
-                          }
-                          className="h-10 px-4 rounded-xl bg-red-500/15 border border-red-300/20 text-red-200 text-sm font-bold hover:bg-red-500/25 transition-all"
-                        >
-                          Delete
-                        </button>
+  onClick={() =>
+    deleteItem(
+      item.id
+    )
+  }
+  className="w-8 h-8 rounded-full bg-yellow-400/15 border border-yellow-300/20 text-yellow-200 text-sm font-black hover:bg-yellow-400/25 hover:scale-110 transition-all flex items-center justify-center"
+>
+  ✕
+</button>
 
                         {(item.date ||
                           item.scheduledFor) && (
