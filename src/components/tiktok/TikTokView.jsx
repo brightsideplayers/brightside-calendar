@@ -168,12 +168,19 @@ export default function TikTokView() {
                     completed:
                       false,
 
-                    scheduledFor:
-                      scheduledDate
-                        ? new Date(
-                            scheduledDate
-                          ).toISOString()
-                        : new Date().toISOString(),
+                    date:
+  scheduledDate
+    ? new Date(
+        scheduledDate
+      ).toISOString()
+    : new Date().toISOString(),
+
+scheduledFor:
+  scheduledDate
+    ? new Date(
+        scheduledDate
+      ).toISOString()
+    : new Date().toISOString(),
 
                     createdAt:
                       Date.now()
