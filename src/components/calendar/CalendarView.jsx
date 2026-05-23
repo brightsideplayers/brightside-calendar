@@ -184,7 +184,6 @@ export default function CalendarView({
                 className="w-10 h-10 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all"
               >
                 →
-
               </button>
             </div>
           </div>
@@ -314,42 +313,6 @@ export default function CalendarView({
                           +
                         </button>
                       )}
-                      {item.type ===
-  "task" &&
-  item.taskStatus !==
-    "completed" && (
-    <button
-      onClick={async () => {
-        await updateDoc(
-          doc(
-            db,
-            "posts",
-            item.id
-          ),
-          {
-            taskStatus:
-              "completed"
-          }
-        );
-
-        setSelectedDayItems(
-          (prev) =>
-            prev.map((p) =>
-              p.id === item.id
-                ? {
-                    ...p,
-                    taskStatus:
-                      "completed"
-                  }
-                : p
-            )
-        );
-      }}
-      className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold w-fit"
-    >
-      Complete Task
-    </button>
-  )}
                     </div>
 
                     <div className="grid gap-1.5">
@@ -551,6 +514,47 @@ export default function CalendarView({
                           )}
                         </div>
                       )}
+
+                      {item.type ===
+                        "task" &&
+                        item.taskStatus !==
+                          "completed" && (
+                          <button
+                            onClick={async () => {
+                              await updateDoc(
+                                doc(
+                                  db,
+                                  "posts",
+                                  item.id
+                                ),
+                                {
+                                  taskStatus:
+                                    "completed"
+                                }
+                              );
+
+                              setSelectedDayItems(
+                                (prev) =>
+                                  prev.map(
+                                    (
+                                      p
+                                    ) =>
+                                      p.id ===
+                                      item.id
+                                        ? {
+                                            ...p,
+                                            taskStatus:
+                                              "completed"
+                                          }
+                                        : p
+                                  )
+                              );
+                            }}
+                            className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold w-fit"
+                          >
+                            Complete Task
+                          </button>
+                        )}
                     </div>
 
                     {item.imageUrl && (
