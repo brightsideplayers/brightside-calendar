@@ -436,7 +436,7 @@ export default function CalendarView({
                   )
                 )
               ) : (
-                <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center">
+               <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center grid gap-5">
                   <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center">
                     <span className="text-cyan-300 text-3xl">
                       +
@@ -452,6 +452,27 @@ export default function CalendarView({
                     scheduled posts or
                     tasks for this day.
                   </p>
+                 <button
+  onClick={() => {
+    if (openCalendarQuickAdd) {
+      const selectedDate =
+        new Date(
+          year,
+          month,
+          selectedDay
+        );
+
+      openCalendarQuickAdd(
+        selectedDate
+      );
+
+      setSelectedDay(null);
+    }
+  }}
+  className="mx-auto h-14 px-8 rounded-[1.4rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(217,70,239,0.25)]"
+>
+  + Add Post / Task
+</button>
                 </div>
               )}
             </div>
