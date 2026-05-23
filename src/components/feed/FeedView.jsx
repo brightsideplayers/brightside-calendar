@@ -109,14 +109,14 @@ export default function FeedView({
                     <div className="flex items-center justify-between flex-wrap gap-3">
                       <div className="flex items-center gap-2 flex-wrap">
                         <div
-                          className={`px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] ${
+                          className={`px-3 py-1 rounded-full text-xs uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(255,255,255,0.08)] ${
                             item.type ===
                             "task"
-                              ? "bg-white/10 border border-white/10 text-white"
+                              ? "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100 shadow-[0_0_25px_rgba(217,70,239,0.18)]"
                               : item.platform ===
                                 "Facebook"
-                              ? "bg-cyan-500/20 border border-cyan-300/20 text-cyan-100"
-                              : "bg-fuchsia-500/20 border border-fuchsia-300/20 text-fuchsia-100"
+                              ? "bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.18)]"
+                              : "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100 shadow-[0_0_25px_rgba(217,70,239,0.18)]"
                           }`}
                         >
                           {item.type ===
@@ -157,7 +157,7 @@ export default function FeedView({
 
                           {item.assignedTo && (
                             <div className="flex items-center gap-2 flex-wrap">
-                              <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-xs uppercase tracking-[0.2em] text-cyan-100">
+                              <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-xs uppercase tracking-[0.2em] text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.12)]">
                                 Assigned To
                               </div>
 
@@ -194,7 +194,7 @@ export default function FeedView({
 
                         {item.assignedTo && (
                           <div className="flex items-center gap-2 flex-wrap">
-                            <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-xs uppercase tracking-[0.2em] text-cyan-100">
+                            <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-xs uppercase tracking-[0.2em] text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.12)]">
                               Assigned To
                             </div>
 
