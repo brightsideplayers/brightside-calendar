@@ -82,7 +82,7 @@ const [
     return () => unsub();
   }, []);
 
-  const openCalendarQuickAdd = (
+  const openQuickAdd = (
     day
   ) => {
     const date = new Date();
@@ -100,15 +100,15 @@ const [
       />
     ),
 
-    calendar: (
-      <CalendarView
-        items={items}
-        setItems={setItems}
-        openCalendarQuickAdd={
-          openCalendarQuickAdd
-        }
-      />
-    ),
+   calendar: (
+  <CalendarView
+    posts={items}
+    setItems={setItems}
+    openCalendarQuickAdd={
+      openCalendarQuickAdd
+    }
+  />
+),
 
     contacts: (
       <ContactsView
