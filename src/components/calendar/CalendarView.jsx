@@ -435,7 +435,7 @@ export default function CalendarView({
 
       {selectedDay && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="w-full max-w-3xl rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)] max-h-[90vh] overflow-y-auto">
+        <div className="w-full h-full md:h-auto md:max-w-3xl rounded-none md:rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)] overflow-y-auto">
             <button
               onClick={() => {
                 setSelectedDay(null);
