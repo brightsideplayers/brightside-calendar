@@ -157,19 +157,39 @@ const [
     </option>
   </select>
 
-  <details className="relative">
-    <summary className="list-none cursor-pointer w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-xl">
-      ⋯
-    </summary>
+  <div className="relative">
+  <button
+    onClick={() =>
+      setShowProductionMenu(
+        !showProductionMenu
+      )
+    }
+    className="w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-xl"
+  >
+    ⋯
+  </button>
 
-    <div className="absolute right-0 mt-2 w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-      <button
-        className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100"
-      >
-        Add Production
-      </button>
-    </div>
-  </details>
+  {showProductionMenu && (
+    <>
+      <div
+        className="fixed inset-0 z-40"
+        onClick={() =>
+          setShowProductionMenu(
+            false
+          )
+        }
+      />
+
+      <div className="absolute right-0 mt-2 w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+        <button
+          className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100"
+        >
+          Add Production
+        </button>
+      </div>
+    </>
+  )}
+</div>
 </div>
             </div>
           </div>
