@@ -236,15 +236,16 @@ export default function CalendarView({
                   {day && (
                     <>
                       {/* DATE */}
-                      <div
-                        className={`text-lg md:text-2xl font-black mb-2 ${
-                          isToday
-                            ? "text-cyan-300"
-                            : "text-white"
-                        }`}
-                      >
-                        {day}
-                      </div>
+                      {/* DATE */}
+<div
+  className={`absolute top-3 left-3 text-lg md:text-2xl font-black z-10 ${
+    isToday
+      ? "text-cyan-300"
+      : "text-white"
+  }`}
+>
+  {day}
+</div>
 
                       {/* EVENTS */}
                       <div className="grid gap-1.5">
