@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 
 export default function TikTokView({
-  posts = []
+  posts = [],
+  openCalendarQuickAdd
 }) {
   const tiktokPosts =
     posts.filter(
