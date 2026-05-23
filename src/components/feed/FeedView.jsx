@@ -119,10 +119,10 @@ export default function FeedView({
                               : "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100 shadow-[0_0_25px_rgba(217,70,239,0.18)]"
                           }`}
                         >
-                          {item.type ===
-                          "task"
-                            ? "Task"
-                            : item.platform}
+                          {item.platform ||
+                             (item.type === "task"
+                              ? "Task"
+                              : "Post")}
                         </div>
 
                         <div
