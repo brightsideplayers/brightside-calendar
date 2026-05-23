@@ -265,9 +265,10 @@ export default function CalendarView({
                                   idx
                                 }
                                 className={`rounded-lg px-2 py-1 text-[11px] md:text-xs text-white truncate border ${
-                                  item.type ===
-                                  "task"
-                                    ? "bg-amber-400/20 border-amber-300/20 text-amber-100"
+                                  
+                                       item.type === 
+                                       "task"
+                                    ? "bg-violet-500/20 border-violet-300/20 text-violet-100 shadow-[0_0_10px_rgba(139,92,246,0.18)]"
 
                                     : item.platform ===
                                       "Instagram"
