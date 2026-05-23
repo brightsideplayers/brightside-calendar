@@ -260,16 +260,31 @@ export default function CalendarView({
                               item,
                               idx
                             ) => (
-                              <div
-                                key={
-                                  idx
-                                }
-                                className="rounded-lg bg-gradient-to-r from-cyan-500/20 to-fuchsia-500/20 border border-cyan-300/10 px-2 py-1 text-[11px] md:text-xs text-white truncate"
-                              >
-                                {item.platform ||
-                                  item.title ||
-                                  "Post"}
-                              </div>
+                             <div
+  key={idx}
+  className={`rounded-lg px-2 py-1 text-[11px] md:text-xs text-white truncate border ${
+    item.type === "task"
+      ? "bg-amber-400/20 border-amber-300/20 text-amber-100"
+
+      : item.platform === "Instagram"
+      ? "bg-fuchsia-500/20 border-fuchsia-300/20 text-fuchsia-100"
+
+      : item.platform === "Facebook"
+      ? "bg-cyan-500/20 border-cyan-300/20 text-cyan-100"
+
+      : item.platform === "TikTok"
+      ? "bg-white/10 border-white/10 text-white"
+
+      : item.platform === "YouTube"
+      ? "bg-red-500/20 border-red-300/20 text-red-100"
+
+      : "bg-white/10 border-white/10 text-white"
+  }`}
+>
+  {item.platform ||
+    item.title ||
+    "Post"}
+</div>
                             )
                           )}
 
