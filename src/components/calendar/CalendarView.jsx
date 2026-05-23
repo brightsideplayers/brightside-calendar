@@ -146,25 +146,27 @@ export default function CalendarView({
       new Date(year, month + 1, 1)
     );
   };
-const deleteItem = async (
-  id
-) => {
-  try {
-    await deleteDoc(
-      doc(db, "posts", id)
-    );
 
-    setSelectedDayItems(
-      (prev) =>
-        prev.filter(
-          (item) =>
-            item.id !== id
-        )
-    );
-  } catch (err) {
-    console.error(err);
-  }
-};
+  const deleteItem = async (
+    id
+  ) => {
+    try {
+      await deleteDoc(
+        doc(db, "posts", id)
+      );
+
+      setSelectedDayItems(
+        (prev) =>
+          prev.filter(
+            (item) =>
+              item.id !== id
+          )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="w-full pb-32">
       <div className="grid gap-6">
@@ -290,9 +292,8 @@ const deleteItem = async (
                                   idx
                                 }
                                 className={`rounded-lg px-2 py-1 text-[11px] md:text-xs text-white truncate border ${
-                                  
-                                       item.type === 
-                                       "task"
+                                  item.type ===
+                                  "task"
                                     ? "bg-violet-500/20 border-violet-300/20 text-violet-100 shadow-[0_0_10px_rgba(139,92,246,0.18)]"
 
                                     : item.platform ===
@@ -418,8 +419,20 @@ const deleteItem = async (
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-sm font-bold uppercase">
                           {item.platform ||
+                            item.type ||
                             "POST"}
                         </div>
+
+                        <button
+                          onClick={() =>
+                            deleteItem(
+                              item.id
+                            )
+                          }
+                          className="h-10 px-4 rounded-xl bg-red-500/15 border border-red-300/20 text-red-200 text-sm font-bold hover:bg-red-500/25 transition-all"
+                        >
+                          Delete
+                        </button>
 
                         {(item.date ||
                           item.scheduledFor) && (
@@ -468,7 +481,6 @@ const deleteItem = async (
                 )
               ) : (
                 <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-12 text-center grid gap-5">
-
                   <h3 className="text-2xl font-black text-white">
                     Nothing Scheduled
                   </h3>
