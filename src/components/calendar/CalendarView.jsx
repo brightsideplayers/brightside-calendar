@@ -275,7 +275,7 @@ export default function CalendarView({
       ? "bg-cyan-500/20 border-cyan-300/20 text-cyan-100"
 
       : item.platform === "TikTok"
-      ? "bg-white/10 border-white/10 text-white"
+? "bg-gradient-to-r from-[#111111] to-cyan-500/20 border border-cyan-300/20 text-cyan-100 shadow-[0_0_12px_rgba(34,211,238,0.12)]"
 
       : item.platform === "YouTube"
       ? "bg-red-500/20 border-red-300/20 text-red-100"
