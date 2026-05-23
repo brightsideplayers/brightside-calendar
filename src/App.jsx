@@ -24,8 +24,6 @@ import PropsView from "./components/props/PropsView";
 
 import PromoView from "./components/promo/PromoView";
 
-import TikTokView from "./components/tiktok/TikTokView";
-
 export default function App() {
   const [view, setView] =
     useState("feed");
@@ -129,14 +127,7 @@ export default function App() {
 
     props: <PropsView />,
 
-    promo: <PromoView />,
-
-    tiktok: (
-      <TikTokView
-        items={items}
-        setItems={setItems}
-      />
-    )
+    promo: <PromoView />
   };
 
   return (
