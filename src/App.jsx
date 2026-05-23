@@ -29,20 +29,29 @@ import TikTokView from "./components/tiktok/TikTokView";
 export default function App() {
   const [view, setView] =
     useState("feed");
-const [currentProduction, setCurrentProduction] =
-  useState("The Little Mermaid");
-const [
-  showProductionMenu,
-  setShowProductionMenu
-] = useState(false);
+
+  const [
+    currentProduction,
+    setCurrentProduction
+  ] = useState(
+    "The Little Mermaid"
+  );
+
+  const [
+    showProductionMenu,
+    setShowProductionMenu
+  ] = useState(false);
+
   const [items, setItems] =
     useState([]);
 
   const [contacts, setContacts] =
     useState([]);
 
-  const [quickAddDate, setQuickAddDate] =
-    useState(null);
+  const [
+    quickAddDate,
+    setQuickAddDate
+  ] = useState(null);
 
   // POSTS
   useEffect(() => {
@@ -100,15 +109,15 @@ const [
       />
     ),
 
-   calendar: (
-  <CalendarView
-    posts={items}
-    setItems={setItems}
-    openCalendarQuickAdd={
-      openCalendarQuickAdd
-    }
-  />
-),
+    calendar: (
+      <CalendarView
+        posts={items}
+        setItems={setItems}
+        openCalendarQuickAdd={
+          openQuickAdd
+        }
+      />
+    ),
 
     contacts: (
       <ContactsView
@@ -122,12 +131,18 @@ const [
 
     promo: <PromoView />,
 
-    tiktok: <TikTokView />
+    tiktok: (
+      <TikTokView
+        items={items}
+        setItems={setItems}
+      />
+    )
   };
 
   return (
     <div className="min-h-screen bg-[#020617] text-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto grid gap-5">
+        {/* HEADER */}
         <div className="rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl p-5">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -138,62 +153,64 @@ const [
               <div className="text-cyan-100/70">
                 Production Dashboard
               </div>
+
               <div className="pt-4 flex items-center gap-3">
-  <select
-    value={currentProduction}
-    onChange={(e) =>
-      setCurrentProduction(
-        e.target.value
-      )
-    }
-    className="h-12 rounded-2xl bg-black/30 border border-fuchsia-300/20 px-5 text-white font-medium shadow-[0_0_25px_rgba(217,70,239,0.12)]"
-  >
-    <option>
-      The Little Mermaid
-    </option>
+                <select
+                  value={
+                    currentProduction
+                  }
+                  onChange={(e) =>
+                    setCurrentProduction(
+                      e.target.value
+                    )
+                  }
+                  className="h-12 rounded-2xl bg-black/30 border border-fuchsia-300/20 px-5 text-white font-medium shadow-[0_0_25px_rgba(217,70,239,0.12)]"
+                >
+                  <option>
+                    The Little Mermaid
+                  </option>
 
-    <option>
-      Robin Hood
-    </option>
-  </select>
+                  <option>
+                    Robin Hood
+                  </option>
+                </select>
 
-  <div className="relative">
-  <button
-    onClick={() =>
-      setShowProductionMenu(
-        !showProductionMenu
-      )
-    }
-    className="w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-xl"
-  >
-    ⋯
-  </button>
+                <div className="relative">
+                  <button
+                    onClick={() =>
+                      setShowProductionMenu(
+                        !showProductionMenu
+                      )
+                    }
+                    className="w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-xl"
+                  >
+                    ⋯
+                  </button>
 
-  {showProductionMenu && (
-    <>
-      <div
-        className="fixed inset-0 z-40"
-        onClick={() =>
-          setShowProductionMenu(
-            false
-          )
-        }
-      />
+                  {showProductionMenu && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() =>
+                          setShowProductionMenu(
+                            false
+                          )
+                        }
+                      />
 
-      <div className="absolute right-0 mt-2 w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-        <button
-          className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100"
-        >
-          Add Production
-        </button>
-      </div>
-    </>
-  )}
-</div>
-</div>
+                      <div className="absolute right-0 mt-2 w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                        <button className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100">
+                          Add Production
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
+          {/* NAV */}
           <div className="flex gap-2 overflow-x-auto whitespace-nowrap pt-5">
             {Object.keys(
               views
@@ -215,8 +232,10 @@ const [
           </div>
         </div>
 
+        {/* ACTIVE VIEW */}
         {views[view]}
 
+        {/* QUICK ADD */}
         <QuickAddModal
           quickAddDate={
             quickAddDate
