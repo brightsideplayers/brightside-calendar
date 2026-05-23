@@ -135,7 +135,7 @@ const [currentProduction, setCurrentProduction] =
               <div className="text-cyan-100/70">
                 Production Dashboard
               </div>
-              <div className="pt-4">
+              <div className="pt-4 flex items-center gap-3">
   <select
     value={currentProduction}
     onChange={(e) =>
@@ -153,6 +153,20 @@ const [currentProduction, setCurrentProduction] =
       Robin Hood
     </option>
   </select>
+
+  <details className="relative">
+    <summary className="list-none cursor-pointer w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-xl">
+      ⋯
+    </summary>
+
+    <div className="absolute right-0 mt-2 w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+      <button
+        className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100"
+      >
+        Add Production
+      </button>
+    </div>
+  </details>
 </div>
             </div>
           </div>
