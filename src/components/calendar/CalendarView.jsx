@@ -416,7 +416,40 @@ export default function CalendarView({
                       key={index}
                       className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 grid gap-4"
                     >
-                      <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center justify-between gap-4">
+  <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-sm font-bold uppercase">
+    {item.platform ||
+      item.type ||
+      "POST"}
+  </div>
+
+  <div className="flex items-center gap-3 ml-auto">
+    {(item.date ||
+      item.scheduledFor) && (
+      <div className="text-sm text-white/50">
+        {new Date(
+          item.date ||
+            item.scheduledFor
+        ).toLocaleTimeString(
+          [],
+          {
+            hour: "numeric",
+            minute: "2-digit",
+          }
+        )}
+      </div>
+    )}
+
+    <button
+      onClick={() =>
+        deleteItem(item.id)
+      }
+      className="w-8 h-8 rounded-full bg-yellow-400/15 border border-yellow-300/20 text-yellow-200 text-sm font-black hover:bg-yellow-400/25 hover:scale-110 transition-all flex items-center justify-center"
+    >
+      ✕
+    </button>
+  </div>
+</div>
                         <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-sm font-bold uppercase">
                           {item.platform ||
                             item.type ||
