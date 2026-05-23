@@ -51,9 +51,13 @@ export default function CalendarView({ posts = [] }) {
     if (!day) return [];
 
     return posts.filter((post) => {
-      if (!post.date) return false;
+      const rawDate =
+        post.date ||
+        post.scheduledFor;
 
-      const postDate = new Date(post.date);
+      if (!rawDate) return false;
+
+      const postDate = new Date(rawDate);
 
       return (
         postDate.getDate() === day &&
@@ -236,9 +240,9 @@ export default function CalendarView({ posts = [] }) {
                       </h3>
                     )}
 
-                    {item.caption && (
+                    {(item.caption || item.description) && (
                       <div className="rounded-2xl bg-black/20 border border-white/5 p-4 text-white/80 whitespace-pre-wrap leading-relaxed">
-                        {item.caption}
+                        {item.caption || item.description}
                       </div>
                     )}
 
