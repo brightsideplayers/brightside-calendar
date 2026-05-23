@@ -373,10 +373,8 @@ export default function CalendarView({
 
                               <div className="flex items-center justify-between gap-2 pl-2">
                                 <div className="font-bold truncate text-white">
-                                  {post.type ===
-                                  "task"
-                                    ? post.title
-                                    : post.platform}
+                                  {post.platform ||
+                                   post.title}
                                 </div>
 
                                 <div className="text-[9px] text-white/40 shrink-0">
@@ -513,10 +511,8 @@ export default function CalendarView({
 
                     <div className="grid gap-2">
                       <div className="text-xs uppercase tracking-[0.25em] text-white/50">
-                        {item.type ===
-                        "task"
-                          ? "Task"
-                          : item.platform}
+                       {item.platform ||
+                        item.type}
                       </div>
 
                       <div className="text-2xl font-black text-white">
