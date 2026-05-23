@@ -127,84 +127,97 @@ export default function TikTokView() {
               className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
             />
 
-            <div className="grid md:grid-cols-3 gap-3">
-              <button
-                onClick={() =>
-                  navigator.clipboard.writeText(
-                    caption
-                  )
-                }
-                className="h-12 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold"
-              >
-                Copy Caption
-              </button>
+           <div className="grid gap-3">
+  <input
+    type="datetime-local"
+    value={scheduledDate}
+    onChange={(e) =>
+      setScheduledDate(
+        e.target.value
+      )
+    }
+    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+  />
 
-              <button
-                onClick={() =>
-                  navigator.clipboard.writeText(
-                    hashtagPresets[
-                      selectedPreset
-                    ].join(" ")
-                  )
-                }
-                className="h-12 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 font-bold"
-              >
-                Copy Hashtags
-              </button>
+  <button
+    onClick={async () => {
+      await addDoc(
+        collection(
+          db,
+          "posts"
+        ),
+        {
+          type: "task",
 
-              <button
-                onClick={async () => {
-                  await addDoc(
-                    collection(
-                      db,
-                      "posts"
-                    ),
-                    {
-                      type: "task",
+          category:
+            "TikTok",
 
-                      category:
-                        "TikTok",
+          platform:
+            "TikTok",
 
-                      platform:
-                        "TikTok",
+          title:
+            selectedPreset,
 
-                      title:
-                        selectedPreset,
+          description:
+            caption,
 
-                      description:
-                        caption,
+          videoLink,
 
-                      videoLink,
+          taskStatus:
+            "in-progress",
 
-                      taskStatus:
-                        "in-progress",
+          completed:
+            false,
 
-                      completed:
-                        false,
+          scheduledFor:
+            scheduledDate
+              ? new Date(
+                  scheduledDate
+                ).toISOString()
+              : new Date().toISOString(),
 
-                      scheduledFor:
-                        scheduledDate
-                          ? new Date(
-                              scheduledDate
-                            ).toISOString()
-                          : new Date().toISOString(),
+          createdAt:
+            Date.now()
+        }
+      );
 
-                      createdAt:
-                        Date.now()
-                    }
-                  );
+      setCaption("");
 
-                  setCaption("");
+      setVideoLink("");
 
-                  setVideoLink("");
+      setScheduledDate("");
+    }}
+    className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-bold hover:scale-[1.02] transition-all"
+  >
+    Save To Planner
+  </button>
 
-                  setScheduledDate("");
-                }}
-                className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-bold hover:scale-[1.02] transition-all"
-              >
-                Save To Planner
-              </button>
-            </div>
+  <div className="grid grid-cols-2 gap-3">
+    <button
+      onClick={() =>
+        navigator.clipboard.writeText(
+          caption
+        )
+      }
+      className="h-12 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold"
+    >
+      Copy Caption
+    </button>
+
+    <button
+      onClick={() =>
+        navigator.clipboard.writeText(
+          hashtagPresets[
+            selectedPreset
+          ].join(" ")
+        )
+      }
+      className="h-12 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 font-bold"
+    >
+      Copy Hashtags
+    </button>
+  </div>
+</div>
           </div>
         </div>
       </GlassCard>
