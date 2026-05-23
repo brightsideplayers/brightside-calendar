@@ -113,7 +113,7 @@ export default function TikTokView() {
               className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
             />
 
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="grid md:grid-cols-3 gap-3">
               <button
                 onClick={() =>
                   navigator.clipboard.writeText(
