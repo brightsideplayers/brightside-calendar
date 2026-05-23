@@ -22,6 +22,9 @@ export default function QuickAddModal({
   const [caption, setCaption] =
     useState("");
 
+  const [hashtags, setHashtags] =
+    useState("");
+
   const [taskTitle, setTaskTitle] =
     useState("");
 
@@ -60,6 +63,37 @@ export default function QuickAddModal({
       );
     }
   }, [quickAddDate]);
+
+  // HASHTAG GENERATOR
+  const generateHashtags = (
+    text
+  ) => {
+    if (!text) return "";
+
+    const words = text
+      .toLowerCase()
+      .replace(/[^\w\s]/gi, "")
+      .split(" ")
+      .filter(
+        (word) =>
+          word.length > 3
+      )
+      .slice(0, 5);
+
+    const tags = words.map(
+      (word) => `#${word}`
+    );
+
+    tags.push(
+      "#fyp",
+      "#theatre",
+      "#viral"
+    );
+
+    return [
+      ...new Set(tags)
+    ].join(" ");
+  };
 
   const handleSave = async () => {
     if (
@@ -119,6 +153,8 @@ export default function QuickAddModal({
 
           caption,
 
+          hashtags,
+
           platform,
 
           imageUrl,
@@ -140,6 +176,8 @@ export default function QuickAddModal({
 
     // RESET
     setCaption("");
+
+    setHashtags("");
 
     setTaskTitle("");
 
@@ -212,7 +250,7 @@ export default function QuickAddModal({
               }
               className={`h-14 rounded-[1.4rem] border font-bold transition-all ${
                 type === "task"
-                  ? "bg-amber-500/20 border-amber-300/30 text-white"
+                  ? "bg-violet-500/20 border-violet-300/30 text-white"
                   : "bg-black/30 border-white/10 text-white/60"
               }`}
             >
@@ -307,7 +345,7 @@ export default function QuickAddModal({
                 className="h-14 rounded-[1.4rem] bg-black/30 border border-white/10 px-5"
               >
                 <option value="todo">
-                  🟡 Todo
+                  🟣 Todo
                 </option>
 
                 <option value="in-progress">
@@ -377,11 +415,22 @@ export default function QuickAddModal({
           {/* CONTENT */}
           <textarea
             value={caption}
-            onChange={(e) =>
+            onChange={(e) => {
               setCaption(
                 e.target.value
-              )
-            }
+              );
+
+              if (
+                platform ===
+                "TikTok"
+              ) {
+                setHashtags(
+                  generateHashtags(
+                    e.target.value
+                  )
+                );
+              }
+            }}
             placeholder={
               type === "task"
                 ? "Describe the task..."
@@ -389,6 +438,29 @@ export default function QuickAddModal({
             }
             className="min-h-[220px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
           />
+
+          {/* TIKTOK HASHTAGS */}
+          {platform ===
+            "TikTok" && (
+            <div className="grid gap-2">
+              <div className="text-sm uppercase tracking-[0.2em] text-cyan-100/50">
+                Suggested
+                Hashtags
+              </div>
+
+              <textarea
+                value={
+                  hashtags
+                }
+                onChange={(e) =>
+                  setHashtags(
+                    e.target.value
+                  )
+                }
+                className="min-h-[100px] rounded-[1.4rem] bg-black/30 border border-white/10 p-4 text-cyan-100"
+              />
+            </div>
+          )}
 
           {/* SAVE */}
           <button
