@@ -184,7 +184,10 @@ export default function SetView() {
     )
   )
   .map((item) => (
-          <GlassCard key={item.id}>
+          <GlassCard
+  key={item.id}
+  className="overflow-visible"
+>
             <div
   className={`rounded-[1.6rem] border p-4 transition-all overflow-visible ${getStatusStyles(
     item.status
