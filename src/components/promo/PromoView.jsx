@@ -15,7 +15,9 @@ import {
 
 import { db } from "../../firebase";
 
-export default function PromoView() {
+export default function PromoView({
+  currentProduction
+}) {
   const [items, setItems] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [title, setTitle] = useState("");
@@ -26,16 +28,20 @@ export default function PromoView() {
       collection(db, "promo"),
       (snapshot) => {
         setItems(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          }))
+          snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data()
+            }))
+            .filter((item) =>
+              item.production === currentProduction
+            )
         );
       }
     );
 
     return () => unsub();
-  }, []);
+  }, [currentProduction]);
 
   const resetForm = () => {
     setTitle("");
@@ -50,6 +56,7 @@ export default function PromoView() {
       {
         title,
         imageUrl,
+        production: currentProduction,
         createdAt: Date.now()
       }
     );
@@ -73,7 +80,7 @@ export default function PromoView() {
           </h2>
 
           <div className="text-cyan-100/60">
-            Posters, graphics & marketing materials
+            {currentProduction} posters, graphics & marketing materials
           </div>
         </div>
       </GlassCard>
@@ -119,7 +126,7 @@ export default function PromoView() {
         {items.length === 0 && (
           <GlassCard>
             <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-              No promo assets yet.
+              No promo assets yet for {currentProduction}.
             </div>
           </GlassCard>
         )}
@@ -142,7 +149,7 @@ export default function PromoView() {
                 </h3>
 
                 <div className="text-white/50 mt-1">
-                  Upload a poster, graphic or marketing image.
+                  Upload a {currentProduction} poster, graphic or marketing image.
                 </div>
               </div>
 
