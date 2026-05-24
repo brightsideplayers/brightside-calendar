@@ -5,6 +5,7 @@ import {
 
 import {
   collection,
+  addDoc,
   onSnapshot
 } from "firebase/firestore";
 
@@ -22,33 +23,77 @@ import RehearsalsView from "./components/rehearsals/RehearsalsView";
 
 export default function App() {
   const [view, setView] = useState("feed");
+
+  const [productions, setProductions] = useState([
+    "The Little Mermaid",
+    "Robin Hood"
+  ]);
+
   const [currentProduction, setCurrentProduction] =
     useState("The Little Mermaid");
+
   const [showProductionMenu, setShowProductionMenu] =
     useState(false);
+
+  const [newProductionName, setNewProductionName] =
+    useState("");
+
   const [items, setItems] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [quickAddDate, setQuickAddDate] = useState(null);
 
   useEffect(() => {
     const unsub = onSnapshot(
-      collection(db, "posts"),
+      collection(db, "productions"),
       (snapshot) => {
-        setItems(
-  snapshot.docs
-    .map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-    .filter((item) =>
-      item.production === currentProduction
-    )
-);
+        const loadedProductions = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        if (loadedProductions.length === 0) {
+          setProductions([
+            "The Little Mermaid",
+            "Robin Hood"
+          ]);
+          return;
+        }
+
+        const names = loadedProductions
+          .map((item) => item.name)
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b));
+
+        setProductions(names);
+
+        if (!names.includes(currentProduction)) {
+          setCurrentProduction(names[0]);
+        }
       }
     );
 
     return () => unsub();
- }, [currentProduction]);
+  }, [currentProduction]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, "posts"),
+      (snapshot) => {
+        setItems(
+          snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data()
+            }))
+            .filter((item) =>
+              item.production === currentProduction
+            )
+        );
+      }
+    );
+
+    return () => unsub();
+  }, [currentProduction]);
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -66,6 +111,22 @@ export default function App() {
     return () => unsub();
   }, []);
 
+  const addProduction = async () => {
+    if (!newProductionName.trim()) return;
+
+    await addDoc(
+      collection(db, "productions"),
+      {
+        name: newProductionName.trim(),
+        createdAt: Date.now()
+      }
+    );
+
+    setCurrentProduction(newProductionName.trim());
+    setNewProductionName("");
+    setShowProductionMenu(false);
+  };
+
   const openQuickAdd = (day) => {
     const date = new Date();
     date.setDate(day);
@@ -74,21 +135,21 @@ export default function App() {
 
   const views = {
     feed: (
-  <FeedView
-    items={items}
-    setItems={setItems}
-    currentProduction={currentProduction}
-  />
-),
+      <FeedView
+        items={items}
+        setItems={setItems}
+        currentProduction={currentProduction}
+      />
+    ),
 
-calendar: (
-  <CalendarView
-    posts={items}
-    setItems={setItems}
-    openCalendarQuickAdd={openQuickAdd}
-    currentProduction={currentProduction}
-  />
-),
+    calendar: (
+      <CalendarView
+        posts={items}
+        setItems={setItems}
+        openCalendarQuickAdd={openQuickAdd}
+        currentProduction={currentProduction}
+      />
+    ),
 
     contacts: (
       <ContactsView
@@ -97,34 +158,34 @@ calendar: (
     ),
 
     costumes: (
-  <CostumesView
-    currentProduction={currentProduction}
-  />
-),
+      <CostumesView
+        currentProduction={currentProduction}
+      />
+    ),
 
-props: (
-  <PropsView
-    currentProduction={currentProduction}
-  />
-),
+    props: (
+      <PropsView
+        currentProduction={currentProduction}
+      />
+    ),
 
-set: (
-  <SetView
-    currentProduction={currentProduction}
-  />
-),
+    set: (
+      <SetView
+        currentProduction={currentProduction}
+      />
+    ),
 
-promo: (
-  <PromoView
-    currentProduction={currentProduction}
-  />
-),
+    promo: (
+      <PromoView
+        currentProduction={currentProduction}
+      />
+    ),
 
-rehearsals: (
-  <RehearsalsView
-    currentProduction={currentProduction}
-  />
-),
+    rehearsals: (
+      <RehearsalsView
+        currentProduction={currentProduction}
+      />
+    )
   };
 
   return (
@@ -150,13 +211,11 @@ rehearsals: (
                   }
                   className="w-full h-12 rounded-2xl bg-black/30 border border-fuchsia-300/20 px-4 text-white font-medium shadow-[0_0_25px_rgba(217,70,239,0.12)] min-w-0"
                 >
-                  <option>
-                    The Little Mermaid
-                  </option>
-
-                  <option>
-                    Robin Hood
-                  </option>
+                  {productions.map((production) => (
+                    <option key={production}>
+                      {production}
+                    </option>
+                  ))}
                 </select>
 
                 <div className="relative">
@@ -178,9 +237,25 @@ rehearsals: (
                         }
                       />
 
-                      <div className="absolute right-0 mt-2 w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-                        <button className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100">
+                      <div className="absolute right-0 mt-2 w-72 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-3 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                        <div className="text-xs uppercase tracking-[0.2em] text-white/40">
                           Add Production
+                        </div>
+
+                        <input
+                          value={newProductionName}
+                          onChange={(e) =>
+                            setNewProductionName(e.target.value)
+                          }
+                          placeholder="Production name..."
+                          className="h-11 rounded-xl bg-black/30 border border-white/10 px-3 text-white"
+                        />
+
+                        <button
+                          onClick={addProduction}
+                          className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
+                        >
+                          Save Production
                         </button>
                       </div>
                     </>
@@ -190,38 +265,38 @@ rehearsals: (
             </div>
           </div>
 
-         {/* NAV */}
-<div className="pt-5">
-  <div className="grid grid-cols-4 gap-2">
-    {Object.keys(views).map((v) => (
-      <button
-        key={v}
-        onClick={() => setView(v)}
-        className={`h-16 rounded-[1.4rem] border transition-all capitalize flex flex-col items-center justify-center gap-1 text-[11px] ${
-          view === v
-            ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
-            : "border-white/10 bg-white/5 text-white/60"
-        }`}
-      >
-        <div className="text-lg">
-          {{
-            feed: "📰",
-            calendar: "📅",
-            contacts: "👥",
-            costumes: "👗",
-            props: "🎭",
-            set: "🪵",
-            promo: "✨",
-            rehearsals: "🎬"
-          }[v]}
-        </div>
+          {/* NAV */}
+          <div className="pt-5">
+            <div className="grid grid-cols-4 gap-2">
+              {Object.keys(views).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`h-16 rounded-[1.4rem] border transition-all capitalize flex flex-col items-center justify-center gap-1 text-[11px] ${
+                    view === v
+                      ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
+                      : "border-white/10 bg-white/5 text-white/60"
+                  }`}
+                >
+                  <div className="text-lg">
+                    {{
+                      feed: "📰",
+                      calendar: "📅",
+                      contacts: "👥",
+                      costumes: "👗",
+                      props: "🎭",
+                      set: "🪵",
+                      promo: "✨",
+                      rehearsals: "🎬"
+                    }[v]}
+                  </div>
 
-        <div>{v}</div>
-      </button>
-    ))}
-  </div>
-</div>
+                  <div>{v}</div>
+                </button>
+              ))}
+            </div>
           </div>
+        </div>
 
         {/* ACTIVE VIEW */}
         <div className="w-full min-w-0">
@@ -230,11 +305,11 @@ rehearsals: (
 
         {/* QUICK ADD */}
         <QuickAddModal
-  quickAddDate={quickAddDate}
-  setQuickAddDate={setQuickAddDate}
-  setItems={setItems}
-  currentProduction={currentProduction}
-/>
+          quickAddDate={quickAddDate}
+          setQuickAddDate={setQuickAddDate}
+          setItems={setItems}
+          currentProduction={currentProduction}
+        />
       </div>
     </div>
   );
