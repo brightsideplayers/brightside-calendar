@@ -11,6 +11,7 @@ export default function PropsView() {
       assignedTo: "",
       location: "",
       notes: "",
+      comments: [],
       checked: false
     }
   ]);
@@ -286,6 +287,57 @@ export default function PropsView() {
                       className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm"
                     />
 
+                    <div className="grid gap-2">
+                      <input
+                        placeholder="Add comment and press Enter..."
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            e.target.value.trim()
+                          ) {
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      comments: [
+                                        ...(i.comments || []),
+                                        {
+                                          text:
+                                            e.target.value,
+                                          createdAt:
+                                            new Date().toLocaleString()
+                                        }
+                                      ]
+                                    }
+                                  : i
+                              )
+                            );
+
+                            e.target.value = "";
+                          }
+                        }}
+                        className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                      />
+
+                      {(item.comments || []).map(
+                        (comment, index) => (
+                          <div
+                            key={index}
+                            className="rounded-xl border border-white/10 bg-black/20 p-3"
+                          >
+                            <div className="text-white/80 text-sm">
+                              {comment.text}
+                            </div>
+
+                            <div className="text-white/30 text-[10px] mt-1">
+                              {comment.createdAt}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
                     <select
                       value={
                         item.status
@@ -365,4 +417,3 @@ export default function PropsView() {
     </div>
   );
 }
-
