@@ -36,12 +36,17 @@ export default function RehearsalsView({
     const unsub = onSnapshot(
       collection(db, "rehearsals"),
       (snapshot) => {
-        setRehearsals(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          }))
-        );
+       setRehearsals(
+  snapshot.docs
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+    .filter((item) =>
+      !item.production ||
+      item.production === currentProduction
+    )
+);
       }
     );
 
