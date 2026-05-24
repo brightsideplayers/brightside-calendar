@@ -199,7 +199,9 @@ export default function SetView() {
                               {comment.text}
                             </div>
 
-                            <div className="text-cyan-100/40 text-[10px] mt-1"
+                            <div className="text-cyan-100/40 text-[10px] mt-1">
+  {comment.createdAt}
+</div>
                               {
                                 comment.createdAt
                               }
