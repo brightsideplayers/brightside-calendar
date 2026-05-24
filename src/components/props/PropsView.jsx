@@ -1,20 +1,23 @@
-import { useState } from "react";
+import {
+  useState,
+  useEffect
+} from "react";
 
 import GlassCard from "../layout/GlassCard";
 
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc
+} from "firebase/firestore";
+
+import { db } from "../../firebase";
+
 export default function PropsView() {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      text: "Captain Hook Sword",
-      status: "Needed",
-      assignedTo: "",
-      location: "",
-      notes: "",
-      comments: [],
-      checked: false
-    }
-  ]);
+  const [items, setItems] = useState([]);
 
   const [newProp, setNewProp] =
     useState("");
@@ -22,9 +25,25 @@ export default function PropsView() {
   const [selectedStatus, setSelectedStatus] =
     useState("Needed");
 
-  const getStatusStyles = (
-    status
-  ) => {
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, "props"),
+      (snapshot) => {
+        setItems(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            menuOpen: false,
+            newComment: ""
+          }))
+        );
+      }
+    );
+
+    return () => unsub();
+  }, []);
+
+  const getStatusStyles = (status) => {
     switch (status) {
       case "Ready":
         return "border-cyan-300/20 bg-cyan-500/10 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.08)]";
@@ -43,28 +62,78 @@ export default function PropsView() {
     }
   };
 
-  const addProp = () => {
-    if (!newProp.trim())
-      return;
+  const updateLocalItem = (id, updates) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, ...updates }
+          : item
+      )
+    );
+  };
 
-    setItems((prev) => [
-      ...prev,
+  const saveItemUpdate = async (id, updates) => {
+    await updateDoc(
+      doc(db, "props", id),
+      updates
+    );
+  };
+
+  const closeMenus = () => {
+    setItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        menuOpen: false
+      }))
+    );
+  };
+
+  const addProp = async () => {
+    if (!newProp.trim()) return;
+
+    await addDoc(
+      collection(db, "props"),
       {
-        id: Date.now(),
         text: newProp,
-        status:
-          selectedStatus,
+        status: selectedStatus,
         assignedTo: "",
         location: "",
         notes: "",
-        checked: false
+        comments: [],
+        createdAt: Date.now()
       }
-    ]);
+    );
 
     setNewProp("");
+    setSelectedStatus("Needed");
+  };
 
-    setSelectedStatus(
-      "Needed"
+  const addComment = async (item) => {
+    if (!item.newComment?.trim()) return;
+
+    const updatedComments = [
+      ...(item.comments || []),
+      {
+        text: item.newComment,
+        createdAt:
+          new Date().toLocaleString()
+      }
+    ];
+
+    await saveItemUpdate(item.id, {
+      comments: updatedComments
+    });
+
+    updateLocalItem(item.id, {
+      comments: updatedComments,
+      newComment: "",
+      menuOpen: false
+    });
+  };
+
+  const deleteItem = async (id) => {
+    await deleteDoc(
+      doc(db, "props", id)
     );
   };
 
@@ -92,13 +161,11 @@ export default function PropsView() {
                 )
               }
               placeholder="Add prop..."
-              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
             />
 
             <select
-              value={
-                selectedStatus
-              }
+              value={selectedStatus}
               onChange={(e) =>
                 setSelectedStatus(
                   e.target.value
@@ -139,9 +206,7 @@ export default function PropsView() {
 
       <div className="grid gap-3">
         {items.map((item) => (
-          <GlassCard
-            key={item.id}
-          >
+          <GlassCard key={item.id}>
             <div
               className={`rounded-[1.6rem] border p-4 transition-all ${getStatusStyles(
                 item.status
@@ -150,23 +215,16 @@ export default function PropsView() {
               <div className="flex justify-between items-start gap-4">
                 <div className="grid gap-3 flex-1 min-w-0">
                   <input
-                    value={item.text}
+                    value={item.text || ""}
                     onChange={(e) =>
-                      setItems(
-                        (prev) =>
-                          prev.map(
-                            (i) =>
-                              i.id ===
-                              item.id
-                                ? {
-                                    ...i,
-                                    text: e
-                                      .target
-                                      .value
-                                  }
-                                : i
-                          )
-                      )
+                      updateLocalItem(item.id, {
+                        text: e.target.value
+                      })
+                    }
+                    onBlur={(e) =>
+                      saveItemUpdate(item.id, {
+                        text: e.target.value
+                      })
                     }
                     className="bg-transparent text-xl font-black text-white outline-none"
                   />
@@ -199,207 +257,237 @@ export default function PropsView() {
                   </div>
 
                   {item.notes && (
-                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm">
+                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm whitespace-pre-wrap">
                       {item.notes}
                     </div>
                   )}
-                </div>
 
-                <details className="relative shrink-0">
-                  <summary className="list-none cursor-pointer w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
-                    ⋮
-                  </summary>
-
-                  <div className="absolute right-0 mt-2 w-56 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-                    <input
-                      placeholder="Assign to..."
-                      value={
-                        item.assignedTo
-                      }
-                      onChange={(e) =>
-                        setItems(
-                          (prev) =>
-                            prev.map(
-                              (i) =>
-                                i.id ===
-                                item.id
-                                  ? {
-                                      ...i,
-                                      assignedTo:
-                                        e
-                                          .target
-                                          .value
-                                    }
-                                  : i
-                            )
-                        )
-                      }
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    />
-
-                    <input
-                      placeholder="Location..."
-                      value={
-                        item.location
-                      }
-                      onChange={(e) =>
-                        setItems(
-                          (prev) =>
-                            prev.map(
-                              (i) =>
-                                i.id ===
-                                item.id
-                                  ? {
-                                      ...i,
-                                      location:
-                                        e
-                                          .target
-                                          .value
-                                    }
-                                  : i
-                            )
-                        )
-                      }
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    />
-
-                    <textarea
-                      placeholder="Notes..."
-                      value={item.notes}
-                      onChange={(e) =>
-                        setItems(
-                          (prev) =>
-                            prev.map(
-                              (i) =>
-                                i.id ===
-                                item.id
-                                  ? {
-                                      ...i,
-                                      notes:
-                                        e
-                                          .target
-                                          .value
-                                    }
-                                  : i
-                            )
-                        )
-                      }
-                      className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm"
-                    />
-
-                    <div className="grid gap-2">
-                      <input
-                        placeholder="Add comment and press Enter..."
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            e.target.value.trim()
-                          ) {
-                            setItems((prev) =>
-                              prev.map((i) =>
-                                i.id === item.id
-                                  ? {
-                                      ...i,
-                                      comments: [
-                                        ...(i.comments || []),
-                                        {
-                                          text:
-                                            e.target.value,
-                                          createdAt:
-                                            new Date().toLocaleString()
-                                        }
-                                      ]
-                                    }
-                                  : i
-                              )
-                            );
-
-                            e.target.value = "";
-                          }
-                        }}
-                        className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                      />
-
+                  {(item.comments || []).length > 0 && (
+                    <div className="ml-6 grid gap-2">
                       {(item.comments || []).map(
                         (comment, index) => (
                           <div
                             key={index}
-                            className="rounded-xl border border-white/10 bg-black/20 p-3"
+                            className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm shadow-[0_0_20px_rgba(34,211,238,0.12)]"
                           >
-                            <div className="text-white/80 text-sm">
+                            <div className="font-semibold text-white whitespace-pre-wrap">
                               {comment.text}
                             </div>
 
-                            <div className="text-white/30 text-[10px] mt-1">
-                              {comment.createdAt}
+                            <div className="text-cyan-100/50 text-[10px] mt-1">
+                              {
+                                comment.createdAt
+                              }
                             </div>
                           </div>
                         )
                       )}
                     </div>
+                  )}
+                </div>
 
-                    <select
-                      value={
-                        item.status
-                      }
-                      onChange={(e) =>
-                        setItems(
-                          (prev) =>
-                            prev.map(
-                              (i) =>
-                                i.id ===
-                                item.id
-                                  ? {
-                                      ...i,
-                                      status:
-                                        e
-                                          .target
-                                          .value
-                                    }
-                                  : i
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() =>
+                      setItems((prev) =>
+                        prev.map((i) => ({
+                          ...i,
+                          menuOpen:
+                            i.id === item.id
+                              ? !i.menuOpen
+                              : false
+                        }))
+                      )
+                    }
+                    className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
+                  >
+                    ⋮
+                  </button>
+
+                  {item.menuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={closeMenus}
+                      />
+
+                      <div className="absolute right-0 mt-2 w-72 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-3 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                        <input
+                          placeholder="Assign to..."
+                          value={
+                            item.assignedTo ||
+                            ""
+                          }
+                          onChange={(e) =>
+                            updateLocalItem(
+                              item.id,
+                              {
+                                assignedTo:
+                                  e.target.value
+                              }
                             )
-                        )
-                      }
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    >
-                      <option>
-                        Needed
-                      </option>
-
-                      <option>
-                        In Progress
-                      </option>
-
-                      <option>
-                        Ready
-                      </option>
-
-                      <option>
-                        Repair
-                      </option>
-
-                      <option>
-                        Missing
-                      </option>
-                    </select>
-
-                    <button
-                      onClick={() =>
-                        setItems(
-                          (prev) =>
-                            prev.filter(
-                              (i) =>
-                                i.id !==
-                                item.id
+                          }
+                          onBlur={(e) =>
+                            saveItemUpdate(
+                              item.id,
+                              {
+                                assignedTo:
+                                  e.target.value
+                              }
                             )
-                        )
-                      }
-                      className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </details>
+                          }
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
+                        />
+
+                        <input
+                          placeholder="Location..."
+                          value={
+                            item.location ||
+                            ""
+                          }
+                          onChange={(e) =>
+                            updateLocalItem(
+                              item.id,
+                              {
+                                location:
+                                  e.target.value
+                              }
+                            )
+                          }
+                          onBlur={(e) =>
+                            saveItemUpdate(
+                              item.id,
+                              {
+                                location:
+                                  e.target.value
+                              }
+                            )
+                          }
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
+                        />
+
+                        <div className="grid gap-1">
+                          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Notes
+                          </div>
+
+                          <textarea
+                            placeholder="Production notes..."
+                            value={
+                              item.notes || ""
+                            }
+                            onChange={(e) =>
+                              updateLocalItem(
+                                item.id,
+                                {
+                                  notes:
+                                    e.target.value
+                                }
+                              )
+                            }
+                            onBlur={(e) =>
+                              saveItemUpdate(
+                                item.id,
+                                {
+                                  notes:
+                                    e.target.value
+                                }
+                              )
+                            }
+                            className="min-h-[100px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+                          />
+                        </div>
+
+                        <div className="grid gap-1">
+                          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Comments
+                          </div>
+
+                          <textarea
+                            placeholder="Write a comment..."
+                            value={
+                              item.newComment ||
+                              ""
+                            }
+                            onChange={(e) =>
+                              updateLocalItem(
+                                item.id,
+                                {
+                                  newComment:
+                                    e.target.value
+                                }
+                              )
+                            }
+                            className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+                          />
+
+                          <button
+                            onClick={() =>
+                              addComment(item)
+                            }
+                            className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
+                          >
+                            Add Comment
+                          </button>
+                        </div>
+
+                        <select
+                          value={
+                            item.status ||
+                            "Needed"
+                          }
+                          onChange={(e) => {
+                            updateLocalItem(
+                              item.id,
+                              {
+                                status:
+                                  e.target.value
+                              }
+                            );
+
+                            saveItemUpdate(
+                              item.id,
+                              {
+                                status:
+                                  e.target.value
+                              }
+                            );
+                          }}
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
+                        >
+                          <option>
+                            Needed
+                          </option>
+
+                          <option>
+                            In Progress
+                          </option>
+
+                          <option>
+                            Ready
+                          </option>
+
+                          <option>
+                            Repair
+                          </option>
+
+                          <option>
+                            Missing
+                          </option>
+                        </select>
+
+                        <button
+                          onClick={() =>
+                            deleteItem(item.id)
+                          }
+                          className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20 transition-all"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </GlassCard>
