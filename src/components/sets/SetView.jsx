@@ -76,7 +76,26 @@ export default function SetView() {
     );
   };
 
-  const addSetPiece = () => {
+  const addSetPiece = async () => {
+  if (!newSetPiece.trim()) return;
+
+  await addDoc(
+    collection(db, "setPieces"),
+    {
+      text: newSetPiece,
+      status: selectedStatus,
+      assignedTo: "",
+      location: "",
+      scene: "",
+      notes: "",
+      comments: [],
+      createdAt: Date.now()
+    }
+  );
+
+  setNewSetPiece("");
+  setSelectedStatus("Needed");
+};
     if (!newSetPiece.trim()) return;
 
     setItems((prev) => [
