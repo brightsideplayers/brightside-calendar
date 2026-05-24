@@ -186,6 +186,7 @@ export default function App() {
             props: "🎭",
             set: "🪵",
             promo: "✨"
+            rehearsals: "🎬"
           }[v]}
         </div>
 
