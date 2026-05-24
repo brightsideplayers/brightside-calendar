@@ -28,14 +28,19 @@ export default function SetView() {
     switch (status) {
       case "Ready":
         return "border-cyan-300/20 bg-cyan-500/10 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.08)]";
+
       case "In Progress":
         return "border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 shadow-[0_0_30px_rgba(217,70,239,0.08)]";
+
       case "Build":
         return "border-violet-300/20 bg-violet-500/10 text-violet-100 shadow-[0_0_30px_rgba(139,92,246,0.08)]";
+
       case "Repair":
         return "border-amber-300/20 bg-amber-500/10 text-amber-100 shadow-[0_0_30px_rgba(251,191,36,0.08)]";
+
       case "Missing":
         return "border-rose-300/20 bg-rose-500/10 text-rose-100 shadow-[0_0_30px_rgba(244,63,94,0.08)]";
+
       default:
         return "border-white/10 bg-white/5 text-white";
     }
@@ -206,7 +211,7 @@ export default function SetView() {
                   </div>
 
                   {item.notes && (
-                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm">
+                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm whitespace-pre-wrap">
                       {item.notes}
                     </div>
                   )}
@@ -219,7 +224,7 @@ export default function SetView() {
                             key={index}
                             className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm shadow-[0_0_20px_rgba(34,211,238,0.12)]"
                           >
-                            <div className="font-semibold text-white">
+                            <div className="font-semibold text-white whitespace-pre-wrap">
                               {comment.text}
                             </div>
 
@@ -258,7 +263,7 @@ export default function SetView() {
                         onClick={closeMenus}
                       />
 
-                      <div className="absolute right-0 mt-2 w-64 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                      <div className="absolute right-0 mt-2 w-72 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-3 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
                         <input
                           placeholder="Assign to..."
                           value={item.assignedTo}
@@ -316,54 +321,66 @@ export default function SetView() {
                           className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
                         />
 
-                        <textarea
-                          placeholder="Notes..."
-                          value={item.notes}
-                          onChange={(e) =>
-                            setItems((prev) =>
-                              prev.map((i) =>
-                                i.id === item.id
-                                  ? {
-                                      ...i,
-                                      notes:
-                                        e.target.value
-                                    }
-                                  : i
-                              )
-                            )
-                          }
-                          className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
-                        />
+                        <div className="grid gap-1">
+                          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Notes
+                          </div>
 
-                        <textarea
-                          placeholder="Add comment..."
-                          value={
-                            item.newComment || ""
-                          }
-                          onChange={(e) =>
-                            setItems((prev) =>
-                              prev.map((i) =>
-                                i.id === item.id
-                                  ? {
-                                      ...i,
-                                      newComment:
-                                        e.target.value
-                                    }
-                                  : i
+                          <textarea
+                            placeholder="Production notes..."
+                            value={item.notes}
+                            onChange={(e) =>
+                              setItems((prev) =>
+                                prev.map((i) =>
+                                  i.id === item.id
+                                    ? {
+                                        ...i,
+                                        notes:
+                                          e.target.value
+                                      }
+                                    : i
+                                )
                               )
-                            )
-                          }
-                          className="min-h-[70px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
-                        />
+                            }
+                            className="min-h-[100px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+                          />
+                        </div>
 
-                        <button
-                          onClick={() =>
-                            addComment(item.id)
-                          }
-                          className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold"
-                        >
-                          Add Comment
-                        </button>
+                        <div className="grid gap-1">
+                          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Comments
+                          </div>
+
+                          <textarea
+                            placeholder="Write a comment..."
+                            value={
+                              item.newComment || ""
+                            }
+                            onChange={(e) =>
+                              setItems((prev) =>
+                                prev.map((i) =>
+                                  i.id === item.id
+                                    ? {
+                                        ...i,
+                                        newComment:
+                                          e.target.value
+                                      }
+                                    : i
+                                )
+                              )
+                            }
+                            className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+                          />
+
+                          <button
+                            onClick={() =>
+                              addComment(item.id)
+                            }
+                            className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
+                          >
+                            Add Comment
+                          </button>
+                        </div>
 
                         <select
                           value={item.status}
@@ -399,7 +416,7 @@ export default function SetView() {
                               )
                             )
                           }
-                          className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
+                          className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20 transition-all"
                         >
                           Delete
                         </button>
