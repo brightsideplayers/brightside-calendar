@@ -12,7 +12,8 @@ export default function SetView() {
       location: "",
       scene: "",
       notes: "",
-      comments: []
+      comments: [],
+      menuOpen: false
     }
   ]);
 
@@ -44,6 +45,15 @@ export default function SetView() {
     }
   };
 
+  const closeMenus = () => {
+    setItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        menuOpen: false
+      }))
+    );
+  };
+
   const addSetPiece = () => {
     if (!newSetPiece.trim()) return;
 
@@ -57,7 +67,8 @@ export default function SetView() {
         location: "",
         scene: "",
         notes: "",
-        comments: []
+        comments: [],
+        menuOpen: false
       }
     ]);
 
@@ -200,159 +211,182 @@ export default function SetView() {
                   )}
                 </div>
 
-                <details className="relative shrink-0">
-                  <summary className="list-none cursor-pointer w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() =>
+                      setItems((prev) =>
+                        prev.map((i) => ({
+                          ...i,
+                          menuOpen:
+                            i.id === item.id
+                              ? !i.menuOpen
+                              : false
+                        }))
+                      )
+                    }
+                    className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
+                  >
                     ⋮
-                  </summary>
+                  </button>
 
-                  <div className="absolute right-0 mt-2 w-56 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-                    <input
-                      placeholder="Assign to..."
-                      value={item.assignedTo}
-                      onChange={(e) =>
-                        setItems((prev) =>
-                          prev.map((i) =>
-                            i.id === item.id
-                              ? {
-                                  ...i,
-                                  assignedTo:
-                                    e.target.value
-                                }
-                              : i
-                          )
-                        )
-                      }
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    />
+                  {item.menuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={closeMenus}
+                      />
 
-                    <input
-                      placeholder="Scene..."
-                      value={item.scene}
-                      onChange={(e) =>
-                        setItems((prev) =>
-                          prev.map((i) =>
-                            i.id === item.id
-                              ? {
-                                  ...i,
-                                  scene:
-                                    e.target.value
-                                }
-                              : i
-                          )
-                        )
-                      }
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    />
-
-                    <input
-                      placeholder="Location..."
-                      value={item.location}
-                      onChange={(e) =>
-                        setItems((prev) =>
-                          prev.map((i) =>
-                            i.id === item.id
-                              ? {
-                                  ...i,
-                                  location:
-                                    e.target.value
-                                }
-                              : i
-                          )
-                        )
-                      }
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    />
-
-                    <textarea
-                      placeholder="Notes..."
-                      value={item.notes}
-                      onChange={(e) =>
-                        setItems((prev) =>
-                          prev.map((i) =>
-                            i.id === item.id
-                              ? {
-                                  ...i,
-                                  notes:
-                                    e.target.value
-                                }
-                              : i
-                          )
-                        )
-                      }
-                      className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm"
-                    />
-
-                    <input
-                      placeholder="Add comment..."
-                      onKeyDown={(e) => {
-                        if (
-                          e.key === "Enter" &&
-                          e.target.value.trim()
-                        ) {
-                          setItems((prev) =>
-                            prev.map((i) =>
-                              i.id === item.id
-                                ? {
-                                    ...i,
-                                    comments: [
-                                      ...(i.comments || []),
-                                      {
-                                        text:
-                                          e.target.value,
-                                        createdAt:
-                                          new Date().toLocaleString()
-                                      }
-                                    ]
-                                  }
-                                : i
+                      <div className="absolute right-0 mt-2 w-56 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                        <input
+                          placeholder="Assign to..."
+                          value={item.assignedTo}
+                          onChange={(e) =>
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      assignedTo:
+                                        e.target.value
+                                    }
+                                  : i
+                              )
                             )
-                          );
+                          }
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                        />
 
-                          e.target.value = "";
-                        }
-                      }}
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    />
+                        <input
+                          placeholder="Scene..."
+                          value={item.scene}
+                          onChange={(e) =>
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      scene:
+                                        e.target.value
+                                    }
+                                  : i
+                              )
+                            )
+                          }
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                        />
 
-                    <select
-                      value={item.status}
-                      onChange={(e) =>
-                        setItems((prev) =>
-                          prev.map((i) =>
-                            i.id === item.id
-                              ? {
-                                  ...i,
-                                  status:
-                                    e.target.value
-                                }
-                              : i
-                          )
-                        )
-                      }
-                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                    >
-                      <option>Needed</option>
-                      <option>Build</option>
-                      <option>In Progress</option>
-                      <option>Ready</option>
-                      <option>Repair</option>
-                      <option>Missing</option>
-                    </select>
+                        <input
+                          placeholder="Location..."
+                          value={item.location}
+                          onChange={(e) =>
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      location:
+                                        e.target.value
+                                    }
+                                  : i
+                              )
+                            )
+                          }
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                        />
 
-                    <button
-                      onClick={() =>
-                        setItems((prev) =>
-                          prev.filter(
-                            (i) => i.id !== item.id
-                          )
-                        )
-                      }
-                      className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </details>
+                        <textarea
+                          placeholder="Notes..."
+                          value={item.notes}
+                          onChange={(e) =>
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      notes:
+                                        e.target.value
+                                    }
+                                  : i
+                              )
+                            )
+                          }
+                          className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm"
+                        />
+
+                        <input
+                          placeholder="Add comment and press Enter..."
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === "Enter" &&
+                              e.target.value.trim()
+                            ) {
+                              setItems((prev) =>
+                                prev.map((i) =>
+                                  i.id === item.id
+                                    ? {
+                                        ...i,
+                                        comments: [
+                                          ...(i.comments || []),
+                                          {
+                                            text:
+                                              e.target.value,
+                                            createdAt:
+                                              new Date().toLocaleString()
+                                          }
+                                        ]
+                                      }
+                                    : i
+                                )
+                              );
+
+                              e.target.value = "";
+                            }
+                          }}
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                        />
+
+                        <select
+                          value={item.status}
+                          onChange={(e) =>
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      status:
+                                        e.target.value
+                                    }
+                                  : i
+                              )
+                            )
+                          }
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                        >
+                          <option>Needed</option>
+                          <option>Build</option>
+                          <option>In Progress</option>
+                          <option>Ready</option>
+                          <option>Repair</option>
+                          <option>Missing</option>
+                        </select>
+
+                        <button
+                          onClick={() =>
+                            setItems((prev) =>
+                              prev.filter(
+                                (i) =>
+                                  i.id !== item.id
+                              )
+                            )
+                          }
+                          className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </GlassCard>
