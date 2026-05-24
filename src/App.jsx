@@ -11,60 +11,33 @@ import {
 import { db } from "./firebase";
 
 import FeedView from "./components/feed/FeedView";
-
 import CalendarView from "./components/calendar/CalendarView";
-
 import QuickAddModal from "./components/calendar/QuickAddModal";
-
 import ContactsView from "./components/contacts/ContactsView";
-
 import CostumesView from "./components/costumes/CostumesView";
-
 import PropsView from "./components/props/PropsView";
-
 import SetView from "./components/sets/SetView";
-
 import PromoView from "./components/promo/PromoView";
 
 export default function App() {
-  const [view, setView] =
-    useState("feed");
+  const [view, setView] = useState("feed");
+  const [currentProduction, setCurrentProduction] =
+    useState("The Little Mermaid");
+  const [showProductionMenu, setShowProductionMenu] =
+    useState(false);
+  const [items, setItems] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [quickAddDate, setQuickAddDate] = useState(null);
 
-  const [
-    currentProduction,
-    setCurrentProduction
-  ] = useState(
-    "The Little Mermaid"
-  );
-
-  const [
-    showProductionMenu,
-    setShowProductionMenu
-  ] = useState(false);
-
-  const [items, setItems] =
-    useState([]);
-
-  const [contacts, setContacts] =
-    useState([]);
-
-  const [
-    quickAddDate,
-    setQuickAddDate
-  ] = useState(null);
-
-  // POSTS
   useEffect(() => {
     const unsub = onSnapshot(
       collection(db, "posts"),
       (snapshot) => {
         setItems(
-          snapshot.docs.map(
-            (doc) => ({
-              id: doc.id,
-              ...doc.data()
-            })
-          )
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+          }))
         );
       }
     );
@@ -72,18 +45,15 @@ export default function App() {
     return () => unsub();
   }, []);
 
-  // CONTACTS
   useEffect(() => {
     const unsub = onSnapshot(
       collection(db, "contacts"),
       (snapshot) => {
         setContacts(
-          snapshot.docs.map(
-            (doc) => ({
-              id: doc.id,
-              ...doc.data()
-            })
-          )
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+          }))
         );
       }
     );
@@ -91,13 +61,9 @@ export default function App() {
     return () => unsub();
   }, []);
 
-  const openQuickAdd = (
-    day
-  ) => {
+  const openQuickAdd = (day) => {
     const date = new Date();
-
     date.setDate(day);
-
     setQuickAddDate(date);
   };
 
@@ -113,9 +79,7 @@ export default function App() {
       <CalendarView
         posts={items}
         setItems={setItems}
-        openCalendarQuickAdd={
-          openQuickAdd
-        }
+        openCalendarQuickAdd={openQuickAdd}
       />
     ),
 
@@ -135,13 +99,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white p-4 md:p-6">
-      <div className="max-w-7xl mx-auto grid gap-5">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#020617] text-white px-3 py-4 sm:px-4 md:p-6">
+      <div className="w-full max-w-7xl mx-auto grid gap-5 min-w-0">
         {/* HEADER */}
-        <div className="rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl p-5">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-6xl leading-tight pb-3 font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
+        <div className="w-full min-w-0 rounded-[1.5rem] sm:rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl p-4 sm:p-5 overflow-visible">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 min-w-0">
+            <div className="min-w-0">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl leading-tight pb-3 font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent break-words">
                 Brightside
               </h1>
 
@@ -149,17 +113,13 @@ export default function App() {
                 Production Dashboard
               </div>
 
-              <div className="pt-4 flex items-center gap-3">
+              <div className="pt-4 flex flex-col sm:flex-row sm:items-center gap-3 w-full">
                 <select
-                  value={
-                    currentProduction
-                  }
+                  value={currentProduction}
                   onChange={(e) =>
-                    setCurrentProduction(
-                      e.target.value
-                    )
+                    setCurrentProduction(e.target.value)
                   }
-                  className="h-12 rounded-2xl bg-black/30 border border-fuchsia-300/20 px-5 text-white font-medium shadow-[0_0_25px_rgba(217,70,239,0.12)]"
+                  className="w-full sm:w-auto h-12 rounded-2xl bg-black/30 border border-fuchsia-300/20 px-5 text-white font-medium shadow-[0_0_25px_rgba(217,70,239,0.12)]"
                 >
                   <option>
                     The Little Mermaid
@@ -170,14 +130,12 @@ export default function App() {
                   </option>
                 </select>
 
-                <div className="relative">
+                <div className="relative w-full sm:w-auto">
                   <button
                     onClick={() =>
-                      setShowProductionMenu(
-                        !showProductionMenu
-                      )
+                      setShowProductionMenu(!showProductionMenu)
                     }
-                    className="w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-xl"
+                    className="w-full sm:w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-xl"
                   >
                     ⋯
                   </button>
@@ -187,13 +145,11 @@ export default function App() {
                       <div
                         className="fixed inset-0 z-40"
                         onClick={() =>
-                          setShowProductionMenu(
-                            false
-                          )
+                          setShowProductionMenu(false)
                         }
                       />
 
-                      <div className="absolute right-0 mt-2 w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                      <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-56 rounded-[1.6rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
                         <button className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100">
                           Add Production
                         </button>
@@ -206,38 +162,34 @@ export default function App() {
           </div>
 
           {/* NAV */}
-          <div className="flex gap-2 overflow-x-auto whitespace-nowrap pt-5">
-            {Object.keys(
-              views
-            ).map((v) => (
-              <button
-                key={v}
-                onClick={() =>
-                  setView(v)
-                }
-                className={`h-12 px-5 rounded-2xl border transition-all capitalize ${
-                  view === v
-                    ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
-                    : "border-white/10 bg-white/5 text-white/70"
-                }`}
-              >
-                {v}
-              </button>
-            ))}
+          <div className="pt-5 -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto">
+            <div className="flex gap-2 min-w-max sm:min-w-0">
+              {Object.keys(views).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`h-11 sm:h-12 px-4 sm:px-5 rounded-2xl border transition-all capitalize shrink-0 ${
+                    view === v
+                      ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
+                      : "border-white/10 bg-white/5 text-white/70"
+                  }`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* ACTIVE VIEW */}
-        {views[view]}
+        <div className="w-full min-w-0">
+          {views[view]}
+        </div>
 
         {/* QUICK ADD */}
         <QuickAddModal
-          quickAddDate={
-            quickAddDate
-          }
-          setQuickAddDate={
-            setQuickAddDate
-          }
+          quickAddDate={quickAddDate}
+          setQuickAddDate={setQuickAddDate}
           setItems={setItems}
         />
       </div>
