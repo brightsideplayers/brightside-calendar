@@ -304,11 +304,11 @@ export default function CostumesView() {
                     {item.menuOpen && (
                       <>
                         <div
-                          className="fixed inset-0 z-[9998]"
+                          className="fixed inset-0 z-[9999]"
                           onClick={closeMenus}
                         />
 
-                        <div className="absolute right-0 mt-2 w-72 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-3 z-[10000] shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                       <div className="fixed right-6 top-32 w-72 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-3 z-[10000] shadow-[0_0_40px_rgba(0,0,0,0.65)]">
                           <input
                             placeholder="Assign to..."
                             value={
