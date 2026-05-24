@@ -36,22 +36,21 @@ export default function RehearsalsView({
     const unsub = onSnapshot(
       collection(db, "rehearsals"),
       (snapshot) => {
-       setRehearsals(
-  snapshot.docs
-    .map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-    .filter((item) =>
-      !item.production ||
-      item.production === currentProduction
-    )
-);
+        setRehearsals(
+          snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data()
+            }))
+            .filter((item) =>
+              item.production === currentProduction
+            )
+        );
       }
     );
 
     return () => unsub();
-  }, []);
+  }, [currentProduction]);
 
   const getTypeStyles = (type) => {
     switch (type) {
@@ -192,7 +191,8 @@ export default function RehearsalsView({
         type: editingItem.type || "Blocking",
         scenes: editingItem.scenes || "",
         called: editingItem.called || "",
-        notes: editingItem.notes || ""
+        notes: editingItem.notes || "",
+        production: currentProduction
       }
     );
 
@@ -297,7 +297,7 @@ export default function RehearsalsView({
           </h2>
 
           <div className="text-cyan-100/60">
-            Callboard, rehearsal schedule & notes
+            {currentProduction} callboard, rehearsal schedule & notes
           </div>
         </div>
       </GlassCard>
@@ -397,7 +397,7 @@ export default function RehearsalsView({
       {rehearsals.length === 0 && (
         <GlassCard>
           <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-            No rehearsals yet.
+            No rehearsals yet for {currentProduction}.
           </div>
         </GlassCard>
       )}
@@ -419,7 +419,7 @@ export default function RehearsalsView({
                 </h3>
 
                 <div className="text-white/50 mt-1">
-                  Add call time, location, scenes, called cast and notes.
+                  Add a rehearsal for {currentProduction}.
                 </div>
               </div>
 
@@ -532,7 +532,7 @@ export default function RehearsalsView({
                 </h3>
 
                 <div className="text-white/50 mt-1">
-                  Update call time, location, scenes, called cast and notes.
+                  Update this {currentProduction} rehearsal.
                 </div>
               </div>
 
