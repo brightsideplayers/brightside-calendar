@@ -16,7 +16,9 @@ import {
 
 import { db } from "../../firebase";
 
-export default function CostumesView() {
+export default function CostumesView({
+  currentProduction
+}) {
   const [items, setItems] = useState([]);
   const [newCostume, setNewCostume] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("Needed");
@@ -28,16 +30,20 @@ export default function CostumesView() {
       collection(db, "costumes"),
       (snapshot) => {
         setItems(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          }))
+          snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data()
+            }))
+            .filter((item) =>
+              item.production === currentProduction
+            )
         );
       }
     );
 
     return () => unsub();
-  }, []);
+  }, [currentProduction]);
 
   const getStatusStyles = (status) => {
     switch (status) {
@@ -65,6 +71,7 @@ export default function CostumesView() {
         assignedTo: "",
         notes: "",
         comments: [],
+        production: currentProduction,
         createdAt: Date.now()
       }
     );
@@ -83,7 +90,8 @@ export default function CostumesView() {
         status: editingItem.status || "Needed",
         assignedTo: editingItem.assignedTo || "",
         notes: editingItem.notes || "",
-        comments: editingItem.comments || []
+        comments: editingItem.comments || [],
+        production: currentProduction
       }
     );
 
@@ -129,7 +137,7 @@ export default function CostumesView() {
             </h2>
 
             <div className="text-cyan-100/60 mt-2">
-              Wardrobe tracking & assignments
+              {currentProduction} wardrobe tracking & assignments
             </div>
           </div>
 
@@ -246,7 +254,7 @@ export default function CostumesView() {
         {items.length === 0 && (
           <GlassCard>
             <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-              No costumes yet.
+              No costumes yet for {currentProduction}.
             </div>
           </GlassCard>
         )}
@@ -262,7 +270,7 @@ export default function CostumesView() {
                 </h3>
 
                 <div className="text-white/50 mt-1">
-                  Update details, notes, comments and status.
+                  Update this {currentProduction} costume.
                 </div>
               </div>
 
