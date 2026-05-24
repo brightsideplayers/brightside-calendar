@@ -161,20 +161,32 @@ export default function App() {
             </div>
           </div>
 
-          {/* NAV */}
-<div className="pt-5 overflow-x-auto scrollbar-hide">
-  <div className="flex gap-2 min-w-max pr-2">
+         {/* NAV */}
+<div className="pt-5">
+  <div className="grid grid-cols-4 gap-2">
     {Object.keys(views).map((v) => (
       <button
         key={v}
         onClick={() => setView(v)}
-        className={`h-10 sm:h-12 px-4 rounded-2xl border transition-all capitalize text-sm whitespace-nowrap shrink-0 ${
+        className={`h-16 rounded-[1.4rem] border transition-all capitalize flex flex-col items-center justify-center gap-1 text-[11px] ${
           view === v
             ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
-            : "border-white/10 bg-white/5 text-white/70"
+            : "border-white/10 bg-white/5 text-white/60"
         }`}
       >
-        {v}
+        <div className="text-lg">
+          {{
+            feed: "📰",
+            calendar: "📅",
+            contacts: "👥",
+            costumes: "👗",
+            props: "🎭",
+            set: "🪵",
+            promo: "✨"
+          }[v]}
+        </div>
+
+        <div>{v}</div>
       </button>
     ))}
   </div>
