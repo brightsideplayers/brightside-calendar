@@ -18,6 +18,7 @@ import CostumesView from "./components/costumes/CostumesView";
 import PropsView from "./components/props/PropsView";
 import SetView from "./components/sets/SetView";
 import PromoView from "./components/promo/PromoView";
+import RehearsalsView from "./components/rehearsals/RehearsalsView";
 
 export default function App() {
   const [view, setView] = useState("feed");
@@ -96,6 +97,8 @@ export default function App() {
     set: <SetView />,
 
     promo: <PromoView />
+
+    rehearsals: <RehearsalsView />,
   };
 
   return (
