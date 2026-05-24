@@ -9,7 +9,17 @@ import {
   onSnapshot
 } from "firebase/firestore";
 
-import { db } from "./firebase";
+import {
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut
+} from "firebase/auth";
+
+import {
+  db,
+  auth,
+  provider
+} from "./firebase";
 
 import FeedView from "./components/feed/FeedView";
 import CalendarView from "./components/calendar/CalendarView";
@@ -22,6 +32,9 @@ import PromoView from "./components/promo/PromoView";
 import RehearsalsView from "./components/rehearsals/RehearsalsView";
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [view, setView] = useState("feed");
 
   const [productions, setProductions] = useState([
@@ -43,6 +56,20 @@ export default function App() {
   const [quickAddDate, setQuickAddDate] = useState(null);
 
   useEffect(() => {
+    const unsub = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+        setAuthLoading(false);
+      }
+    );
+
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
     const unsub = onSnapshot(
       collection(db, "productions"),
       (snapshot) => {
@@ -73,9 +100,11 @@ export default function App() {
     );
 
     return () => unsub();
-  }, [currentProduction]);
+  }, [user, currentProduction]);
 
   useEffect(() => {
+    if (!user) return;
+
     const unsub = onSnapshot(
       collection(db, "posts"),
       (snapshot) => {
@@ -93,9 +122,11 @@ export default function App() {
     );
 
     return () => unsub();
-  }, [currentProduction]);
+  }, [user, currentProduction]);
 
   useEffect(() => {
+    if (!user) return;
+
     const unsub = onSnapshot(
       collection(db, "contacts"),
       (snapshot) => {
@@ -109,7 +140,15 @@ export default function App() {
     );
 
     return () => unsub();
-  }, []);
+  }, [user]);
+
+  const handleGoogleSignIn = async () => {
+    await signInWithPopup(auth, provider);
+  };
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+  };
 
   const addProduction = async () => {
     if (!newProductionName.trim()) return;
@@ -188,19 +227,64 @@ export default function App() {
     )
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center p-6">
+        <div className="text-cyan-100/60">
+          Loading Brightside...
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#020617] text-white px-4 py-8 flex items-center justify-center">
+        <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-2xl p-6 grid gap-6 text-center">
+          <div>
+            <h1 className="text-5xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
+              Brightside
+            </h1>
+
+            <div className="text-cyan-100/60 mt-3">
+              Production Dashboard
+            </div>
+          </div>
+
+          <button
+            onClick={handleGoogleSignIn}
+            className="h-14 rounded-2xl bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 text-black font-black hover:scale-[1.02] transition-all"
+          >
+            Sign in with Google
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#020617] text-white px-3 py-4 sm:px-4 md:p-6">
       <div className="w-full max-w-7xl mx-auto grid gap-5 min-w-0">
-        {/* HEADER */}
         <div className="w-full min-w-0 rounded-[1.5rem] sm:rounded-[1.8rem] border border-white/10 bg-white/5 backdrop-blur-2xl p-4 sm:p-5 overflow-visible">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 min-w-0">
             <div className="min-w-0 w-full">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl leading-tight pb-3 font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent break-words">
-                Brightside
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl leading-tight pb-3 font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent break-words">
+                    Brightside
+                  </h1>
 
-              <div className="text-cyan-100/70">
-                Production Dashboard
+                  <div className="text-cyan-100/70">
+                    Production Dashboard
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSignOut}
+                  className="h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-white/70 text-sm hover:bg-white/10 transition-all"
+                >
+                  Sign Out
+                </button>
               </div>
 
               <div className="pt-4 grid grid-cols-[1fr_56px] sm:flex sm:items-center gap-3 w-full">
@@ -265,7 +349,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* NAV */}
           <div className="pt-5">
             <div className="grid grid-cols-4 gap-2">
               {Object.keys(views).map((v) => (
@@ -298,12 +381,10 @@ export default function App() {
           </div>
         </div>
 
-        {/* ACTIVE VIEW */}
         <div className="w-full min-w-0">
           {views[view]}
         </div>
 
-        {/* QUICK ADD */}
         <QuickAddModal
           quickAddDate={quickAddDate}
           setQuickAddDate={setQuickAddDate}
