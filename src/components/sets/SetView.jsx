@@ -13,6 +13,7 @@ export default function SetView() {
       scene: "",
       notes: "",
       comments: [],
+      newComment: "",
       menuOpen: false
     }
   ]);
@@ -63,12 +64,40 @@ export default function SetView() {
         scene: "",
         notes: "",
         comments: [],
+        newComment: "",
         menuOpen: false
       }
     ]);
 
     setNewSetPiece("");
     setSelectedStatus("Needed");
+  };
+
+  const addComment = (itemId) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (
+          item.id !== itemId ||
+          !item.newComment?.trim()
+        ) {
+          return item;
+        }
+
+        return {
+          ...item,
+          comments: [
+            ...(item.comments || []),
+            {
+              text: item.newComment,
+              createdAt:
+                new Date().toLocaleString()
+            }
+          ],
+          newComment: "",
+          menuOpen: false
+        };
+      })
+    );
   };
 
   return (
@@ -81,7 +110,8 @@ export default function SetView() {
             </h2>
 
             <div className="text-cyan-100/60 mt-2">
-              Set pieces, scenery & build tracking
+              Set pieces, scenery &
+              build tracking
             </div>
           </div>
 
@@ -92,7 +122,7 @@ export default function SetView() {
                 setNewSetPiece(e.target.value)
               }
               placeholder="Add set piece..."
-              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
             />
 
             <select
@@ -187,13 +217,13 @@ export default function SetView() {
                         (comment, index) => (
                           <div
                             key={index}
-                           className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm text-white shadow-[0_0_20px_rgba(34,211,238,0.12)]"
+                            className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm shadow-[0_0_20px_rgba(34,211,238,0.12)]"
                           >
                             <div className="font-semibold text-white">
-  {comment.text}
-</div>
+                              {comment.text}
+                            </div>
 
-                            <div className="text-cyan-100/40 text-[10px] mt-1">
+                            <div className="text-cyan-100/50 text-[10px] mt-1">
                               {comment.createdAt}
                             </div>
                           </div>
@@ -228,7 +258,7 @@ export default function SetView() {
                         onClick={closeMenus}
                       />
 
-                      <div className="absolute right-0 mt-2 w-56 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                      <div className="absolute right-0 mt-2 w-64 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
                         <input
                           placeholder="Assign to..."
                           value={item.assignedTo}
@@ -245,7 +275,7 @@ export default function SetView() {
                               )
                             )
                           }
-                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
                         />
 
                         <input
@@ -264,7 +294,7 @@ export default function SetView() {
                               )
                             )
                           }
-                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
                         />
 
                         <input
@@ -283,7 +313,7 @@ export default function SetView() {
                               )
                             )
                           }
-                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
                         />
 
                         <textarea
@@ -302,40 +332,38 @@ export default function SetView() {
                               )
                             )
                           }
-                          className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm"
+                          className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
                         />
 
-                        <input
-                          placeholder="Add comment and press Enter..."
-                          onKeyDown={(e) => {
-                            if (
-                              e.key === "Enter" &&
-                              e.target.value.trim()
-                            ) {
-                              setItems((prev) =>
-                                prev.map((i) =>
-                                  i.id === item.id
-                                    ? {
-                                        ...i,
-                                        comments: [
-                                          ...(i.comments || []),
-                                          {
-                                            text:
-                                              e.target.value,
-                                            createdAt:
-                                              new Date().toLocaleString()
-                                          }
-                                        ]
-                                      }
-                                    : i
-                                )
-                              );
-
-                              e.target.value = "";
-                            }
-                          }}
-                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                        <textarea
+                          placeholder="Add comment..."
+                          value={
+                            item.newComment || ""
+                          }
+                          onChange={(e) =>
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      newComment:
+                                        e.target.value
+                                    }
+                                  : i
+                              )
+                            )
+                          }
+                          className="min-h-[70px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
                         />
+
+                        <button
+                          onClick={() =>
+                            addComment(item.id)
+                          }
+                          className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold"
+                        >
+                          Add Comment
+                        </button>
 
                         <select
                           value={item.status}
@@ -352,7 +380,7 @@ export default function SetView() {
                               )
                             )
                           }
-                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
                         >
                           <option>Needed</option>
                           <option>Build</option>
