@@ -162,24 +162,23 @@ export default function App() {
           </div>
 
           {/* NAV */}
-          <div className="pt-5">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2">
-              {Object.keys(views).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={`h-11 sm:h-12 px-3 rounded-2xl border transition-all capitalize text-sm sm:text-base ${
-                    view === v
-                      ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
-                      : "border-white/10 bg-white/5 text-white/70"
-                  }`}
-                >
-                  {v}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+<div className="pt-5 overflow-x-auto scrollbar-hide">
+  <div className="flex gap-2 min-w-max pr-2">
+    {Object.keys(views).map((v) => (
+      <button
+        key={v}
+        onClick={() => setView(v)}
+        className={`h-10 sm:h-12 px-4 rounded-2xl border transition-all capitalize text-sm whitespace-nowrap shrink-0 ${
+          view === v
+            ? "border-fuchsia-300/30 bg-fuchsia-500/20 text-white"
+            : "border-white/10 bg-white/5 text-white/70"
+        }`}
+      >
+        {v}
+      </button>
+    ))}
+  </div>
+</div>
 
         {/* ACTIVE VIEW */}
         <div className="w-full min-w-0">
