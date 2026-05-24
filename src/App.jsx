@@ -96,7 +96,7 @@ export default function App() {
 
     set: <SetView />,
 
-    promo: <PromoView />
+    promo: <PromoView />,
 
     rehearsals: <RehearsalsView />,
   };
