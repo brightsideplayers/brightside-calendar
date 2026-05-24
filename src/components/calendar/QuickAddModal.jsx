@@ -14,7 +14,8 @@ import GlassCard from "../layout/GlassCard";
 
 export default function QuickAddModal({
   quickAddDate,
-  setQuickAddDate
+  setQuickAddDate,
+  currentProduction
 }) {
   const [type, setType] = useState("post");
   const [caption, setCaption] = useState("");
@@ -44,6 +45,18 @@ export default function QuickAddModal({
     setQuickAddDate(null);
   };
 
+  const resetForm = () => {
+    setCaption("");
+    setTaskTitle("");
+    setImageUrl("");
+    setTiktokLink("");
+    setAssignedTo("");
+    setPlatform("Instagram");
+    setTaskStatus("todo");
+    setType("post");
+    setScheduledDate("");
+  };
+
   const handleSave = async () => {
     if (type === "task" && !taskTitle.trim()) return;
     if (type === "post" && !caption.trim()) return;
@@ -64,6 +77,7 @@ export default function QuickAddModal({
           date: finalDate.toISOString(),
           scheduledFor: finalDate.toISOString(),
           status: "open",
+          production: currentProduction,
           createdAt: Date.now()
         }
       );
@@ -86,20 +100,13 @@ export default function QuickAddModal({
           date: finalDate.toISOString(),
           scheduledFor: finalDate.toISOString(),
           status: "scheduled",
+          production: currentProduction,
           createdAt: Date.now()
         }
       );
     }
 
-    setCaption("");
-    setTaskTitle("");
-    setImageUrl("");
-    setTiktokLink("");
-    setAssignedTo("");
-    setPlatform("Instagram");
-    setTaskStatus("todo");
-    setType("post");
-    setScheduledDate("");
+    resetForm();
     setQuickAddDate(null);
   };
 
@@ -117,7 +124,7 @@ export default function QuickAddModal({
                 </h2>
 
                 <div className="text-cyan-100/60 mt-1 text-sm sm:text-base">
-                  Add a post or task to your production calendar.
+                  Add a post or task to {currentProduction}.
                 </div>
               </div>
 
