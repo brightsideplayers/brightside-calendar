@@ -114,8 +114,7 @@ export default function CostumesView() {
       ...(item.comments || []),
       {
         text: item.newComment,
-        createdAt:
-          new Date().toLocaleString()
+        createdAt: new Date().toLocaleString()
       }
     ];
 
@@ -137,7 +136,7 @@ export default function CostumesView() {
   };
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-5 overflow-visible">
       <GlassCard>
         <div className="grid gap-5">
           <div>
@@ -172,25 +171,11 @@ export default function CostumesView() {
               }
               className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
             >
-              <option>
-                Needed
-              </option>
-
-              <option>
-                In Progress
-              </option>
-
-              <option>
-                Ready
-              </option>
-
-              <option>
-                Alterations
-              </option>
-
-              <option>
-                Missing
-              </option>
+              <option>Needed</option>
+              <option>In Progress</option>
+              <option>Ready</option>
+              <option>Alterations</option>
+              <option>Missing</option>
             </select>
 
             <button
@@ -203,152 +188,138 @@ export default function CostumesView() {
         </div>
       </GlassCard>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 overflow-visible">
         {[...items]
-  .sort((a, b) =>
-    (a.text || "").localeCompare(
-      b.text || ""
-    )
-  )
-  .map((item) => (
-          <GlassCard key={item.id}>
-            <div
-              className={`rounded-[1.6rem] border p-4 transition-all ${getStatusStyles(
-                item.status
-              )}`}
+          .sort((a, b) =>
+            (a.text || "").localeCompare(
+              b.text || ""
+            )
+          )
+          .map((item) => (
+            <GlassCard
+              key={item.id}
+              className="overflow-visible"
             >
-              <div className="flex justify-between items-start gap-4">
-                <div className="grid gap-3 flex-1 min-w-0">
-                  <input
-                    value={item.text || ""}
-                    onChange={(e) =>
-                      updateLocalItem(item.id, {
-                        text: e.target.value
-                      })
-                    }
-                    onBlur={(e) =>
-                      saveItemUpdate(item.id, {
-                        text: e.target.value
-                      })
-                    }
-                    className="bg-transparent text-xl font-black text-white outline-none"
-                  />
+              <div
+                className={`relative rounded-[1.6rem] border p-4 transition-all overflow-visible ${
+                  item.menuOpen
+                    ? "z-[9999]"
+                    : "z-0"
+                } ${getStatusStyles(
+                  item.status
+                )}`}
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="grid gap-3 flex-1 min-w-0">
+                    <input
+                      value={item.text || ""}
+                      onChange={(e) =>
+                        updateLocalItem(
+                          item.id,
+                          {
+                            text:
+                              e.target.value
+                          }
+                        )
+                      }
+                      onBlur={(e) =>
+                        saveItemUpdate(
+                          item.id,
+                          {
+                            text:
+                              e.target.value
+                          }
+                        )
+                      }
+                      className="bg-transparent text-xl font-black text-white outline-none"
+                    />
 
-                  <div className="flex flex-wrap gap-2">
-                    <div
-                      className={`px-3 py-1 rounded-full border text-xs uppercase tracking-[0.2em] ${getStatusStyles(
-                        item.status
-                      )}`}
-                    >
-                      {item.status}
+                    <div className="flex flex-wrap gap-2">
+                      <div
+                        className={`px-3 py-1 rounded-full border text-xs uppercase tracking-[0.2em] ${getStatusStyles(
+                          item.status
+                        )}`}
+                      >
+                        {item.status}
+                      </div>
+
+                      {item.assignedTo && (
+                        <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-xs uppercase tracking-[0.2em]">
+                          Assigned:{" "}
+                          {item.assignedTo}
+                        </div>
+                      )}
                     </div>
 
-                    {item.assignedTo && (
-                      <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-xs uppercase tracking-[0.2em]">
-                        Assigned:{" "}
-                        {item.assignedTo}
+                    {item.notes && (
+                      <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm whitespace-pre-wrap">
+                        {item.notes}
+                      </div>
+                    )}
+
+                    {(item.comments || []).length >
+                      0 && (
+                      <div className="ml-6 grid gap-2">
+                        {(item.comments || []).map(
+                          (comment, index) => (
+                            <div
+                              key={index}
+                              className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm shadow-[0_0_20px_rgba(34,211,238,0.12)]"
+                            >
+                              <div className="font-semibold text-white whitespace-pre-wrap">
+                                {comment.text}
+                              </div>
+
+                              <div className="text-cyan-100/50 text-[10px] mt-1">
+                                {
+                                  comment.createdAt
+                                }
+                              </div>
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
                   </div>
 
-                  {item.notes && (
-                    <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm whitespace-pre-wrap">
-                      {item.notes}
-                    </div>
-                  )}
-
-                  {(item.comments || []).length > 0 && (
-                    <div className="ml-6 grid gap-2">
-                      {(item.comments || []).map(
-                        (comment, index) => (
-                          <div
-                            key={index}
-                            className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm shadow-[0_0_20px_rgba(34,211,238,0.12)]"
-                          >
-                            <div className="font-semibold text-white whitespace-pre-wrap">
-                              {comment.text}
-                            </div>
-
-                            <div className="text-cyan-100/50 text-[10px] mt-1">
-                              {
-                                comment.createdAt
-                              }
-                            </div>
-                          </div>
+                  <div className="relative shrink-0">
+                    <button
+                      onClick={() =>
+                        setItems((prev) =>
+                          prev.map((i) => ({
+                            ...i,
+                            menuOpen:
+                              i.id ===
+                              item.id
+                                ? !i.menuOpen
+                                : false
+                          }))
                         )
-                      )}
-                    </div>
-                  )}
-                </div>
+                      }
+                      className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
+                    >
+                      ⋮
+                    </button>
 
-                <div className="relative shrink-0">
-                  <button
-                    onClick={() =>
-                      setItems((prev) =>
-                        prev.map((i) => ({
-                          ...i,
-                          menuOpen:
-                            i.id === item.id
-                              ? !i.menuOpen
-                              : false
-                        }))
-                      )
-                    }
-                    className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
-                  >
-                    ⋮
-                  </button>
-
-                  {item.menuOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-40"
-                        onClick={closeMenus}
-                      />
-
-                      <div className="absolute right-0 mt-2 w-72 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-3 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-                        <input
-                          placeholder="Assign to..."
-                          value={
-                            item.assignedTo ||
-                            ""
-                          }
-                          onChange={(e) =>
-                            updateLocalItem(
-                              item.id,
-                              {
-                                assignedTo:
-                                  e.target.value
-                              }
-                            )
-                          }
-                          onBlur={(e) =>
-                            saveItemUpdate(
-                              item.id,
-                              {
-                                assignedTo:
-                                  e.target.value
-                              }
-                            )
-                          }
-                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
+                    {item.menuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-[9998]"
+                          onClick={closeMenus}
                         />
 
-                        <div className="grid gap-1">
-                          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-                            Notes
-                          </div>
-
-                          <textarea
-                            placeholder="Production notes..."
+                        <div className="absolute right-0 mt-2 w-72 rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-3 z-[10000] shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                          <input
+                            placeholder="Assign to..."
                             value={
-                              item.notes || ""
+                              item.assignedTo ||
+                              ""
                             }
                             onChange={(e) =>
                               updateLocalItem(
                                 item.id,
                                 {
-                                  notes:
+                                  assignedTo:
                                     e.target.value
                                 }
                               )
@@ -357,112 +328,149 @@ export default function CostumesView() {
                               saveItemUpdate(
                                 item.id,
                                 {
-                                  notes:
+                                  assignedTo:
                                     e.target.value
                                 }
                               )
                             }
-                            className="min-h-[100px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+                            className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
                           />
-                        </div>
 
-                        <div className="grid gap-1">
-                          <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-                            Comments
+                          <div className="grid gap-1">
+                            <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                              Notes
+                            </div>
+
+                            <textarea
+                              placeholder="Production notes..."
+                              value={
+                                item.notes ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                updateLocalItem(
+                                  item.id,
+                                  {
+                                    notes:
+                                      e
+                                        .target
+                                        .value
+                                  }
+                                )
+                              }
+                              onBlur={(e) =>
+                                saveItemUpdate(
+                                  item.id,
+                                  {
+                                    notes:
+                                      e
+                                        .target
+                                        .value
+                                  }
+                                )
+                              }
+                              className="min-h-[100px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+                            />
                           </div>
 
-                          <textarea
-                            placeholder="Write a comment..."
+                          <div className="grid gap-1">
+                            <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                              Comments
+                            </div>
+
+                            <textarea
+                              placeholder="Write a comment..."
+                              value={
+                                item.newComment ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                updateLocalItem(
+                                  item.id,
+                                  {
+                                    newComment:
+                                      e
+                                        .target
+                                        .value
+                                  }
+                                )
+                              }
+                              className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+                            />
+
+                            <button
+                              onClick={() =>
+                                addComment(item)
+                              }
+                              className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
+                            >
+                              Add Comment
+                            </button>
+                          </div>
+
+                          <select
                             value={
-                              item.newComment ||
-                              ""
+                              item.status ||
+                              "Needed"
                             }
-                            onChange={(e) =>
+                            onChange={(e) => {
                               updateLocalItem(
                                 item.id,
                                 {
-                                  newComment:
-                                    e.target.value
+                                  status:
+                                    e
+                                      .target
+                                      .value
                                 }
-                              )
-                            }
-                            className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
-                          />
+                              );
+
+                              saveItemUpdate(
+                                item.id,
+                                {
+                                  status:
+                                    e
+                                      .target
+                                      .value
+                                }
+                              );
+                            }}
+                            className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
+                          >
+                            <option>
+                              Needed
+                            </option>
+                            <option>
+                              In Progress
+                            </option>
+                            <option>
+                              Ready
+                            </option>
+                            <option>
+                              Alterations
+                            </option>
+                            <option>
+                              Missing
+                            </option>
+                          </select>
 
                           <button
                             onClick={() =>
-                              addComment(item)
+                              deleteItem(item.id)
                             }
-                            className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
+                            className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20 transition-all"
                           >
-                            Add Comment
+                            Delete
                           </button>
                         </div>
-
-                        <select
-                          value={
-                            item.status ||
-                            "Needed"
-                          }
-                          onChange={(e) => {
-                            updateLocalItem(
-                              item.id,
-                              {
-                                status:
-                                  e.target.value
-                              }
-                            );
-
-                            saveItemUpdate(
-                              item.id,
-                              {
-                                status:
-                                  e.target.value
-                              }
-                            );
-                          }}
-                          className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
-                        >
-                          <option>
-                            Needed
-                          </option>
-
-                          <option>
-                            In Progress
-                          </option>
-
-                          <option>
-                            Ready
-                          </option>
-
-                          <option>
-                            Alterations
-                          </option>
-
-                          <option>
-                            Missing
-                          </option>
-                        </select>
-
-                        <button
-                          onClick={() =>
-                            deleteItem(item.id)
-                          }
-                          className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20 transition-all"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </>
-                  )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </GlassCard>
-        ))}
+            </GlassCard>
+          ))}
 
-        {items.length ===
-          0 && (
+        {items.length === 0 && (
           <GlassCard>
             <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
               No costumes yet.
