@@ -16,7 +16,9 @@ import {
 
 import { db } from "../../firebase";
 
-export default function PropsView() {
+export default function PropsView({
+  currentProduction
+}) {
   const [items, setItems] = useState([]);
   const [newProp, setNewProp] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("Needed");
@@ -28,16 +30,20 @@ export default function PropsView() {
       collection(db, "props"),
       (snapshot) => {
         setItems(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          }))
+          snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data()
+            }))
+            .filter((item) =>
+              item.production === currentProduction
+            )
         );
       }
     );
 
     return () => unsub();
-  }, []);
+  }, [currentProduction]);
 
   const getStatusStyles = (status) => {
     switch (status) {
@@ -66,6 +72,7 @@ export default function PropsView() {
         location: "",
         notes: "",
         comments: [],
+        production: currentProduction,
         createdAt: Date.now()
       }
     );
@@ -85,7 +92,8 @@ export default function PropsView() {
         assignedTo: editingItem.assignedTo || "",
         location: editingItem.location || "",
         notes: editingItem.notes || "",
-        comments: editingItem.comments || []
+        comments: editingItem.comments || [],
+        production: currentProduction
       }
     );
 
@@ -131,7 +139,7 @@ export default function PropsView() {
             </h2>
 
             <div className="text-cyan-100/60 mt-2">
-              Prop inventory & production tracking
+              {currentProduction} prop inventory & production tracking
             </div>
           </div>
 
@@ -250,7 +258,7 @@ export default function PropsView() {
         {items.length === 0 && (
           <GlassCard>
             <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-              No props yet.
+              No props yet for {currentProduction}.
             </div>
           </GlassCard>
         )}
@@ -266,7 +274,7 @@ export default function PropsView() {
                 </h3>
 
                 <div className="text-white/50 mt-1">
-                  Update details, location, notes, comments and status.
+                  Update this {currentProduction} prop.
                 </div>
               </div>
 
