@@ -35,16 +35,20 @@ export default function App() {
       collection(db, "posts"),
       (snapshot) => {
         setItems(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          }))
-        );
+  snapshot.docs
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+    .filter((item) =>
+      item.production === currentProduction
+    )
+);
       }
     );
 
     return () => unsub();
-  }, []);
+ }, [currentProduction]);
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -226,10 +230,11 @@ rehearsals: (
 
         {/* QUICK ADD */}
         <QuickAddModal
-          quickAddDate={quickAddDate}
-          setQuickAddDate={setQuickAddDate}
-          setItems={setItems}
-        />
+  quickAddDate={quickAddDate}
+  setQuickAddDate={setQuickAddDate}
+  setItems={setItems}
+  currentProduction={currentProduction}
+/>
       </div>
     </div>
   );
