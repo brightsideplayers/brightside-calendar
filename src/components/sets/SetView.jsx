@@ -193,13 +193,13 @@ export default function SetView() {
                         (comment, index) => (
                           <div
                             key={index}
-                            className="rounded-[1.2rem] border border-white/10 bg-black/30 p-3 text-sm text-white/70"
+                            className="rounded-[1.2rem] border border-cyan-300/10 bg-black/40 p-3 text-sm text-cyan-100"
                           >
                             <div>
                               {comment.text}
                             </div>
 
-                            <div className="text-white/30 text-[10px] mt-1">
+                            <div className="text-cyan-100/40 text-[10px] mt-1"
                               {
                                 comment.createdAt
                               }
