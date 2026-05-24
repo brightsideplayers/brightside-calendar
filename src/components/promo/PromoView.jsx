@@ -10,9 +10,9 @@ import {
   addDoc,
   onSnapshot,
   deleteDoc,
-  doc
+  doc,
+  updateDoc
 } from "firebase/firestore";
-
 import { db } from "../../firebase";
 
 export default function PromoView({
@@ -22,7 +22,9 @@ export default function PromoView({
   const [showAddModal, setShowAddModal] = useState(false);
   const [title, setTitle] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+const [menuOpenId, setMenuOpenId] = useState(null);
 
+const [editingItem, setEditingItem] = useState(null);
   useEffect(() => {
     const unsub = onSnapshot(
       collection(db, "promo"),
@@ -70,7 +72,19 @@ export default function PromoView({
       doc(db, "promo", id)
     );
   };
+const saveEdit = async () => {
+  if (!editingItem) return;
 
+  await updateDoc(
+    doc(db, "promo", editingItem.id),
+    {
+      title: editingItem.title || "",
+      imageUrl: editingItem.imageUrl || ""
+    }
+  );
+
+  setEditingItem(null);
+};
   return (
     <div className="grid gap-5 pb-28 sm:pb-32">
       <GlassCard>
@@ -100,24 +114,63 @@ export default function PromoView({
                   {item.title}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <a
-                    href={item.imageUrl}
-                    download
-                    target="_blank"
-                    rel="noreferrer"
-                    className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 flex items-center justify-center text-sm font-bold"
-                  >
-                    Download
-                  </a>
+               <div className="flex justify-end relative">
+  <button
+    onClick={() =>
+      setMenuOpenId(
+        menuOpenId === item.id
+          ? null
+          : item.id
+      )
+    }
+    className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
+  >
+    ⋮
+  </button>
 
-                  <button
-                    onClick={() => deletePromo(item.id)}
-                    className="h-11 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 text-sm font-bold"
-                  >
-                    Delete
-                  </button>
-                </div>
+  {menuOpenId === item.id && (
+    <>
+      <div
+        className="fixed inset-0 z-40"
+        onClick={() =>
+          setMenuOpenId(null)
+        }
+      />
+
+      <div className="absolute right-0 top-12 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+        <a
+          href={item.imageUrl}
+          download
+          target="_blank"
+          rel="noreferrer"
+          className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold flex items-center justify-center"
+        >
+          Download
+        </a>
+
+        <button
+          onClick={() => {
+            setMenuOpenId(null);
+
+            setEditingItem(item);
+          }}
+          className="h-10 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 font-bold"
+        >
+          Edit
+        </button>
+
+        <button
+          onClick={() =>
+            deletePromo(item.id)
+          }
+          className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 font-bold"
+        >
+          Delete
+        </button>
+      </div>
+    </>
+  )}
+</div>
               </div>
             </div>
           </GlassCard>
@@ -138,7 +191,82 @@ export default function PromoView({
       >
         +
       </button>
+{editingItem && (
+  <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl overflow-y-auto p-4 flex items-start md:items-center justify-center">
+    <div className="w-full md:max-w-2xl bg-[#071018] border border-white/10 rounded-[2rem] p-6 grid gap-5 shadow-[0_0_60px_rgba(251,191,36,0.12)]">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-3xl font-black bg-gradient-to-r from-yellow-200 via-orange-300 to-fuchsia-300 bg-clip-text text-transparent">
+            Edit Promo Asset
+          </h3>
 
+          <div className="text-white/50 mt-1">
+            Update this promo asset.
+          </div>
+        </div>
+
+        <button
+          onClick={() =>
+            setEditingItem(null)
+          }
+          className="w-10 h-10 rounded-full bg-yellow-300 text-black font-black hover:scale-110 transition-all"
+        >
+          ✕
+        </button>
+      </div>
+
+      <input
+        value={editingItem.title || ""}
+        onChange={(e) =>
+          setEditingItem({
+            ...editingItem,
+            title: e.target.value
+          })
+        }
+        placeholder="Asset title..."
+        className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+      />
+
+      <input
+        value={editingItem.imageUrl || ""}
+        onChange={(e) =>
+          setEditingItem({
+            ...editingItem,
+            imageUrl: e.target.value
+          })
+        }
+        placeholder="Image URL..."
+        className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+      />
+
+      {editingItem.imageUrl && (
+        <img
+          src={editingItem.imageUrl}
+          alt=""
+          className="w-full max-w-[220px] aspect-square object-cover rounded-[1.4rem] border border-white/10"
+        />
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+        <button
+          onClick={saveEdit}
+          className="h-12 rounded-xl bg-gradient-to-r from-yellow-300 to-orange-400 text-black font-black"
+        >
+          Save Changes
+        </button>
+
+        <button
+          onClick={() =>
+            setEditingItem(null)
+          }
+          className="h-12 rounded-xl border border-white/10 bg-white/5 text-white/70"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {showAddModal && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl overflow-y-auto p-4 flex items-start md:items-center justify-center">
           <div className="w-full md:max-w-2xl bg-[#071018] border border-white/10 rounded-[2rem] p-6 grid gap-5 shadow-[0_0_60px_rgba(251,191,36,0.12)]">
