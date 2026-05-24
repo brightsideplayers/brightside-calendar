@@ -90,15 +90,35 @@ export default function App() {
       />
     ),
 
-    costumes: <CostumesView />,
+    costumes: (
+  <CostumesView
+    currentProduction={currentProduction}
+  />
+),
 
-    props: <PropsView />,
+props: (
+  <PropsView
+    currentProduction={currentProduction}
+  />
+),
 
-    set: <SetView />,
+set: (
+  <SetView
+    currentProduction={currentProduction}
+  />
+),
 
-    promo: <PromoView />,
+promo: (
+  <PromoView
+    currentProduction={currentProduction}
+  />
+),
 
-    rehearsals: <RehearsalsView />,
+rehearsals: (
+  <RehearsalsView
+    currentProduction={currentProduction}
+  />
+),
   };
 
   return (
