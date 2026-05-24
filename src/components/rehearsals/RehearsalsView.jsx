@@ -165,6 +165,7 @@ export default function RehearsalsView({
         scenes: newScenes,
         called: newCalled,
         notes: newNotes,
+        production: currentProduction,
         createdAt: Date.now()
       }
     );
