@@ -70,19 +70,21 @@ export default function App() {
 
   const views = {
     feed: (
-      <FeedView
-        items={items}
-        setItems={setItems}
-      />
-    ),
+  <FeedView
+    items={items}
+    setItems={setItems}
+    currentProduction={currentProduction}
+  />
+),
 
-    calendar: (
-      <CalendarView
-        posts={items}
-        setItems={setItems}
-        openCalendarQuickAdd={openQuickAdd}
-      />
-    ),
+calendar: (
+  <CalendarView
+    posts={items}
+    setItems={setItems}
+    openCalendarQuickAdd={openQuickAdd}
+    currentProduction={currentProduction}
+  />
+),
 
     contacts: (
       <ContactsView
