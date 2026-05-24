@@ -1,28 +1,49 @@
-import { useState } from "react";
+import {
+  useState,
+  useEffect
+} from "react";
 
 import GlassCard from "../layout/GlassCard";
 
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc
+} from "firebase/firestore";
+
+import { db } from "../../firebase";
+
 export default function SetView() {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      text: "Castle Backdrop",
-      status: "Needed",
-      assignedTo: "",
-      location: "",
-      scene: "",
-      notes: "",
-      comments: [],
-      newComment: "",
-      menuOpen: false
-    }
-  ]);
+    
+    const [items, setItems] =
+  useState([]);
 
   const [newSetPiece, setNewSetPiece] =
     useState("");
 
   const [selectedStatus, setSelectedStatus] =
     useState("Needed");
+
+  useEffect(() => {
+  const unsub = onSnapshot(
+    collection(db, "setPieces"),
+    (snapshot) => {
+      setItems(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          menuOpen: false,
+          newComment: ""
+        }))
+      );
+    }
+  );
+
+  return () => unsub();
+}, []);
 
   const getStatusStyles = (status) => {
     switch (status) {
