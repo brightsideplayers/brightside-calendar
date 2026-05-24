@@ -186,10 +186,10 @@ export default function SetView() {
   .map((item) => (
           <GlassCard key={item.id}>
             <div
-              className={`rounded-[1.6rem] border p-4 transition-all ${getStatusStyles(
-                item.status
-              )}`}
-            >
+  className={`rounded-[1.6rem] border p-4 transition-all overflow-visible ${getStatusStyles(
+    item.status
+  )}`}
+>
               <div className="flex justify-between items-start gap-4">
                 <div className="grid gap-3 flex-1 min-w-0">
                   <input
