@@ -204,7 +204,13 @@ export default function CostumesView() {
       </GlassCard>
 
       <div className="grid gap-3">
-        {items.map((item) => (
+        {[...items]
+  .sort((a, b) =>
+    (a.text || "").localeCompare(
+      b.text || ""
+    )
+  )
+  .map((item) => (
           <GlassCard key={item.id}>
             <div
               className={`rounded-[1.6rem] border p-4 transition-all ${getStatusStyles(
