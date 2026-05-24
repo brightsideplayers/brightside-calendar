@@ -179,6 +179,7 @@ export default function App() {
     ))}
   </div>
 </div>
+          </div>
 
         {/* ACTIVE VIEW */}
         <div className="w-full min-w-0">
