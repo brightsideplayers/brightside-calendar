@@ -16,7 +16,9 @@ import {
 
 import { db } from "../../firebase";
 
-export default function RehearsalsView() {
+export default function RehearsalsView({
+  currentProduction
+}) {
   const [rehearsals, setRehearsals] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
 
