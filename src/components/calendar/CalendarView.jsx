@@ -271,7 +271,7 @@ export default function CalendarView({
                   if (!day) return;
                   openDay(day);
                 }}
-                className={`relative h-[78px] sm:h-[115px] md:h-[180px] rounded-xl sm:rounded-[1.2rem] md:rounded-[1.5rem] p-1.5 sm:p-2 md:p-3 text-left overflow-hidden transition-all min-w-0 ${
+                className={`relative h-[78px] sm:h-[115px] md:h-[180px] rounded-xl sm:rounded-[1.2rem] md:rounded-[1.5rem] p-1.5 sm:p-2 md:p-3 text-left overflow-hidden transition-all min-w-0 flex flex-col ${
                   day
                     ? isToday
                       ? "bg-cyan-500/[0.08] border border-cyan-300/20 shadow-[0_0_25px_rgba(34,211,238,0.18)]"
@@ -282,7 +282,7 @@ export default function CalendarView({
                 {day && (
                   <>
                     <div
-                      className={`text-sm sm:text-lg md:text-2xl font-black ${
+                      className={`shrink-0 h-5 sm:h-7 md:h-8 text-sm sm:text-lg md:text-2xl font-black leading-none ${
                         isToday
                           ? "text-cyan-300"
                           : "text-white"
@@ -291,7 +291,7 @@ export default function CalendarView({
                       {day}
                     </div>
 
-                    <div className="grid gap-1 mt-1 sm:mt-2">
+                    <div className="grid gap-1 mt-1 sm:mt-2 min-h-0 overflow-hidden">
                       {items.slice(0, 2).map((item, idx) => (
                         <div
                           key={idx}
@@ -314,7 +314,7 @@ export default function CalendarView({
                       ))}
 
                       {items.length > 2 && (
-                        <div className="text-[9px] sm:text-[11px] text-cyan-300 font-semibold">
+                        <div className="text-[9px] sm:text-[11px] text-cyan-300 font-semibold leading-none">
                           +{items.length - 2}
                         </div>
                       )}
