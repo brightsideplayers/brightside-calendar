@@ -16,7 +16,9 @@ import {
 
 import { db } from "../../firebase";
 
-export default function SetView() {
+export default function SetView({
+  currentProduction
+}) {
   const [items, setItems] = useState([]);
   const [newSetPiece, setNewSetPiece] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("Needed");
@@ -28,16 +30,20 @@ export default function SetView() {
       collection(db, "setPieces"),
       (snapshot) => {
         setItems(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          }))
+          snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data()
+            }))
+            .filter((item) =>
+              item.production === currentProduction
+            )
         );
       }
     );
 
     return () => unsub();
-  }, []);
+  }, [currentProduction]);
 
   const getStatusStyles = (status) => {
     switch (status) {
@@ -69,6 +75,7 @@ export default function SetView() {
         scene: "",
         notes: "",
         comments: [],
+        production: currentProduction,
         createdAt: Date.now()
       }
     );
@@ -89,7 +96,8 @@ export default function SetView() {
         location: editingItem.location || "",
         scene: editingItem.scene || "",
         notes: editingItem.notes || "",
-        comments: editingItem.comments || []
+        comments: editingItem.comments || [],
+        production: currentProduction
       }
     );
 
@@ -135,7 +143,7 @@ export default function SetView() {
             </h2>
 
             <div className="text-cyan-100/60 mt-2">
-              Set pieces, scenery & build tracking
+              {currentProduction} set pieces, scenery & build tracking
             </div>
           </div>
 
@@ -265,7 +273,7 @@ export default function SetView() {
         {items.length === 0 && (
           <GlassCard>
             <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-              No set pieces yet.
+              No set pieces yet for {currentProduction}.
             </div>
           </GlassCard>
         )}
@@ -281,7 +289,7 @@ export default function SetView() {
                 </h3>
 
                 <div className="text-white/50 mt-1">
-                  Update details, location, scene, notes, comments and status.
+                  Update this {currentProduction} set piece.
                 </div>
               </div>
 
