@@ -18,12 +18,10 @@ import { db } from "../../firebase";
 
 export default function CostumesView() {
   const [items, setItems] = useState([]);
-
-  const [newCostume, setNewCostume] =
-    useState("");
-
-  const [selectedStatus, setSelectedStatus] =
-    useState("Needed");
+  const [newCostume, setNewCostume] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("Needed");
+  const [editingItem, setEditingItem] = useState(null);
+  const [newComment, setNewComment] = useState("");
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -32,9 +30,7 @@ export default function CostumesView() {
         setItems(
           snapshot.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data(),
-            menuOpen: false,
-            newComment: ""
+            ...doc.data()
           }))
         );
       }
@@ -47,59 +43,19 @@ export default function CostumesView() {
     switch (status) {
       case "Ready":
         return "border-cyan-300/20 bg-cyan-500/10 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.08)]";
-
       case "In Progress":
         return "border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 shadow-[0_0_30px_rgba(217,70,239,0.08)]";
-
       case "Alterations":
         return "border-amber-300/20 bg-amber-500/10 text-amber-100 shadow-[0_0_30px_rgba(251,191,36,0.08)]";
-
       case "Missing":
         return "border-rose-300/20 bg-rose-500/10 text-rose-100 shadow-[0_0_30px_rgba(244,63,94,0.08)]";
-
       default:
         return "border-white/10 bg-white/5 text-white";
     }
   };
 
-  const updateLocalItem = (
-    id,
-    updates
-  ) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              ...updates
-            }
-          : item
-      )
-    );
-  };
-
-  const saveItemUpdate = async (
-    id,
-    updates
-  ) => {
-    await updateDoc(
-      doc(db, "costumes", id),
-      updates
-    );
-  };
-
-  const closeMenus = () => {
-    setItems((prev) =>
-      prev.map((item) => ({
-        ...item,
-        menuOpen: false
-      }))
-    );
-  };
-
   const addCostume = async () => {
-    if (!newCostume.trim())
-      return;
+    if (!newCostume.trim()) return;
 
     await addDoc(
       collection(db, "costumes"),
@@ -117,41 +73,50 @@ export default function CostumesView() {
     setSelectedStatus("Needed");
   };
 
-  const addComment = async (
-    item
-  ) => {
-    if (!item.newComment?.trim())
-      return;
+  const saveEditingItem = async () => {
+    if (!editingItem) return;
 
-    const updatedComments = [
-      ...(item.comments || []),
+    await updateDoc(
+      doc(db, "costumes", editingItem.id),
       {
-        text: item.newComment,
-        createdAt:
-          new Date().toLocaleString()
-      }
-    ];
-
-    await saveItemUpdate(
-      item.id,
-      {
-        comments: updatedComments
+        text: editingItem.text || "",
+        status: editingItem.status || "Needed",
+        assignedTo: editingItem.assignedTo || "",
+        notes: editingItem.notes || "",
+        comments: editingItem.comments || []
       }
     );
 
-    updateLocalItem(item.id, {
-      comments: updatedComments,
-      newComment: "",
-      menuOpen: false
-    });
+    setEditingItem(null);
+    setNewComment("");
   };
 
-  const deleteItem = async (
-    id
-  ) => {
+  const addComment = () => {
+    if (!newComment.trim() || !editingItem) return;
+
+    setEditingItem({
+      ...editingItem,
+      comments: [
+        ...(editingItem.comments || []),
+        {
+          text: newComment,
+          createdAt: new Date().toLocaleString()
+        }
+      ]
+    });
+
+    setNewComment("");
+  };
+
+  const deleteItem = async () => {
+    if (!editingItem) return;
+
     await deleteDoc(
-      doc(db, "costumes", id)
+      doc(db, "costumes", editingItem.id)
     );
+
+    setEditingItem(null);
+    setNewComment("");
   };
 
   return (
@@ -164,8 +129,7 @@ export default function CostumesView() {
             </h2>
 
             <div className="text-cyan-100/60 mt-2">
-              Wardrobe tracking &
-              assignments
+              Wardrobe tracking & assignments
             </div>
           </div>
 
@@ -173,9 +137,7 @@ export default function CostumesView() {
             <input
               value={newCostume}
               onChange={(e) =>
-                setNewCostume(
-                  e.target.value
-                )
+                setNewCostume(e.target.value)
               }
               placeholder="Add costume..."
               className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
@@ -184,31 +146,15 @@ export default function CostumesView() {
             <select
               value={selectedStatus}
               onChange={(e) =>
-                setSelectedStatus(
-                  e.target.value
-                )
+                setSelectedStatus(e.target.value)
               }
               className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
             >
-              <option>
-                Needed
-              </option>
-
-              <option>
-                In Progress
-              </option>
-
-              <option>
-                Ready
-              </option>
-
-              <option>
-                Alterations
-              </option>
-
-              <option>
-                Missing
-              </option>
+              <option>Needed</option>
+              <option>In Progress</option>
+              <option>Ready</option>
+              <option>Alterations</option>
+              <option>Missing</option>
             </select>
 
             <button
@@ -224,9 +170,7 @@ export default function CostumesView() {
       <div className="grid gap-3">
         {[...items]
           .sort((a, b) =>
-            (a.text || "").localeCompare(
-              b.text || ""
-            )
+            (a.text || "").localeCompare(b.text || "")
           )
           .map((item) => (
             <GlassCard key={item.id}>
@@ -235,278 +179,65 @@ export default function CostumesView() {
                   item.status
                 )}`}
               >
-                <div className="grid gap-4">
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="grid gap-3 flex-1 min-w-0">
-                      <input
-                        value={
-                          item.text || ""
-                        }
-                        onChange={(e) =>
-                          updateLocalItem(
-                            item.id,
-                            {
-                              text:
-                                e.target
-                                  .value
-                            }
-                          )
-                        }
-                        onBlur={(e) =>
-                          saveItemUpdate(
-                            item.id,
-                            {
-                              text:
-                                e.target
-                                  .value
-                            }
-                          )
-                        }
-                        className="bg-transparent text-xl font-black text-white outline-none"
-                      />
+                <div className="flex justify-between items-start gap-4">
+                  <div className="grid gap-3 flex-1 min-w-0">
+                    <div className="text-xl font-black text-white">
+                      {item.text}
+                    </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <div
-                          className={`px-3 py-1 rounded-full border text-xs uppercase tracking-[0.2em] ${getStatusStyles(
-                            item.status
-                          )}`}
-                        >
-                          {item.status}
+                    <div className="flex flex-wrap gap-2">
+                      <div
+                        className={`px-3 py-1 rounded-full border text-xs uppercase tracking-[0.2em] ${getStatusStyles(
+                          item.status
+                        )}`}
+                      >
+                        {item.status}
+                      </div>
+
+                      {item.assignedTo && (
+                        <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-xs uppercase tracking-[0.2em]">
+                          Assigned: {item.assignedTo}
                         </div>
+                      )}
+                    </div>
 
-                        {item.assignedTo && (
-                          <div className="px-3 py-1 rounded-full border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-xs uppercase tracking-[0.2em]">
-                            Assigned:{" "}
-                            {
-                              item.assignedTo
-                            }
-                          </div>
+                    {item.notes && (
+                      <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm whitespace-pre-wrap">
+                        {item.notes}
+                      </div>
+                    )}
+
+                    {(item.comments || []).length > 0 && (
+                      <div className="ml-6 grid gap-2">
+                        {(item.comments || []).map(
+                          (comment, index) => (
+                            <div
+                              key={index}
+                              className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm shadow-[0_0_20px_rgba(34,211,238,0.12)]"
+                            >
+                              <div className="font-semibold text-white whitespace-pre-wrap">
+                                {comment.text}
+                              </div>
+
+                              <div className="text-cyan-100/50 text-[10px] mt-1">
+                                {comment.createdAt}
+                              </div>
+                            </div>
+                          )
                         )}
                       </div>
-
-                      {item.notes && (
-                        <div className="rounded-[1.2rem] border border-white/10 bg-black/20 p-3 text-white/70 text-sm whitespace-pre-wrap">
-                          {item.notes}
-                        </div>
-                      )}
-
-                      {(item.comments || [])
-                        .length > 0 && (
-                        <div className="ml-6 grid gap-2">
-                          {(
-                            item.comments ||
-                            []
-                          ).map(
-                            (
-                              comment,
-                              index
-                            ) => (
-                              <div
-                                key={
-                                  index
-                                }
-                                className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm shadow-[0_0_20px_rgba(34,211,238,0.12)]"
-                              >
-                                <div className="font-semibold text-white whitespace-pre-wrap">
-                                  {
-                                    comment.text
-                                  }
-                                </div>
-
-                                <div className="text-cyan-100/50 text-[10px] mt-1">
-                                  {
-                                    comment.createdAt
-                                  }
-                                </div>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={() =>
-                        setItems((prev) =>
-                          prev.map((i) => ({
-                            ...i,
-                            menuOpen:
-                              i.id ===
-                              item.id
-                                ? !i.menuOpen
-                                : false
-                          }))
-                        )
-                      }
-                      className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all shrink-0"
-                    >
-                      ⋮
-                    </button>
+                    )}
                   </div>
 
-                  {item.menuOpen && (
-                    <div className="w-full rounded-[1.4rem] bg-[#071018] border border-white/10 p-3 grid gap-3 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-                      <input
-                        placeholder="Assign to..."
-                        value={
-                          item.assignedTo ||
-                          ""
-                        }
-                        onChange={(e) =>
-                          updateLocalItem(
-                            item.id,
-                            {
-                              assignedTo:
-                                e.target
-                                  .value
-                            }
-                          )
-                        }
-                        onBlur={(e) =>
-                          saveItemUpdate(
-                            item.id,
-                            {
-                              assignedTo:
-                                e.target
-                                  .value
-                            }
-                          )
-                        }
-                        className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
-                      />
-
-                      <div className="grid gap-1">
-                        <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-                          Notes
-                        </div>
-
-                        <textarea
-                          placeholder="Production notes..."
-                          value={
-                            item.notes || ""
-                          }
-                          onChange={(e) =>
-                            updateLocalItem(
-                              item.id,
-                              {
-                                notes:
-                                  e.target
-                                    .value
-                              }
-                            )
-                          }
-                          onBlur={(e) =>
-                            saveItemUpdate(
-                              item.id,
-                              {
-                                notes:
-                                  e.target
-                                    .value
-                              }
-                            )
-                          }
-                          className="min-h-[100px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
-                        />
-                      </div>
-
-                      <div className="grid gap-1">
-                        <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-                          Comments
-                        </div>
-
-                        <textarea
-                          placeholder="Write a comment..."
-                          value={
-                            item.newComment ||
-                            ""
-                          }
-                          onChange={(e) =>
-                            updateLocalItem(
-                              item.id,
-                              {
-                                newComment:
-                                  e.target
-                                    .value
-                              }
-                            )
-                          }
-                          className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
-                        />
-
-                        <button
-                          onClick={() =>
-                            addComment(item)
-                          }
-                          className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
-                        >
-                          Add Comment
-                        </button>
-                      </div>
-
-                      <select
-                        value={
-                          item.status ||
-                          "Needed"
-                        }
-                        onChange={(e) => {
-                          updateLocalItem(
-                            item.id,
-                            {
-                              status:
-                                e.target
-                                  .value
-                            }
-                          );
-
-                          saveItemUpdate(
-                            item.id,
-                            {
-                              status:
-                                e.target
-                                  .value
-                            }
-                          );
-                        }}
-                        className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm text-white"
-                      >
-                        <option>
-                          Needed
-                        </option>
-
-                        <option>
-                          In Progress
-                        </option>
-
-                        <option>
-                          Ready
-                        </option>
-
-                        <option>
-                          Alterations
-                        </option>
-
-                        <option>
-                          Missing
-                        </option>
-                      </select>
-
-                      <button
-                        onClick={() =>
-                          deleteItem(item.id)
-                        }
-                        className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20 transition-all"
-                      >
-                        Delete
-                      </button>
-
-                      <button
-                        onClick={closeMenus}
-                        className="h-10 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition-all"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  )}
+                  <button
+                    onClick={() => {
+                      setEditingItem(item);
+                      setNewComment("");
+                    }}
+                    className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all shrink-0"
+                  >
+                    ⋮
+                  </button>
                 </div>
               </div>
             </GlassCard>
@@ -520,6 +251,162 @@ export default function CostumesView() {
           </GlassCard>
         )}
       </div>
+
+      {editingItem && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl overflow-y-auto p-4 flex items-start md:items-center justify-center">
+          <div className="w-full md:max-w-2xl bg-[#071018] border border-white/10 rounded-[2rem] p-6 grid gap-5 shadow-[0_0_60px_rgba(0,255,255,0.08)]">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
+                  Edit Costume
+                </h3>
+
+                <div className="text-white/50 mt-1">
+                  Update details, notes, comments and status.
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setEditingItem(null);
+                  setNewComment("");
+                }}
+                className="w-10 h-10 rounded-full bg-cyan-400 text-black font-black hover:scale-110 transition-all"
+              >
+                ✕
+              </button>
+            </div>
+
+            <input
+              value={editingItem.text || ""}
+              onChange={(e) =>
+                setEditingItem({
+                  ...editingItem,
+                  text: e.target.value
+                })
+              }
+              placeholder="Costume name..."
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+            />
+
+            <input
+              value={editingItem.assignedTo || ""}
+              onChange={(e) =>
+                setEditingItem({
+                  ...editingItem,
+                  assignedTo: e.target.value
+                })
+              }
+              placeholder="Assign to..."
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+            />
+
+            <select
+              value={editingItem.status || "Needed"}
+              onChange={(e) =>
+                setEditingItem({
+                  ...editingItem,
+                  status: e.target.value
+                })
+              }
+              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+            >
+              <option>Needed</option>
+              <option>In Progress</option>
+              <option>Ready</option>
+              <option>Alterations</option>
+              <option>Missing</option>
+            </select>
+
+            <div className="grid gap-2">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                Notes
+              </div>
+
+              <textarea
+                value={editingItem.notes || ""}
+                onChange={(e) =>
+                  setEditingItem({
+                    ...editingItem,
+                    notes: e.target.value
+                  })
+                }
+                placeholder="Production notes..."
+                className="min-h-[120px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+                Comments
+              </div>
+
+              {(editingItem.comments || []).length > 0 && (
+                <div className="grid gap-2">
+                  {(editingItem.comments || []).map(
+                    (comment, index) => (
+                      <div
+                        key={index}
+                        className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm"
+                      >
+                        <div className="font-semibold text-white whitespace-pre-wrap">
+                          {comment.text}
+                        </div>
+
+                        <div className="text-cyan-100/50 text-[10px] mt-1">
+                          {comment.createdAt}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+
+              <textarea
+                value={newComment}
+                onChange={(e) =>
+                  setNewComment(e.target.value)
+                }
+                placeholder="Write a comment..."
+                className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
+              />
+
+              <button
+                onClick={addComment}
+                className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
+              >
+                Add Comment
+              </button>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-3 pt-2">
+              <button
+                onClick={saveEditingItem}
+                className="h-12 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black"
+              >
+                Save
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingItem(null);
+                  setNewComment("");
+                }}
+                className="h-12 rounded-xl border border-white/10 bg-white/5 text-white/70"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={deleteItem}
+                className="h-12 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
