@@ -129,6 +129,8 @@ export default function App() {
 
     props: <PropsView />,
 
+    set: <SetView />,
+
     promo: <PromoView />
   };
 
