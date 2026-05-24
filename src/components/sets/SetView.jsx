@@ -27,19 +27,14 @@ export default function SetView() {
     switch (status) {
       case "Ready":
         return "border-cyan-300/20 bg-cyan-500/10 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.08)]";
-
       case "In Progress":
         return "border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 shadow-[0_0_30px_rgba(217,70,239,0.08)]";
-
       case "Build":
         return "border-violet-300/20 bg-violet-500/10 text-violet-100 shadow-[0_0_30px_rgba(139,92,246,0.08)]";
-
       case "Repair":
         return "border-amber-300/20 bg-amber-500/10 text-amber-100 shadow-[0_0_30px_rgba(251,191,36,0.08)]";
-
       case "Missing":
         return "border-rose-300/20 bg-rose-500/10 text-rose-100 shadow-[0_0_30px_rgba(244,63,94,0.08)]";
-
       default:
         return "border-white/10 bg-white/5 text-white";
     }
@@ -86,8 +81,7 @@ export default function SetView() {
             </h2>
 
             <div className="text-cyan-100/60 mt-2">
-              Set pieces, scenery &
-              build tracking
+              Set pieces, scenery & build tracking
             </div>
           </div>
 
@@ -195,16 +189,10 @@ export default function SetView() {
                             key={index}
                             className="rounded-[1.2rem] border border-cyan-300/10 bg-black/40 p-3 text-sm text-cyan-100"
                           >
-                            <div>
-                              {comment.text}
-                            </div>
+                            <div>{comment.text}</div>
 
                             <div className="text-cyan-100/40 text-[10px] mt-1">
-  {comment.createdAt}
-</div>
-                              {
-                                comment.createdAt
-                              }
+                              {comment.createdAt}
                             </div>
                           </div>
                         )
