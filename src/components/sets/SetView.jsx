@@ -175,6 +175,29 @@ export default function SetView() {
                       {item.notes}
                     </div>
                   )}
+
+                  {(item.comments || []).length > 0 && (
+                    <div className="ml-6 grid gap-2">
+                      {(item.comments || []).map(
+                        (comment, index) => (
+                          <div
+                            key={index}
+                            className="rounded-[1.2rem] border border-white/10 bg-black/30 p-3 text-sm text-white/70"
+                          >
+                            <div>
+                              {comment.text}
+                            </div>
+
+                            <div className="text-white/30 text-[10px] mt-1">
+                              {
+                                comment.createdAt
+                              }
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <details className="relative shrink-0">
@@ -259,56 +282,37 @@ export default function SetView() {
                       className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm"
                     />
 
-                    <div className="grid gap-2">
-                      <input
-                        placeholder="Add comment and press Enter..."
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            e.target.value.trim()
-                          ) {
-                            setItems((prev) =>
-                              prev.map((i) =>
-                                i.id === item.id
-                                  ? {
-                                      ...i,
-                                      comments: [
-                                        ...(i.comments || []),
-                                        {
-                                          text:
-                                            e.target.value,
-                                          createdAt:
-                                            new Date().toLocaleString()
-                                        }
-                                      ]
-                                    }
-                                  : i
-                              )
-                            );
+                    <input
+                      placeholder="Add comment..."
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          e.target.value.trim()
+                        ) {
+                          setItems((prev) =>
+                            prev.map((i) =>
+                              i.id === item.id
+                                ? {
+                                    ...i,
+                                    comments: [
+                                      ...(i.comments || []),
+                                      {
+                                        text:
+                                          e.target.value,
+                                        createdAt:
+                                          new Date().toLocaleString()
+                                      }
+                                    ]
+                                  }
+                                : i
+                            )
+                          );
 
-                            e.target.value = "";
-                          }
-                        }}
-                        className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
-                      />
-
-                      {(item.comments || []).map(
-                        (comment, index) => (
-                          <div
-                            key={index}
-                            className="rounded-xl border border-white/10 bg-black/20 p-3"
-                          >
-                            <div className="text-white/80 text-sm">
-                              {comment.text}
-                            </div>
-
-                            <div className="text-white/30 text-[10px] mt-1">
-                              {comment.createdAt}
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
+                          e.target.value = "";
+                        }
+                      }}
+                      className="h-10 rounded-xl bg-black/30 border border-white/10 px-3 text-sm"
+                    />
 
                     <select
                       value={item.status}
