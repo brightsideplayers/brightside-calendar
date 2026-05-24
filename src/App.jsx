@@ -22,6 +22,8 @@ import CostumesView from "./components/costumes/CostumesView";
 
 import PropsView from "./components/props/PropsView";
 
+import SetView from "./components/sets/SetView";
+
 import PromoView from "./components/promo/PromoView";
 
 export default function App() {
