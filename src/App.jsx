@@ -197,11 +197,15 @@ export default function App() {
     setShowProductionMenu(false);
   };
 
-  const openQuickAdd = (day) => {
-    const date = new Date();
-    date.setDate(day);
-    setQuickAddDate(date);
-  };
+ const openQuickAdd = (day, monthOverride, yearOverride) => {
+  const date = new Date(
+    yearOverride,
+    monthOverride,
+    day
+  );
+
+  setQuickAddDate(date);
+};
 
   const views = {
     feed: (
