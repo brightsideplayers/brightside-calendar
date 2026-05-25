@@ -190,7 +190,7 @@ export default function CalendarView({
 
   const addToSelectedDay = () => {
     if (openCalendarQuickAdd && selectedDay) {
-      openCalendarQuickAdd(selectedDay);
+      openCalendarQuickAdd(selectedDay, month, year);
       closeDay();
     }
   };
@@ -479,10 +479,14 @@ export default function CalendarView({
 
         <button
           onClick={() => {
-            const today = new Date();
+            const todayDate = new Date();
 
             if (openCalendarQuickAdd) {
-              openCalendarQuickAdd(today.getDate());
+              openCalendarQuickAdd(
+                todayDate.getDate(),
+                todayDate.getMonth(),
+                todayDate.getFullYear()
+              );
             }
           }}
           className="fixed bottom-5 right-5 sm:bottom-8 sm:right-8 z-[90] w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-[2rem] bg-gradient-to-br from-cyan-400 to-fuchsia-500 text-black text-3xl sm:text-5xl font-light shadow-[0_0_40px_rgba(34,211,238,0.45)] hover:scale-105 transition-all flex items-center justify-center"
