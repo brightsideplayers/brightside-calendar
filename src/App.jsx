@@ -271,7 +271,7 @@ export default function App() {
       <div className="min-h-screen bg-[#020617] text-white px-4 py-8 flex items-center justify-center">
         <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-2xl p-6 grid gap-6 text-center">
           <div>
-            <h1 className="text-5xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-black leading-[1.15] pb-2 bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
               Brightside
             </h1>
 
