@@ -95,6 +95,7 @@ export default function CalendarView({
   const [selectedDayItems, setSelectedDayItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState({});
+  const [openItemMenuId, setOpenItemMenuId] = useState(null);
 
   const today = new Date();
 
@@ -176,6 +177,7 @@ export default function CalendarView({
     setSelectedDayItems(getPostsForDay(day));
     setEditingId(null);
     setEditDraft({});
+    setOpenItemMenuId(null);
   };
 
   const closeDay = () => {
@@ -183,6 +185,7 @@ export default function CalendarView({
     setSelectedDayItems([]);
     setEditingId(null);
     setEditDraft({});
+    setOpenItemMenuId(null);
   };
 
   const addToSelectedDay = () => {
@@ -246,6 +249,8 @@ export default function CalendarView({
       setSelectedDayItems((prev) =>
         prev.filter((item) => item.id !== id)
       );
+
+      setOpenItemMenuId(null);
     } catch (err) {
       console.error(err);
     }
@@ -255,6 +260,7 @@ export default function CalendarView({
     const rawDate = item.date || item.scheduledFor;
 
     setEditingId(item.id);
+    setOpenItemMenuId(null);
 
     setEditDraft({
       type: item.type || "post",
@@ -271,6 +277,7 @@ export default function CalendarView({
   const cancelEdit = () => {
     setEditingId(null);
     setEditDraft({});
+    setOpenItemMenuId(null);
   };
 
   const saveEdit = async (item) => {
@@ -330,6 +337,7 @@ export default function CalendarView({
 
       setEditingId(null);
       setEditDraft({});
+      setOpenItemMenuId(null);
     } catch (err) {
       console.error(err);
     }
@@ -512,7 +520,7 @@ export default function CalendarView({
                       return (
                         <div
                           key={index}
-                          className="rounded-[1.3rem] sm:rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:p-5 grid gap-4 min-w-0"
+                          className="rounded-[1.3rem] sm:rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:p-5 grid gap-4 min-w-0 relative overflow-visible"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
                             <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-xs sm:text-sm font-bold uppercase w-fit">
@@ -531,21 +539,42 @@ export default function CalendarView({
                                 </div>
                               )}
 
-                              {!isEditing && (
+                              <div className="relative">
                                 <button
-                                  onClick={() => startEdit(item)}
-                                  className="h-8 px-3 rounded-full bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 text-xs font-bold hover:bg-cyan-400/25 transition-all"
+                                  onClick={() =>
+                                    setOpenItemMenuId(
+                                      openItemMenuId === item.id
+                                        ? null
+                                        : item.id
+                                    )
+                                  }
+                                  className="w-8 h-8 rounded-full bg-white/10 border border-white/10 text-white text-xl leading-none flex items-center justify-center hover:bg-white/15 transition-all"
                                 >
-                                  Edit
+                                  ⋯
                                 </button>
-                              )}
 
-                              <button
-                                onClick={() => deleteItem(item.id)}
-                                className="w-8 h-8 rounded-full bg-yellow-400/15 border border-yellow-300/20 text-yellow-200 text-sm font-black hover:bg-yellow-400/25 hover:scale-110 transition-all flex items-center justify-center"
-                              >
-                                ✕
-                              </button>
+                                {openItemMenuId === item.id && (
+                                  <div className="absolute right-0 mt-2 w-40 rounded-2xl border border-white/10 bg-[#0b1720] shadow-2xl overflow-hidden z-50">
+                                    {!isEditing && (
+                                      <button
+                                        onClick={() => startEdit(item)}
+                                        className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10"
+                                      >
+                                        Edit
+                                      </button>
+                                    )}
+
+                                    <button
+                                      onClick={() =>
+                                        deleteItem(item.id)
+                                      }
+                                      className="w-full px-4 py-3 text-left text-sm text-red-200 hover:bg-red-500/20"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
 
