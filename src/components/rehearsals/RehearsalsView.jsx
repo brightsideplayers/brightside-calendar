@@ -297,7 +297,7 @@ export default function RehearsalsView({
           </h2>
 
           <div className="text-cyan-100/60">
-            {currentProduction} callboard, rehearsal schedule & notes
+            {currentProduction} callboard & rehearsal schedule (St Paul's door code is 07391)
           </div>
         </div>
       </GlassCard>
