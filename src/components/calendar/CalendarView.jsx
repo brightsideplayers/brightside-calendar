@@ -52,7 +52,6 @@ function DraggableCalendarChip({ item, children, className }) {
 function DroppableDayCell({
   day,
   isToday,
-  items,
   onOpenDay,
   children
 }) {
@@ -177,6 +176,20 @@ export default function CalendarView({
     setSelectedDayItems(getPostsForDay(day));
     setEditingId(null);
     setEditDraft({});
+  };
+
+  const closeDay = () => {
+    setSelectedDay(null);
+    setSelectedDayItems([]);
+    setEditingId(null);
+    setEditDraft({});
+  };
+
+  const addToSelectedDay = () => {
+    if (openCalendarQuickAdd && selectedDay) {
+      openCalendarQuickAdd(selectedDay);
+      closeDay();
+    }
   };
 
   const previousMonth = () => {
@@ -415,7 +428,6 @@ export default function CalendarView({
                   key={index}
                   day={day}
                   isToday={isToday}
-                  items={items}
                   onOpenDay={openDay}
                 >
                   {day && (
@@ -474,12 +486,7 @@ export default function CalendarView({
           <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl overflow-y-auto p-3 sm:p-4 flex items-start md:items-center justify-center">
             <div className="w-full md:max-w-3xl bg-[#071018] border border-white/10 rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6 relative max-h-[92vh] overflow-y-auto shadow-[0_0_60px_rgba(0,255,255,0.08)]">
               <button
-                onClick={() => {
-                  setSelectedDay(null);
-                  setSelectedDayItems([]);
-                  setEditingId(null);
-                  setEditDraft({});
-                }}
+                onClick={closeDay}
                 className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl hover:scale-110 transition-all"
               >
                 ✕
@@ -498,201 +505,210 @@ export default function CalendarView({
 
               <div className="grid gap-4 pb-6">
                 {selectedDayItems.length > 0 ? (
-                  selectedDayItems.map((item, index) => {
-                    const isEditing = editingId === item.id;
+                  <>
+                    {selectedDayItems.map((item, index) => {
+                      const isEditing = editingId === item.id;
 
-                    return (
-                      <div
-                        key={index}
-                        className="rounded-[1.3rem] sm:rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:p-5 grid gap-4 min-w-0"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
-                          <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-xs sm:text-sm font-bold uppercase w-fit">
-                            {item.platform || item.type || "POST"}
-                          </div>
+                      return (
+                        <div
+                          key={index}
+                          className="rounded-[1.3rem] sm:rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:p-5 grid gap-4 min-w-0"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
+                            <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-xs sm:text-sm font-bold uppercase w-fit">
+                              {item.platform || item.type || "POST"}
+                            </div>
 
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                            {(item.date || item.scheduledFor) && (
-                              <div className="text-sm text-white/50">
-                                {new Date(
-                                  item.date || item.scheduledFor
-                                ).toLocaleTimeString([], {
-                                  hour: "numeric",
-                                  minute: "2-digit"
-                                })}
-                              </div>
-                            )}
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                              {(item.date || item.scheduledFor) && (
+                                <div className="text-sm text-white/50">
+                                  {new Date(
+                                    item.date || item.scheduledFor
+                                  ).toLocaleTimeString([], {
+                                    hour: "numeric",
+                                    minute: "2-digit"
+                                  })}
+                                </div>
+                              )}
 
-                            {!isEditing && (
+                              {!isEditing && (
+                                <button
+                                  onClick={() => startEdit(item)}
+                                  className="h-8 px-3 rounded-full bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 text-xs font-bold hover:bg-cyan-400/25 transition-all"
+                                >
+                                  Edit
+                                </button>
+                              )}
+
                               <button
-                                onClick={() => startEdit(item)}
-                                className="h-8 px-3 rounded-full bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 text-xs font-bold hover:bg-cyan-400/25 transition-all"
+                                onClick={() => deleteItem(item.id)}
+                                className="w-8 h-8 rounded-full bg-yellow-400/15 border border-yellow-300/20 text-yellow-200 text-sm font-black hover:bg-yellow-400/25 hover:scale-110 transition-all flex items-center justify-center"
                               >
-                                Edit
+                                ✕
                               </button>
-                            )}
-
-                            <button
-                              onClick={() => deleteItem(item.id)}
-                              className="w-8 h-8 rounded-full bg-yellow-400/15 border border-yellow-300/20 text-yellow-200 text-sm font-black hover:bg-yellow-400/25 hover:scale-110 transition-all flex items-center justify-center"
-                            >
-                              ✕
-                            </button>
+                            </div>
                           </div>
-                        </div>
 
-                        {isEditing ? (
-                          <div className="grid gap-3">
-                            {item.type === "task" && (
-                              <input
-                                value={editDraft.title}
-                                onChange={(e) =>
-                                  setEditDraft((prev) => ({
-                                    ...prev,
-                                    title: e.target.value
-                                  }))
-                                }
-                                placeholder="Task title..."
-                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
-                              />
-                            )}
-
-                            {item.type !== "task" && (
-                              <select
-                                value={editDraft.platform}
-                                onChange={(e) =>
-                                  setEditDraft((prev) => ({
-                                    ...prev,
-                                    platform: e.target.value
-                                  }))
-                                }
-                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
-                              >
-                                <option>Instagram</option>
-                                <option>Facebook</option>
-                                <option>TikTok</option>
-                                <option>YouTube</option>
-                              </select>
-                            )}
-
-                            <input
-                              type="datetime-local"
-                              value={editDraft.scheduledDate}
-                              onChange={(e) =>
-                                setEditDraft((prev) => ({
-                                  ...prev,
-                                  scheduledDate: e.target.value
-                                }))
-                              }
-                              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
-                            />
-
-                            <input
-                              value={editDraft.assignedTo}
-                              onChange={(e) =>
-                                setEditDraft((prev) => ({
-                                  ...prev,
-                                  assignedTo: e.target.value
-                                }))
-                              }
-                              placeholder="Assigned to..."
-                              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
-                            />
-
-                            {item.type === "task" && (
-                              <select
-                                value={editDraft.taskStatus}
-                                onChange={(e) =>
-                                  setEditDraft((prev) => ({
-                                    ...prev,
-                                    taskStatus: e.target.value
-                                  }))
-                                }
-                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
-                              >
-                                <option value="todo">🟣 Todo</option>
-                                <option value="in-progress">🔵 In Progress</option>
-                                <option value="completed">🟢 Completed</option>
-                                <option value="blocked">🔴 Blocked</option>
-                              </select>
-                            )}
-
-                            {editDraft.platform === "TikTok" &&
-                              item.type !== "task" && (
+                          {isEditing ? (
+                            <div className="grid gap-3">
+                              {item.type === "task" && (
                                 <input
-                                  value={editDraft.tiktokLink}
+                                  value={editDraft.title}
                                   onChange={(e) =>
                                     setEditDraft((prev) => ({
                                       ...prev,
-                                      tiktokLink: e.target.value
+                                      title: e.target.value
                                     }))
                                   }
-                                  placeholder="TikTok link..."
+                                  placeholder="Task title..."
                                   className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
                                 />
                               )}
 
-                            <textarea
-                              value={editDraft.caption}
-                              onChange={(e) =>
-                                setEditDraft((prev) => ({
-                                  ...prev,
-                                  caption: e.target.value
-                                }))
-                              }
-                              placeholder={
-                                item.type === "task"
-                                  ? "Task description..."
-                                  : "Caption..."
-                              }
-                              className="min-h-[150px] rounded-[1.5rem] bg-black/30 border border-white/10 p-4 text-white min-w-0"
-                            />
+                              {item.type !== "task" && (
+                                <select
+                                  value={editDraft.platform}
+                                  onChange={(e) =>
+                                    setEditDraft((prev) => ({
+                                      ...prev,
+                                      platform: e.target.value
+                                    }))
+                                  }
+                                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                                >
+                                  <option>Instagram</option>
+                                  <option>Facebook</option>
+                                  <option>TikTok</option>
+                                  <option>YouTube</option>
+                                </select>
+                              )}
 
-                            <div className="grid grid-cols-1 sm:flex sm:justify-end gap-3">
-                              <button
-                                onClick={cancelEdit}
-                                className="h-11 px-5 rounded-xl bg-white/5 border border-white/10 text-white/70"
-                              >
-                                Cancel
-                              </button>
+                              <input
+                                type="datetime-local"
+                                value={editDraft.scheduledDate}
+                                onChange={(e) =>
+                                  setEditDraft((prev) => ({
+                                    ...prev,
+                                    scheduledDate: e.target.value
+                                  }))
+                                }
+                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                              />
 
-                              <button
-                                onClick={() => saveEdit(item)}
-                                className="h-11 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black"
-                              >
-                                Save
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            {item.title && (
-                              <h3 className="text-xl sm:text-2xl font-black text-white break-words">
-                                {item.title}
-                              </h3>
-                            )}
+                              <input
+                                value={editDraft.assignedTo}
+                                onChange={(e) =>
+                                  setEditDraft((prev) => ({
+                                    ...prev,
+                                    assignedTo: e.target.value
+                                  }))
+                                }
+                                placeholder="Assigned to..."
+                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                              />
 
-                            {(item.caption || item.description) && (
-                              <div className="rounded-2xl bg-black/20 border border-white/5 p-4 text-white/80 whitespace-pre-wrap leading-relaxed break-words">
-                                {item.caption || item.description}
+                              {item.type === "task" && (
+                                <select
+                                  value={editDraft.taskStatus}
+                                  onChange={(e) =>
+                                    setEditDraft((prev) => ({
+                                      ...prev,
+                                      taskStatus: e.target.value
+                                    }))
+                                  }
+                                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                                >
+                                  <option value="todo">🟣 Todo</option>
+                                  <option value="in-progress">🔵 In Progress</option>
+                                  <option value="completed">🟢 Completed</option>
+                                  <option value="blocked">🔴 Blocked</option>
+                                </select>
+                              )}
+
+                              {editDraft.platform === "TikTok" &&
+                                item.type !== "task" && (
+                                  <input
+                                    value={editDraft.tiktokLink}
+                                    onChange={(e) =>
+                                      setEditDraft((prev) => ({
+                                        ...prev,
+                                        tiktokLink: e.target.value
+                                      }))
+                                    }
+                                    placeholder="TikTok link..."
+                                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                                  />
+                                )}
+
+                              <textarea
+                                value={editDraft.caption}
+                                onChange={(e) =>
+                                  setEditDraft((prev) => ({
+                                    ...prev,
+                                    caption: e.target.value
+                                  }))
+                                }
+                                placeholder={
+                                  item.type === "task"
+                                    ? "Task description..."
+                                    : "Caption..."
+                                }
+                                className="min-h-[150px] rounded-[1.5rem] bg-black/30 border border-white/10 p-4 text-white min-w-0"
+                              />
+
+                              <div className="grid grid-cols-1 sm:flex sm:justify-end gap-3">
+                                <button
+                                  onClick={cancelEdit}
+                                  className="h-11 px-5 rounded-xl bg-white/5 border border-white/10 text-white/70"
+                                >
+                                  Cancel
+                                </button>
+
+                                <button
+                                  onClick={() => saveEdit(item)}
+                                  className="h-11 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black"
+                                >
+                                  Save
+                                </button>
                               </div>
-                            )}
+                            </div>
+                          ) : (
+                            <>
+                              {item.title && (
+                                <h3 className="text-xl sm:text-2xl font-black text-white break-words">
+                                  {item.title}
+                                </h3>
+                              )}
 
-                            {item.tiktokLink && (
-                              <a
-                                href={item.tiktokLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-cyan-300 underline underline-offset-4 break-all"
-                              >
-                                {item.tiktokLink}
-                              </a>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    );
-                  })
+                              {(item.caption || item.description) && (
+                                <div className="rounded-2xl bg-black/20 border border-white/5 p-4 text-white/80 whitespace-pre-wrap leading-relaxed break-words">
+                                  {item.caption || item.description}
+                                </div>
+                              )}
+
+                              {item.tiktokLink && (
+                                <a
+                                  href={item.tiktokLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-cyan-300 underline underline-offset-4 break-all"
+                                >
+                                  {item.tiktokLink}
+                                </a>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    <button
+                      onClick={addToSelectedDay}
+                      className="h-14 px-6 sm:px-8 rounded-[1.4rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(217,70,239,0.25)]"
+                    >
+                      + Add Post / Task
+                    </button>
+                  </>
                 ) : (
                   <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-6 sm:p-12 text-center grid gap-5">
                     <h3 className="text-2xl font-black text-white">
@@ -704,12 +720,7 @@ export default function CalendarView({
                     </p>
 
                     <button
-                      onClick={() => {
-                        if (openCalendarQuickAdd) {
-                          openCalendarQuickAdd(selectedDay);
-                          setSelectedDay(null);
-                        }
-                      }}
+                      onClick={addToSelectedDay}
                       className="mx-auto h-14 px-6 sm:px-8 rounded-[1.4rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(217,70,239,0.25)]"
                     >
                       + Add Post / Task
