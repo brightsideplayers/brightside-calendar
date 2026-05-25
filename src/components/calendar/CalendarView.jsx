@@ -522,12 +522,12 @@ export default function CalendarView({
                           key={index}
                           className="rounded-[1.3rem] sm:rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:p-5 grid gap-4 min-w-0 relative overflow-visible"
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
+                          <div className="flex flex-row items-center justify-between gap-3 min-w-0">
                             <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-xs sm:text-sm font-bold uppercase w-fit">
                               {item.platform || item.type || "POST"}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                               {(item.date || item.scheduledFor) && (
                                 <div className="text-sm text-white/50">
                                   {new Date(
