@@ -10,7 +10,8 @@ import {
 } from "firebase/firestore";
 
 import {
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
   signOut
 } from "firebase/auth";
@@ -56,6 +57,10 @@ export default function App() {
   const [quickAddDate, setQuickAddDate] = useState(null);
 
   useEffect(() => {
+    getRedirectResult(auth).catch((error) => {
+      console.error("Google redirect sign-in error:", error);
+    });
+
     const unsub = onAuthStateChanged(
       auth,
       (currentUser) => {
@@ -143,7 +148,13 @@ export default function App() {
   }, [user]);
 
   const handleGoogleSignIn = async () => {
-    await signInWithPopup(auth, provider);
+    try {
+      setAuthLoading(true);
+      await signInWithRedirect(auth, provider);
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      setAuthLoading(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -191,9 +202,7 @@ export default function App() {
     ),
 
     contacts: (
-      <ContactsView
-        contacts={contacts}
-      />
+      <ContactsView contacts={contacts} />
     ),
 
     costumes: (
