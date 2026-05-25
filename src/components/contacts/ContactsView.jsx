@@ -328,8 +328,8 @@ export default function ContactsView({
 
         <GlassCard>
           <div className="grid gap-5">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3 flex-wrap">
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="text-sm uppercase tracking-[0.25em] text-cyan-200/50">
                   Directory
                 </div>
@@ -342,13 +342,13 @@ export default function ContactsView({
                 </button>
               </div>
 
-              <div className="flex gap-2 flex-wrap">
+              <div className="grid grid-cols-2 gap-2 w-full">
                 <select
                   value={selectedRole}
                   onChange={(e) =>
                     setSelectedRole(e.target.value)
                   }
-                  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+                  className="w-full h-11 rounded-2xl bg-black/30 border border-white/10 px-3 text-white text-sm min-w-0"
                 >
                   {roleOptions.map((role) => (
                     <option key={role}>
@@ -362,7 +362,7 @@ export default function ContactsView({
                   onChange={(e) =>
                     setExcludedRole(e.target.value)
                   }
-                  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+                  className="w-full h-11 rounded-2xl bg-black/30 border border-white/10 px-3 text-white text-sm min-w-0"
                 >
                   <option value="">
                     Exclude Role
@@ -384,13 +384,13 @@ export default function ContactsView({
                 (letter) => (
                   <div
                     key={letter}
-                    className="grid gap-2"
+                    className="grid gap-2 min-w-0"
                   >
                     <div className="text-cyan-300/50 text-xs uppercase tracking-[0.3em] px-2">
                       {letter}
                     </div>
 
-                    <div className="grid gap-2">
+                    <div className="grid gap-2 min-w-0">
                       {groupedContacts[letter].map(
                         (contact) => (
                           <button
@@ -398,14 +398,14 @@ export default function ContactsView({
                             onClick={() =>
                               openContact(contact)
                             }
-                            className="rounded-[1.6rem] border border-white/10 bg-white/5 hover:bg-white/10 transition-all p-4 flex items-center justify-between text-left"
+                            className="w-full rounded-[1.6rem] border border-white/10 bg-white/5 hover:bg-white/10 transition-all p-3 sm:p-4 flex items-center justify-between text-left overflow-hidden"
                           >
-                            <div className="flex items-center gap-4 min-w-0">
-                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-lg font-black shrink-0">
+                            <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-base sm:text-lg font-black shrink-0">
                                 {contact.name?.[0]}
                               </div>
 
-                              <div className="min-w-0">
+                              <div className="min-w-0 flex-1 overflow-hidden">
                                 <div className="font-bold text-white truncate">
                                   {contact.name}
                                 </div>
@@ -421,7 +421,7 @@ export default function ContactsView({
                               </div>
                             </div>
 
-                            <div className="text-cyan-100/30 text-xl">
+                            <div className="text-cyan-100/30 text-xl shrink-0 pl-2">
                               ›
                             </div>
                           </button>
@@ -443,8 +443,8 @@ export default function ContactsView({
       </div>
 
       {selectedContact && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)] max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4">
+          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#071018] p-4 sm:p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)] max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => {
                 setSelectedContact(null);
@@ -498,8 +498,8 @@ export default function ContactsView({
               )}
             </div>
 
-            <div className="flex items-center gap-5 pr-24">
-              <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-3xl font-black shrink-0">
+            <div className="flex items-start gap-3 sm:gap-5 pr-24 min-w-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-2xl sm:text-3xl font-black shrink-0">
                 {(editingContact
                   ? name
                   : selectedContact.name)?.[0]}
@@ -513,10 +513,10 @@ export default function ContactsView({
                       setName(e.target.value)
                     }
                     placeholder="Name"
-                    className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4 text-2xl font-black text-white"
+                    className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4 text-xl sm:text-2xl font-black text-white"
                   />
                 ) : (
-                  <div className="text-4xl font-black text-white break-words">
+                  <div className="text-3xl sm:text-4xl font-black text-white break-words">
                     {selectedContact.name}
                   </div>
                 )}
@@ -583,7 +583,7 @@ export default function ContactsView({
               </div>
             </div>
 
-            <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5 grid gap-4">
+            <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-4 sm:p-5 grid gap-4">
               <div>
                 <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
                   Phone
@@ -599,7 +599,7 @@ export default function ContactsView({
                     className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
                   />
                 ) : (
-                  <div className="text-xl text-white">
+                  <div className="text-lg sm:text-xl text-white break-words">
                     {selectedContact.phone}
                   </div>
                 )}
@@ -620,7 +620,7 @@ export default function ContactsView({
                     className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
                   />
                 ) : (
-                  <div className="text-xl text-white break-all">
+                  <div className="text-lg sm:text-xl text-white break-all">
                     {selectedContact.email}
                   </div>
                 )}
