@@ -1,688 +1,726 @@
+import { useMemo, useState } from "react";
+
 import {
-  collection,
-  addDoc,
-  deleteDoc,
+  DndContext,
+  useDraggable,
+  useDroppable,
+  closestCenter
+} from "@dnd-kit/core";
+
+import {
   doc,
+  deleteDoc,
   updateDoc
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
 
-import {
-  useMemo,
-  useState
-} from "react";
+function DraggableCalendarChip({ item, children, className }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    isDragging
+  } = useDraggable({
+    id: item.id,
+    data: { item }
+  });
 
-import GlassCard from "../layout/GlassCard";
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.6 : 1,
+        zIndex: isDragging ? 999 : 1
+      }
+    : undefined;
 
-export default function ContactsView({
-  contacts = []
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onClick={(e) => e.stopPropagation()}
+      className={`${className} cursor-grab active:cursor-grabbing touch-none`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function DroppableDayCell({
+  day,
+  isToday,
+  items,
+  onOpenDay,
+  children
 }) {
-  const [selectedRole, setSelectedRole] =
-    useState("All");
+  const {
+    setNodeRef,
+    isOver
+  } = useDroppable({
+    id: day ? `day-${day}` : `empty-day`,
+    disabled: !day,
+    data: { day }
+  });
 
-  const [excludedRole, setExcludedRole] =
-    useState("");
+  return (
+    <div
+      ref={setNodeRef}
+      onClick={() => {
+        if (!day) return;
+        onOpenDay(day);
+      }}
+      className={`relative h-[78px] sm:h-[115px] md:h-[180px] rounded-xl sm:rounded-[1.2rem] md:rounded-[1.5rem] p-1.5 sm:p-2 md:p-3 text-left overflow-hidden transition-all min-w-0 flex flex-col ${
+        day
+          ? isOver
+            ? "bg-yellow-300/20 border border-yellow-300/40 shadow-[0_0_30px_rgba(251,191,36,0.25)]"
+            : isToday
+            ? "bg-cyan-500/[0.08] border border-cyan-300/20 shadow-[0_0_25px_rgba(34,211,238,0.18)]"
+            : "bg-[#060b16] border border-white/[0.06] hover:bg-cyan-500/[0.04]"
+          : "bg-transparent border border-transparent"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
 
-  const [selectedContact, setSelectedContact] =
-    useState(null);
+export default function CalendarView({
+  posts = [],
+  openCalendarQuickAdd
+}) {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDayItems, setSelectedDayItems] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editDraft, setEditDraft] = useState({});
 
-  const [editingContact, setEditingContact] =
-    useState(false);
+  const today = new Date();
 
-  const [showContactMenu, setShowContactMenu] =
-    useState(false);
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
 
-  const [name, setName] =
-    useState("");
-
-  const [roles, setRoles] =
-    useState([]);
-
-  const [phone, setPhone] =
-    useState("");
-
-  const [email, setEmail] =
-    useState("");
-
-  const [notes, setNotes] =
-    useState("");
-
-  const [showAddModal, setShowAddModal] =
-    useState(false);
-
-  const roleOptions = [
-    "All",
-    "Executive",
-    "Cast",
-    "Crew",
-    "Marketing",
-    "Volunteer",
-    "Director",
-    "Music",
-    "Costumes",
-    "Props",
-    "Set Design",
-    "Current Member",
-    "Past Member"
+  const monthNames = [
+    "January", "February", "March",
+    "April", "May", "June",
+    "July", "August", "September",
+    "October", "November", "December"
   ];
 
-  const filteredContacts =
-    useMemo(() => {
-      return contacts
-        .filter((contact) => {
-          const contactRoles =
-            contact.roles ||
-            (contact.role
-              ? [contact.role]
-              : []);
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-          const matchesIncluded =
-            selectedRole === "All"
-              ? true
-              : contactRoles.includes(selectedRole);
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
 
-          const matchesExcluded =
-            excludedRole
-              ? !contactRoles.includes(excludedRole)
-              : true;
+  const daysInMonth = lastDay.getDate();
+  const startDay = firstDay.getDay();
 
-          return matchesIncluded && matchesExcluded;
-        })
-        .sort((a, b) =>
-          (a.name || "").localeCompare(b.name || "")
-        );
-    }, [contacts, selectedRole, excludedRole]);
+  const calendarDays = useMemo(() => {
+    const days = [];
 
-  const groupedContacts =
-    filteredContacts.reduce((acc, contact) => {
-      const firstLetter =
-        contact.name?.[0]?.toUpperCase() || "#";
+    for (let i = 0; i < startDay; i++) {
+      days.push(null);
+    }
 
-      if (!acc[firstLetter]) {
-        acc[firstLetter] = [];
-      }
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
 
-      acc[firstLetter].push(contact);
+    return days;
+  }, [startDay, daysInMonth]);
 
-      return acc;
-    }, {});
+  const formatDateTimeLocal = (value) => {
+    if (!value) return "";
 
-  const openContact = (contact) => {
-    setSelectedContact(contact);
-    setEditingContact(false);
-    setShowContactMenu(false);
+    const date = new Date(value);
 
-    setName(contact.name || "");
-    setRoles(
-      contact.roles ||
-        (contact.role ? [contact.role] : [])
+    date.setMinutes(
+      date.getMinutes() - date.getTimezoneOffset()
     );
-    setPhone(contact.phone || "");
-    setEmail(contact.email || "");
-    setNotes(contact.notes || "");
+
+    return date.toISOString().slice(0, 16);
   };
 
-  const saveContact = async () => {
-    if (!selectedContact) return;
+  const selectedDateLabel = selectedDay
+    ? new Date(year, month, selectedDay).toLocaleDateString(
+        undefined,
+        {
+          weekday: "long",
+          month: "long",
+          day: "numeric"
+        }
+      )
+    : "";
 
-    await updateDoc(
-      doc(db, "contacts", selectedContact.id),
-      {
-        name,
-        roles,
-        phone,
-        email,
-        notes
-      }
-    );
+  const getPostsForDay = (day) => {
+    if (!day) return [];
 
-    setSelectedContact({
-      ...selectedContact,
-      name,
-      roles,
-      phone,
-      email,
-      notes
+    return posts.filter((post) => {
+      const rawDate = post.date || post.scheduledFor;
+
+      if (!rawDate) return false;
+
+      const postDate = new Date(rawDate);
+
+      return (
+        postDate.getDate() === day &&
+        postDate.getMonth() === month &&
+        postDate.getFullYear() === year
+      );
     });
-
-    setEditingContact(false);
-    setShowContactMenu(false);
   };
 
-  const addNewContact = async () => {
-    if (!name.trim()) return;
-
-    await addDoc(collection(db, "contacts"), {
-      name,
-      roles,
-      phone,
-      email,
-      notes,
-      createdAt: Date.now()
-    });
-
-    setName("");
-    setRoles([]);
-    setPhone("");
-    setEmail("");
-    setNotes("");
-    setShowAddModal(false);
+  const openDay = (day) => {
+    setSelectedDay(day);
+    setSelectedDayItems(getPostsForDay(day));
+    setEditingId(null);
+    setEditDraft({});
   };
 
-  const deleteContact = async () => {
-    if (!selectedContact) return;
+  const previousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
 
-    await deleteDoc(
-      doc(db, "contacts", selectedContact.id)
+  const nextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    if (!active || !over) return;
+
+    const draggedItem = active.data.current?.item;
+    const targetDay = over.data.current?.day;
+
+    if (!draggedItem || !targetDay) return;
+
+    const originalDate = new Date(
+      draggedItem.date || draggedItem.scheduledFor || new Date()
     );
 
-    setSelectedContact(null);
-    setEditingContact(false);
-    setShowContactMenu(false);
-  };
-
-  const copySelectedEmail = async () => {
-    if (!selectedContact?.email) return;
-
-    await navigator.clipboard.writeText(
-      selectedContact.email
+    const newDate = new Date(
+      year,
+      month,
+      targetDay,
+      originalDate.getHours(),
+      originalDate.getMinutes()
     );
 
-    setShowContactMenu(false);
-  };
+    try {
+      await updateDoc(
+        doc(db, "posts", draggedItem.id),
+        {
+          date: newDate.toISOString(),
+          scheduledFor: newDate.toISOString()
+        }
+      );
 
-  const copyEmails = async () => {
-    const emails = filteredContacts
-      .map((c) => c.email)
-      .filter(Boolean)
-      .join(", ");
-
-    await navigator.clipboard.writeText(emails);
-  };
-
-  const addRole = (selected) => {
-    if (selected && !roles.includes(selected)) {
-      setRoles([...roles, selected]);
+      if (selectedDay) {
+        setSelectedDayItems(getPostsForDay(selectedDay));
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const removeRole = (roleToRemove) => {
-    setRoles(
-      roles.filter((r) => r !== roleToRemove)
-    );
+  const deleteItem = async (id) => {
+    try {
+      await deleteDoc(doc(db, "posts", id));
+
+      setSelectedDayItems((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const startEdit = (item) => {
+    const rawDate = item.date || item.scheduledFor;
+
+    setEditingId(item.id);
+
+    setEditDraft({
+      type: item.type || "post",
+      title: item.title || "",
+      caption: item.caption || item.description || "",
+      platform: item.platform || "Instagram",
+      assignedTo: item.assignedTo || "",
+      taskStatus: item.taskStatus || "todo",
+      tiktokLink: item.tiktokLink || "",
+      scheduledDate: formatDateTimeLocal(rawDate)
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDraft({});
+  };
+
+  const saveEdit = async (item) => {
+    const finalDate = editDraft.scheduledDate
+      ? new Date(editDraft.scheduledDate)
+      : new Date();
+
+    const updates =
+      item.type === "task"
+        ? {
+            title: editDraft.title,
+            description: editDraft.caption,
+            assignedTo: editDraft.assignedTo,
+            taskStatus: editDraft.taskStatus,
+            date: finalDate.toISOString(),
+            scheduledFor: finalDate.toISOString()
+          }
+        : {
+            caption: editDraft.caption,
+            platform: editDraft.platform,
+            assignedTo: editDraft.assignedTo,
+            tiktokLink:
+              editDraft.platform === "TikTok"
+                ? editDraft.tiktokLink
+                : "",
+            date: finalDate.toISOString(),
+            scheduledFor: finalDate.toISOString()
+          };
+
+    try {
+      await updateDoc(
+        doc(db, "posts", item.id),
+        updates
+      );
+
+      const updatedItem = {
+        ...item,
+        ...updates
+      };
+
+      const updatedDate = new Date(
+        updatedItem.date || updatedItem.scheduledFor
+      );
+
+      const stillOnThisDay =
+        updatedDate.getDate() === selectedDay &&
+        updatedDate.getMonth() === month &&
+        updatedDate.getFullYear() === year;
+
+      setSelectedDayItems((prev) =>
+        stillOnThisDay
+          ? prev.map((i) =>
+              i.id === item.id ? updatedItem : i
+            )
+          : prev.filter((i) => i.id !== item.id)
+      );
+
+      setEditingId(null);
+      setEditDraft({});
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getChipClass = (item) => {
+    if (item.type === "task") {
+      return "bg-violet-500/20 border-violet-300/20 text-violet-100";
+    }
+
+    if (item.platform === "Instagram") {
+      return "bg-fuchsia-500/20 border-fuchsia-300/20 text-fuchsia-100";
+    }
+
+    if (item.platform === "Facebook") {
+      return "bg-cyan-500/20 border-cyan-300/20 text-cyan-100";
+    }
+
+    if (item.platform === "TikTok") {
+      return "bg-gradient-to-r from-[#111111] to-cyan-500/20 border-cyan-300/20 text-cyan-100";
+    }
+
+    if (item.platform === "YouTube") {
+      return "bg-red-500/20 border-red-300/20 text-red-100";
+    }
+
+    return "bg-white/10 border-white/10 text-white";
   };
 
   return (
-    <>
-      <div className="grid gap-5">
-        {showAddModal && (
-          <GlassCard>
-            <div className="grid gap-5">
-              <div>
-                <h2 className="text-4xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
-                  Contacts
-                </h2>
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="w-full min-w-0 pb-28 sm:pb-32 overflow-x-hidden">
+        <div className="grid gap-5 sm:gap-6 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 min-w-0">
+            <div className="min-w-0">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white flex items-center gap-3">
+                <span className="text-cyan-400">
+                  📅
+                </span>
+                Calendar
+              </h1>
 
-                <div className="text-cyan-100/60 mt-2">
-                  Production directory
-                </div>
-              </div>
-
-              <div className="grid gap-3">
-                <input
-                  value={name}
-                  onChange={(e) =>
-                    setName(e.target.value)
-                  }
-                  placeholder="Name"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 grid gap-3">
-                  <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/50">
-                    Roles
-                  </div>
-
-                  <select
-                    onChange={(e) =>
-                      addRole(e.target.value)
-                    }
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                  >
-                    <option value="">
-                      Add Role
-                    </option>
-
-                    {roleOptions
-                      .filter((r) => r !== "All")
-                      .map((r) => (
-                        <option
-                          key={r}
-                          value={r}
-                        >
-                          {r}
-                        </option>
-                      ))}
-                  </select>
-
-                  <div className="flex flex-wrap gap-2">
-                    {roles.map((r) => (
-                      <div
-                        key={r}
-                        className="h-10 px-4 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/20 text-white flex items-center gap-2"
-                      >
-                        <span>{r}</span>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeRole(r)
-                          }
-                          className="text-cyan-200"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <input
-                  value={phone}
-                  onChange={(e) =>
-                    setPhone(e.target.value)
-                  }
-                  placeholder="Phone"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <input
-                  value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value)
-                  }
-                  placeholder="Email"
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4"
-                />
-
-                <textarea
-                  value={notes}
-                  onChange={(e) =>
-                    setNotes(e.target.value)
-                  }
-                  placeholder="Notes"
-                  className="min-h-[120px] rounded-[1.8rem] bg-black/30 border border-white/10 p-5"
-                />
-
-                <button
-                  onClick={addNewContact}
-                  className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 font-bold"
-                >
-                  Add Contact
-                </button>
-              </div>
-            </div>
-          </GlassCard>
-        )}
-
-        <GlassCard>
-          <div className="grid gap-5">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3 flex-wrap">
-                <div className="text-sm uppercase tracking-[0.25em] text-cyan-200/50">
-                  Directory
-                </div>
-
-                <button
-                  onClick={copyEmails}
-                  className="h-10 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 text-sm"
-                >
-                  Copy Emails
-                </button>
-              </div>
-
-              <div className="flex gap-2 flex-wrap">
-                <select
-                  value={selectedRole}
-                  onChange={(e) =>
-                    setSelectedRole(e.target.value)
-                  }
-                  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                >
-                  {roleOptions.map((role) => (
-                    <option key={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={excludedRole}
-                  onChange={(e) =>
-                    setExcludedRole(e.target.value)
-                  }
-                  className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                >
-                  <option value="">
-                    Exclude Role
-                  </option>
-
-                  {roleOptions
-                    .filter((r) => r !== "All")
-                    .map((role) => (
-                      <option key={role}>
-                        {role}
-                      </option>
-                    ))}
-                </select>
-              </div>
+              <p className="text-white/50 mt-2 text-sm sm:text-base">
+                Schedule your productions, social posts & rehearsal tasks.
+              </p>
             </div>
 
-            <div className="grid gap-6">
-              {Object.keys(groupedContacts).map(
-                (letter) => (
-                  <div
-                    key={letter}
-                    className="grid gap-2"
-                  >
-                    <div className="text-cyan-300/50 text-xs uppercase tracking-[0.3em] px-2">
-                      {letter}
-                    </div>
-
-                    <div className="grid gap-2">
-                      {groupedContacts[letter].map(
-                        (contact) => (
-                          <button
-                            key={contact.id}
-                            onClick={() =>
-                              openContact(contact)
-                            }
-                            className="rounded-[1.6rem] border border-white/10 bg-white/5 hover:bg-white/10 transition-all p-4 flex items-center justify-between text-left"
-                          >
-                            <div className="flex items-center gap-4 min-w-0">
-                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-lg font-black shrink-0">
-                                {contact.name?.[0]}
-                              </div>
-
-                              <div className="min-w-0">
-                                <div className="font-bold text-white truncate">
-                                  {contact.name}
-                                </div>
-
-                                <div className="text-sm text-cyan-100/50 truncate">
-                                  {(
-                                    contact.roles ||
-                                    (contact.role
-                                      ? [contact.role]
-                                      : [])
-                                  ).join(", ")}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="text-cyan-100/30 text-xl">
-                              ›
-                            </div>
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-                )
-              )}
-
-              {filteredContacts.length === 0 && (
-                <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-                  No contacts found.
-                </div>
-              )}
-            </div>
-          </div>
-        </GlassCard>
-      </div>
-
-      {selectedContact && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl rounded-[2rem] border border-white/10 bg-[#071018] p-6 grid gap-5 relative shadow-[0_0_60px_rgba(0,255,255,0.08)] max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => {
-                setSelectedContact(null);
-                setEditingContact(false);
-                setShowContactMenu(false);
-              }}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl z-20"
-            >
-              ✕
-            </button>
-
-            <div className="absolute top-4 right-16 z-30">
+            <div className="flex items-center gap-2">
               <button
-                onClick={() =>
-                  setShowContactMenu(
-                    !showContactMenu
-                  )
-                }
-                className="w-10 h-10 rounded-full border border-white/10 bg-white/10 text-white text-2xl leading-none flex items-center justify-center"
+                onClick={previousMonth}
+                className="flex-1 sm:flex-none h-11 sm:w-11 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center"
               >
-                ⋯
+                ←
               </button>
 
-              {showContactMenu && (
-                <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-white/10 bg-[#0b1720] shadow-2xl overflow-hidden z-40">
-                  <button
-                    onClick={() => {
-                      setEditingContact(true);
-                      setShowContactMenu(false);
-                    }}
-                    className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={copySelectedEmail}
-                    disabled={!selectedContact.email}
-                    className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/10 disabled:opacity-40"
-                  >
-                    Copy Email
-                  </button>
-
-                  <button
-                    onClick={deleteContact}
-                    className="w-full px-4 py-3 text-left text-sm text-red-200 hover:bg-red-500/20"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
+              <button
+                onClick={nextMonth}
+                className="flex-1 sm:flex-none h-11 sm:w-11 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center"
+              >
+                →
+              </button>
             </div>
+          </div>
 
-            <div className="flex items-center gap-5 pr-24">
-              <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center text-3xl font-black shrink-0">
-                {(editingContact
-                  ? name
-                  : selectedContact.name)?.[0]}
+          <div className="min-w-0">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent break-words">
+              {monthNames[month]} {year}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 md:gap-3 min-w-0">
+            {weekDays.map((day) => (
+              <div
+                key={day}
+                className="text-center text-white/50 text-[10px] sm:text-xs md:text-base font-bold py-1 sm:py-2"
+              >
+                {day}
               </div>
+            ))}
+          </div>
 
-              <div className="min-w-0 flex-1">
-                {editingContact ? (
-                  <input
-                    value={name}
-                    onChange={(e) =>
-                      setName(e.target.value)
-                    }
-                    placeholder="Name"
-                    className="w-full h-14 rounded-2xl bg-black/30 border border-white/10 px-4 text-2xl font-black text-white"
-                  />
-                ) : (
-                  <div className="text-4xl font-black text-white break-words">
-                    {selectedContact.name}
-                  </div>
-                )}
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 md:gap-3 min-w-0">
+            {calendarDays.map((day, index) => {
+              const items = getPostsForDay(day);
 
-                {editingContact ? (
-                  <div className="mt-3 rounded-[1.4rem] border border-white/10 bg-black/20 p-3 grid gap-3">
-                    <select
-                      onChange={(e) =>
-                        addRole(e.target.value)
-                      }
-                      className="h-11 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                    >
-                      <option value="">
-                        Add Role
-                      </option>
+              const isToday =
+                day === today.getDate() &&
+                month === today.getMonth() &&
+                year === today.getFullYear();
 
-                      {roleOptions
-                        .filter((r) => r !== "All")
-                        .map((r) => (
-                          <option
-                            key={r}
-                            value={r}
+              return (
+                <DroppableDayCell
+                  key={index}
+                  day={day}
+                  isToday={isToday}
+                  items={items}
+                  onOpenDay={openDay}
+                >
+                  {day && (
+                    <>
+                      <div
+                        className={`shrink-0 h-5 sm:h-7 md:h-8 text-sm sm:text-lg md:text-2xl font-black leading-none ${
+                          isToday
+                            ? "text-cyan-300"
+                            : "text-white"
+                        }`}
+                      >
+                        {day}
+                      </div>
+
+                      <div className="grid gap-1 mt-1 sm:mt-2 min-h-0 overflow-hidden">
+                        {items.slice(0, 2).map((item) => (
+                          <DraggableCalendarChip
+                            key={item.id}
+                            item={item}
+                            className={`rounded-md px-1.5 py-0.5 text-[9px] sm:text-[11px] md:text-xs truncate border ${getChipClass(
+                              item
+                            )}`}
                           >
-                            {r}
-                          </option>
+                            {item.platform || item.title || "Post"}
+                          </DraggableCalendarChip>
                         ))}
-                    </select>
 
-                    <div className="flex flex-wrap gap-2">
-                      {roles.map((r) => (
-                        <div
-                          key={r}
-                          className="px-3 py-2 rounded-full border border-fuchsia-300/20 bg-fuchsia-500/20 text-xs uppercase tracking-[0.2em] flex items-center gap-2"
-                        >
-                          <span>{r}</span>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeRole(r)
-                            }
-                            className="text-cyan-200"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {(selectedContact.roles || []).map(
-                      (r) => (
-                        <div
-                          key={r}
-                          className="px-3 py-1 rounded-full border border-fuchsia-300/20 bg-fuchsia-500/20 text-xs uppercase tracking-[0.2em]"
-                        >
-                          {r}
-                        </div>
-                      )
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-5 grid gap-4">
-              <div>
-                <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
-                  Phone
-                </div>
-
-                {editingContact ? (
-                  <input
-                    value={phone}
-                    onChange={(e) =>
-                      setPhone(e.target.value)
-                    }
-                    placeholder="Phone"
-                    className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                  />
-                ) : (
-                  <div className="text-xl text-white">
-                    {selectedContact.phone}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
-                  Email
-                </div>
-
-                {editingContact ? (
-                  <input
-                    value={email}
-                    onChange={(e) =>
-                      setEmail(e.target.value)
-                    }
-                    placeholder="Email"
-                    className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                  />
-                ) : (
-                  <div className="text-xl text-white break-all">
-                    {selectedContact.email}
-                  </div>
-                )}
-              </div>
-
-              {(editingContact ||
-                selectedContact.notes) && (
-                <div>
-                  <div className="text-xs uppercase tracking-[0.25em] text-cyan-200/40 mb-2">
-                    Notes
-                  </div>
-
-                  {editingContact ? (
-                    <textarea
-                      value={notes}
-                      onChange={(e) =>
-                        setNotes(e.target.value)
-                      }
-                      placeholder="Notes"
-                      className="w-full min-h-[120px] rounded-[1.5rem] bg-black/30 border border-white/10 p-4 text-white"
-                    />
-                  ) : (
-                    <div className="text-white/80 leading-relaxed whitespace-pre-wrap">
-                      {selectedContact.notes}
-                    </div>
+                        {items.length > 2 && (
+                          <div className="text-[9px] sm:text-[11px] text-cyan-300 font-semibold leading-none">
+                            +{items.length - 2}
+                          </div>
+                        )}
+                      </div>
+                    </>
                   )}
-                </div>
-              )}
-            </div>
-
-            {editingContact && (
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => {
-                    setEditingContact(false);
-                    openContact(selectedContact);
-                  }}
-                  className="h-12 rounded-2xl border border-white/10 bg-white/10 text-white font-bold"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  onClick={saveContact}
-                  className="h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white font-bold"
-                >
-                  Save Changes
-                </button>
-              </div>
-            )}
+                </DroppableDayCell>
+              );
+            })}
           </div>
         </div>
-      )}
 
-      <button
-        onClick={() =>
-          setShowAddModal(!showAddModal)
-        }
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400 to-fuchsia-500 text-4xl text-white shadow-[0_0_40px_rgba(217,70,239,0.45)] flex items-center justify-center hover:scale-110 transition-all"
-      >
-        +
-      </button>
-    </>
+        <button
+          onClick={() => {
+            const today = new Date();
+
+            if (openCalendarQuickAdd) {
+              openCalendarQuickAdd(today.getDate());
+            }
+          }}
+          className="fixed bottom-5 right-5 sm:bottom-8 sm:right-8 z-[90] w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-[2rem] bg-gradient-to-br from-cyan-400 to-fuchsia-500 text-black text-3xl sm:text-5xl font-light shadow-[0_0_40px_rgba(34,211,238,0.45)] hover:scale-105 transition-all flex items-center justify-center"
+        >
+          +
+        </button>
+
+        {selectedDay && (
+          <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl overflow-y-auto p-3 sm:p-4 flex items-start md:items-center justify-center">
+            <div className="w-full md:max-w-3xl bg-[#071018] border border-white/10 rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6 relative max-h-[92vh] overflow-y-auto shadow-[0_0_60px_rgba(0,255,255,0.08)]">
+              <button
+                onClick={() => {
+                  setSelectedDay(null);
+                  setSelectedDayItems([]);
+                  setEditingId(null);
+                  setEditDraft({});
+                }}
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 rounded-full bg-cyan-400 text-black font-black text-xl hover:scale-110 transition-all"
+              >
+                ✕
+              </button>
+
+              <div className="mb-5 sm:mb-6 pr-12">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+                  {selectedDateLabel}
+                </h2>
+
+                <p className="text-white/50 mt-2">
+                  {selectedDayItems.length} scheduled item
+                  {selectedDayItems.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+
+              <div className="grid gap-4 pb-6">
+                {selectedDayItems.length > 0 ? (
+                  selectedDayItems.map((item, index) => {
+                    const isEditing = editingId === item.id;
+
+                    return (
+                      <div
+                        key={index}
+                        className="rounded-[1.3rem] sm:rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:p-5 grid gap-4 min-w-0"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
+                          <div className="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 text-xs sm:text-sm font-bold uppercase w-fit">
+                            {item.platform || item.type || "POST"}
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            {(item.date || item.scheduledFor) && (
+                              <div className="text-sm text-white/50">
+                                {new Date(
+                                  item.date || item.scheduledFor
+                                ).toLocaleTimeString([], {
+                                  hour: "numeric",
+                                  minute: "2-digit"
+                                })}
+                              </div>
+                            )}
+
+                            {!isEditing && (
+                              <button
+                                onClick={() => startEdit(item)}
+                                className="h-8 px-3 rounded-full bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 text-xs font-bold hover:bg-cyan-400/25 transition-all"
+                              >
+                                Edit
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => deleteItem(item.id)}
+                              className="w-8 h-8 rounded-full bg-yellow-400/15 border border-yellow-300/20 text-yellow-200 text-sm font-black hover:bg-yellow-400/25 hover:scale-110 transition-all flex items-center justify-center"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+
+                        {isEditing ? (
+                          <div className="grid gap-3">
+                            {item.type === "task" && (
+                              <input
+                                value={editDraft.title}
+                                onChange={(e) =>
+                                  setEditDraft((prev) => ({
+                                    ...prev,
+                                    title: e.target.value
+                                  }))
+                                }
+                                placeholder="Task title..."
+                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                              />
+                            )}
+
+                            {item.type !== "task" && (
+                              <select
+                                value={editDraft.platform}
+                                onChange={(e) =>
+                                  setEditDraft((prev) => ({
+                                    ...prev,
+                                    platform: e.target.value
+                                  }))
+                                }
+                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                              >
+                                <option>Instagram</option>
+                                <option>Facebook</option>
+                                <option>TikTok</option>
+                                <option>YouTube</option>
+                              </select>
+                            )}
+
+                            <input
+                              type="datetime-local"
+                              value={editDraft.scheduledDate}
+                              onChange={(e) =>
+                                setEditDraft((prev) => ({
+                                  ...prev,
+                                  scheduledDate: e.target.value
+                                }))
+                              }
+                              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                            />
+
+                            <input
+                              value={editDraft.assignedTo}
+                              onChange={(e) =>
+                                setEditDraft((prev) => ({
+                                  ...prev,
+                                  assignedTo: e.target.value
+                                }))
+                              }
+                              placeholder="Assigned to..."
+                              className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                            />
+
+                            {item.type === "task" && (
+                              <select
+                                value={editDraft.taskStatus}
+                                onChange={(e) =>
+                                  setEditDraft((prev) => ({
+                                    ...prev,
+                                    taskStatus: e.target.value
+                                  }))
+                                }
+                                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                              >
+                                <option value="todo">🟣 Todo</option>
+                                <option value="in-progress">🔵 In Progress</option>
+                                <option value="completed">🟢 Completed</option>
+                                <option value="blocked">🔴 Blocked</option>
+                              </select>
+                            )}
+
+                            {editDraft.platform === "TikTok" &&
+                              item.type !== "task" && (
+                                <input
+                                  value={editDraft.tiktokLink}
+                                  onChange={(e) =>
+                                    setEditDraft((prev) => ({
+                                      ...prev,
+                                      tiktokLink: e.target.value
+                                    }))
+                                  }
+                                  placeholder="TikTok link..."
+                                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
+                                />
+                              )}
+
+                            <textarea
+                              value={editDraft.caption}
+                              onChange={(e) =>
+                                setEditDraft((prev) => ({
+                                  ...prev,
+                                  caption: e.target.value
+                                }))
+                              }
+                              placeholder={
+                                item.type === "task"
+                                  ? "Task description..."
+                                  : "Caption..."
+                              }
+                              className="min-h-[150px] rounded-[1.5rem] bg-black/30 border border-white/10 p-4 text-white min-w-0"
+                            />
+
+                            <div className="grid grid-cols-1 sm:flex sm:justify-end gap-3">
+                              <button
+                                onClick={cancelEdit}
+                                className="h-11 px-5 rounded-xl bg-white/5 border border-white/10 text-white/70"
+                              >
+                                Cancel
+                              </button>
+
+                              <button
+                                onClick={() => saveEdit(item)}
+                                className="h-11 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black"
+                              >
+                                Save
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            {item.title && (
+                              <h3 className="text-xl sm:text-2xl font-black text-white break-words">
+                                {item.title}
+                              </h3>
+                            )}
+
+                            {(item.caption || item.description) && (
+                              <div className="rounded-2xl bg-black/20 border border-white/5 p-4 text-white/80 whitespace-pre-wrap leading-relaxed break-words">
+                                {item.caption || item.description}
+                              </div>
+                            )}
+
+                            {item.tiktokLink && (
+                              <a
+                                href={item.tiktokLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-cyan-300 underline underline-offset-4 break-all"
+                              >
+                                {item.tiktokLink}
+                              </a>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-6 sm:p-12 text-center grid gap-5">
+                    <h3 className="text-2xl font-black text-white">
+                      Nothing Scheduled
+                    </h3>
+
+                    <p className="text-white/50 mt-2">
+                      There are no scheduled posts or tasks for this day.
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        if (openCalendarQuickAdd) {
+                          openCalendarQuickAdd(selectedDay);
+                          setSelectedDay(null);
+                        }
+                      }}
+                      className="mx-auto h-14 px-6 sm:px-8 rounded-[1.4rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(217,70,239,0.25)]"
+                    >
+                      + Add Post / Task
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </DndContext>
   );
 }
