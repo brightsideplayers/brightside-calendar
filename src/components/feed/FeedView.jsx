@@ -20,13 +20,10 @@ export default function FeedView({
     switch (status) {
       case "completed":
         return "bg-cyan-400/15 border border-cyan-300/20 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.18)]";
-
       case "in-progress":
         return "bg-fuchsia-500/15 border border-fuchsia-300/20 text-fuchsia-100 shadow-[0_0_25px_rgba(217,70,239,0.18)]";
-
       case "blocked":
         return "bg-rose-500/15 border border-rose-300/20 text-rose-100 shadow-[0_0_25px_rgba(244,63,94,0.18)]";
-
       default:
         return "bg-amber-400/15 border border-amber-300/20 text-amber-100 shadow-[0_0_25px_rgba(251,191,36,0.18)]";
     }
@@ -36,13 +33,10 @@ export default function FeedView({
     switch (status) {
       case "completed":
         return "Completed";
-
       case "in-progress":
         return "In Progress";
-
       case "blocked":
         return "Blocked";
-
       default:
         return "Todo";
     }
@@ -298,18 +292,20 @@ export default function FeedView({
                           {item.caption || item.description}
                         </div>
 
-                        <button
-                          onClick={() =>
-                            navigator.clipboard.writeText(
-                              item.caption ||
-                                item.description ||
-                                ""
-                            )
-                          }
-                          className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all w-fit"
-                        >
-                          Copy Caption
-                        </button>
+                        {item.platform === "TikTok" && (
+                          <button
+                            onClick={() =>
+                              navigator.clipboard.writeText(
+                                item.caption ||
+                                  item.description ||
+                                  ""
+                              )
+                            }
+                            className="h-11 px-4 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all w-fit"
+                          >
+                            Copy Caption
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
