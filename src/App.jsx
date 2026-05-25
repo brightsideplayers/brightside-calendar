@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 
 import {
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   onAuthStateChanged,
@@ -35,6 +36,7 @@ import RehearsalsView from "./components/rehearsals/RehearsalsView";
 export default function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState("");
 
   const [view, setView] = useState("feed");
 
@@ -57,9 +59,14 @@ export default function App() {
   const [quickAddDate, setQuickAddDate] = useState(null);
 
   useEffect(() => {
-    getRedirectResult(auth).catch((error) => {
-      console.error("Google redirect sign-in error:", error);
-    });
+    getRedirectResult(auth)
+      .then(() => {
+        setAuthError("");
+      })
+      .catch((error) => {
+        console.error("Google redirect sign-in error:", error);
+        setAuthError(error.message);
+      });
 
     const unsub = onAuthStateChanged(
       auth,
@@ -149,10 +156,23 @@ export default function App() {
 
   const handleGoogleSignIn = async () => {
     try {
+      setAuthError("");
       setAuthLoading(true);
-      await signInWithRedirect(auth, provider);
+
+      await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error("Google sign-in error:", error);
+      console.error("Popup sign-in error:", error);
+
+      if (
+        error.code === "auth/popup-blocked" ||
+        error.code === "auth/popup-closed-by-user" ||
+        error.code === "auth/cancelled-popup-request"
+      ) {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
+      setAuthError(error.message);
       setAuthLoading(false);
     }
   };
@@ -266,6 +286,12 @@ export default function App() {
           >
             Sign in with Google
           </button>
+
+          {authError && (
+            <div className="rounded-2xl border border-red-300/20 bg-red-500/10 p-4 text-sm text-red-100 text-left">
+              {authError}
+            </div>
+          )}
         </div>
       </div>
     );
