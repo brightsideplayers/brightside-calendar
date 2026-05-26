@@ -15,8 +15,6 @@ export default function FeedView({
 }) {
   const [menuOpenId, setMenuOpenId] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [uploadError, setUploadError] = useState("");
 
   const getTaskStatusStyles = (status) => {
     switch (status) {
@@ -58,70 +56,17 @@ export default function FeedView({
 
   const startEdit = (item) => {
     setMenuOpenId(null);
-    setUploadError("");
-    setIsUploadingImage(false);
 
     setEditingItem({
       ...item,
-      imageUrl: item.imageUrl || "",
-      tiktokLink: item.tiktokLink || "",
       editDate: formatDateTimeLocal(
         item.scheduledFor || item.date
       )
     });
   };
 
-  const handleEditImageUpload = async (e) => {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    setUploadError("");
-    setIsUploadingImage(true);
-
-    try {
-      const formData = new FormData();
-
-      formData.append("file", file);
-      formData.append(
-        "upload_preset",
-        "brightside_unassigned"
-      );
-
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
-        {
-          method: "POST",
-          body: formData
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Cloudinary upload failed");
-      }
-
-      const data = await res.json();
-
-      if (!data.secure_url) {
-        throw new Error("No image URL returned");
-      }
-
-      setEditingItem((current) => ({
-        ...current,
-        imageUrl: data.secure_url
-      }));
-    } catch (error) {
-      console.error("Image upload error:", error);
-      setUploadError(
-        "Image did not finish saving. Please try uploading it again."
-      );
-    } finally {
-      setIsUploadingImage(false);
-    }
-  };
-
   const saveEdit = async () => {
-    if (!editingItem || isUploadingImage) return;
+    if (!editingItem) return;
 
     const finalDate = editingItem.editDate
       ? new Date(editingItem.editDate)
@@ -140,14 +85,6 @@ export default function FeedView({
         : {
             caption: editingItem.caption || "",
             platform: editingItem.platform || "Instagram",
-            imageUrl:
-              editingItem.platform === "TikTok"
-                ? ""
-                : editingItem.imageUrl || "",
-            tiktokLink:
-              editingItem.platform === "TikTok"
-                ? editingItem.tiktokLink || ""
-                : "",
             assignedTo: editingItem.assignedTo || "",
             date: finalDate.toISOString(),
             scheduledFor: finalDate.toISOString()
@@ -159,8 +96,6 @@ export default function FeedView({
     );
 
     setEditingItem(null);
-    setUploadError("");
-    setIsUploadingImage(false);
   };
 
   const deleteItem = async (id) => {
@@ -198,7 +133,7 @@ export default function FeedView({
               .map((item) => (
                 <div
                   key={item.id}
-                  className={`rounded-[1.8rem] border overflow-hidden backdrop-blur-sm transition-all duration-300 ${
+                  className={`rounded-[1.8rem] border overflow-visible backdrop-blur-sm transition-all duration-300 ${
                     item.type === "task"
                       ? item.taskStatus === "completed"
                         ? "border-cyan-300/20 bg-cyan-500/10 shadow-[0_0_40px_rgba(34,211,238,0.08)]"
@@ -212,11 +147,11 @@ export default function FeedView({
                       : "border-fuchsia-300/20 bg-fuchsia-500/10 shadow-[0_0_40px_rgba(217,70,239,0.08)]"
                   }`}
                 >
-                  {item.type !== "task" && item.imageUrl && (
+                  {item.imageUrl && (
                     <img
                       src={item.imageUrl}
-                      alt="Post preview"
-                      className="w-full max-h-[420px] object-cover border-b border-white/10"
+                      alt=""
+                      className="w-full aspect-square object-cover"
                     />
                   )}
 
@@ -357,17 +292,6 @@ export default function FeedView({
                           {item.caption || item.description}
                         </div>
 
-                        {item.platform === "TikTok" && item.tiktokLink && (
-                          <a
-                            href={item.tiktokLink}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="h-11 px-4 rounded-2xl border border-fuchsia-300/20 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 transition-all w-fit flex items-center"
-                          >
-                            Open TikTok Link
-                          </a>
-                        )}
-
                         {item.platform === "TikTok" && (
                           <button
                             onClick={() =>
@@ -406,11 +330,7 @@ export default function FeedView({
               </div>
 
               <button
-                onClick={() => {
-                  setEditingItem(null);
-                  setUploadError("");
-                  setIsUploadingImage(false);
-                }}
+                onClick={() => setEditingItem(null)}
                 className="w-10 h-10 rounded-full bg-cyan-400 text-black font-black hover:scale-110 transition-all"
               >
                 ✕
@@ -448,109 +368,21 @@ export default function FeedView({
                 </select>
               </>
             ) : (
-              <>
-                <select
-                  value={editingItem.platform || "Instagram"}
-                  onChange={(e) =>
-                    setEditingItem({
-                      ...editingItem,
-                      platform: e.target.value,
-                      imageUrl:
-                        e.target.value === "TikTok"
-                          ? ""
-                          : editingItem.imageUrl || "",
-                      tiktokLink:
-                        e.target.value === "TikTok"
-                          ? editingItem.tiktokLink || ""
-                          : ""
-                    })
-                  }
-                  className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                >
-                  <option>Instagram</option>
-                  <option>Facebook</option>
-                  <option>TikTok</option>
-                  <option>YouTube</option>
-                </select>
-
-                {editingItem.platform === "TikTok" ? (
-                  <input
-                    value={editingItem.tiktokLink || ""}
-                    onChange={(e) =>
-                      setEditingItem({
-                        ...editingItem,
-                        tiktokLink: e.target.value
-                      })
-                    }
-                    placeholder="TikTok link..."
-                    className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-                  />
-                ) : (
-                  <div className="grid gap-3">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleEditImageUpload}
-                      className="w-full min-w-0 min-h-12 rounded-2xl bg-black/30 border border-white/10 px-3 py-3 text-sm text-white file:mr-2 file:px-3 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white file:text-sm"
-                    />
-
-                    {isUploadingImage && (
-                      <div className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-4 text-cyan-100">
-                        <div className="flex items-center gap-3">
-                          <div className="h-5 w-5 rounded-full border-2 border-cyan-100/30 border-t-cyan-100 animate-spin" />
-
-                          <div>
-                            <div className="font-bold">
-                              Saving image to Cloudinary...
-                            </div>
-
-                            <div className="text-sm text-cyan-100/70">
-                              Wait until this finishes before pressing Save.
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-3 h-2 rounded-full bg-black/30 overflow-hidden">
-                          <div className="h-full w-1/2 rounded-full bg-cyan-300 animate-pulse" />
-                        </div>
-                      </div>
-                    )}
-
-                    {!isUploadingImage && editingItem.imageUrl && (
-                      <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-emerald-100">
-                        <div className="font-bold">
-                          ✓ Image saved and ready.
-                        </div>
-
-                        <img
-                          src={editingItem.imageUrl}
-                          alt="Current post preview"
-                          className="mt-3 max-h-64 w-full object-cover rounded-2xl border border-white/10"
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setEditingItem({
-                              ...editingItem,
-                              imageUrl: ""
-                            })
-                          }
-                          className="mt-3 h-10 px-4 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 font-bold"
-                        >
-                          Remove Image
-                        </button>
-                      </div>
-                    )}
-
-                    {uploadError && (
-                      <div className="rounded-2xl border border-red-300/20 bg-red-500/10 p-4 text-red-100 text-sm">
-                        {uploadError}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
+              <select
+                value={editingItem.platform || "Instagram"}
+                onChange={(e) =>
+                  setEditingItem({
+                    ...editingItem,
+                    platform: e.target.value
+                  })
+                }
+                className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+              >
+                <option>Instagram</option>
+                <option>Facebook</option>
+                <option>TikTok</option>
+                <option>YouTube</option>
+              </select>
             )}
 
             <input
@@ -602,18 +434,13 @@ export default function FeedView({
             <div className="grid md:grid-cols-2 gap-3 pt-2">
               <button
                 onClick={saveEdit}
-                disabled={isUploadingImage}
-                className="h-12 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-12 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black"
               >
-                {isUploadingImage ? "Saving Image..." : "Save"}
+                Save
               </button>
 
               <button
-                onClick={() => {
-                  setEditingItem(null);
-                  setUploadError("");
-                  setIsUploadingImage(false);
-                }}
+                onClick={() => setEditingItem(null)}
                 className="h-12 rounded-xl border border-white/10 bg-white/5 text-white/70"
               >
                 Cancel
