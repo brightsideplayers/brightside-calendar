@@ -27,6 +27,9 @@ export default function QuickAddModal({
   const [scheduledDate, setScheduledDate] = useState("");
   const [taskStatus, setTaskStatus] = useState("todo");
 
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
   useEffect(() => {
     if (quickAddDate) {
       const local = new Date(quickAddDate);
@@ -55,9 +58,60 @@ export default function QuickAddModal({
     setTaskStatus("todo");
     setType("post");
     setScheduledDate("");
+    setIsUploadingImage(false);
+    setUploadError("");
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setImageUrl("");
+    setUploadError("");
+    setIsUploadingImage(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", file);
+      formData.append(
+        "upload_preset",
+        "brightside_unassigned"
+      );
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Cloudinary upload failed");
+      }
+
+      const data = await res.json();
+
+      if (!data.secure_url) {
+        throw new Error("No image URL returned");
+      }
+
+      setImageUrl(data.secure_url);
+    } catch (error) {
+      console.error("Image upload error:", error);
+      setUploadError(
+        "Image did not finish saving. Please try uploading it again."
+      );
+      setImageUrl("");
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const handleSave = async () => {
+    if (isUploadingImage) return;
     if (type === "task" && !taskTitle.trim()) return;
     if (type === "post" && !caption.trim()) return;
 
@@ -182,6 +236,8 @@ export default function QuickAddModal({
                   setPlatform(e.target.value);
                   setImageUrl("");
                   setTiktokLink("");
+                  setUploadError("");
+                  setIsUploadingImage(false);
                 }}
                 className="w-full min-w-0 h-12 sm:h-14 rounded-[1.2rem] sm:rounded-[1.4rem] bg-black/30 border border-white/10 px-4 sm:px-5 text-white"
               >
@@ -248,36 +304,54 @@ export default function QuickAddModal({
                     />
                   </div>
                 ) : (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files[0];
+                  <div className="grid gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="w-full min-w-0 min-h-12 sm:min-h-14 rounded-[1.2rem] sm:rounded-[1.4rem] bg-black/30 border border-white/10 px-3 py-3 text-sm text-white file:mr-2 file:px-3 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white file:text-sm"
+                    />
 
-                      if (!file) return;
+                    {isUploadingImage && (
+                      <div className="rounded-[1.2rem] border border-cyan-300/20 bg-cyan-400/10 p-4 text-cyan-100">
+                        <div className="flex items-center gap-3">
+                          <div className="h-5 w-5 rounded-full border-2 border-cyan-100/30 border-t-cyan-100 animate-spin" />
+                          <div>
+                            <div className="font-bold">
+                              Saving image to Cloudinary...
+                            </div>
+                            <div className="text-sm text-cyan-100/70">
+                              Wait until this finishes before saving to calendar.
+                            </div>
+                          </div>
+                        </div>
 
-                      const formData = new FormData();
+                        <div className="mt-3 h-2 rounded-full bg-black/30 overflow-hidden">
+                          <div className="h-full w-1/2 rounded-full bg-cyan-300 animate-pulse" />
+                        </div>
+                      </div>
+                    )}
 
-                      formData.append("file", file);
-                      formData.append(
-                        "upload_preset",
-                        "brightside_unassigned"
-                      );
+                    {!isUploadingImage && imageUrl && (
+                      <div className="rounded-[1.2rem] border border-emerald-300/20 bg-emerald-400/10 p-4 text-emerald-100">
+                        <div className="font-bold">
+                          ✓ Image uploaded and ready to save.
+                        </div>
 
-                      const res = await fetch(
-                        "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
-                        {
-                          method: "POST",
-                          body: formData
-                        }
-                      );
+                        <img
+                          src={imageUrl}
+                          alt="Uploaded preview"
+                          className="mt-3 max-h-48 w-full object-cover rounded-2xl border border-white/10"
+                        />
+                      </div>
+                    )}
 
-                      const data = await res.json();
-
-                      setImageUrl(data.secure_url);
-                    }}
-                    className="w-full min-w-0 min-h-12 sm:min-h-14 rounded-[1.2rem] sm:rounded-[1.4rem] bg-black/30 border border-white/10 px-3 py-3 text-sm text-white file:mr-2 file:px-3 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white file:text-sm"
-                  />
+                    {uploadError && (
+                      <div className="rounded-[1.2rem] border border-red-300/20 bg-red-500/10 p-4 text-red-100 text-sm">
+                        {uploadError}
+                      </div>
+                    )}
+                  </div>
                 )}
               </>
             )}
@@ -297,9 +371,12 @@ export default function QuickAddModal({
 
             <button
               onClick={handleSave}
-              className="w-full h-14 sm:h-16 rounded-[1.3rem] sm:rounded-[1.6rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.01] transition-all shadow-[0_0_40px_rgba(217,70,239,0.28)]"
+              disabled={isUploadingImage}
+              className="w-full h-14 sm:h-16 rounded-[1.3rem] sm:rounded-[1.6rem] bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-orange-400 font-black text-white hover:scale-[1.01] transition-all shadow-[0_0_40px_rgba(217,70,239,0.28)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              Save To Calendar
+              {isUploadingImage
+                ? "Saving Image..."
+                : "Save To Calendar"}
             </button>
           </div>
         </GlassCard>
