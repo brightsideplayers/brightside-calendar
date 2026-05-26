@@ -26,7 +26,6 @@ export default function QuickAddModal({
   const [assignedTo, setAssignedTo] = useState("");
   const [scheduledDate, setScheduledDate] = useState("");
   const [taskStatus, setTaskStatus] = useState("todo");
-
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
@@ -305,6 +304,10 @@ export default function QuickAddModal({
                   </div>
                 ) : (
                   <div className="grid gap-3">
+                    <div className="text-xs sm:text-sm uppercase tracking-[0.2em] text-cyan-100/50">
+                      Image
+                    </div>
+
                     <input
                       type="file"
                       accept="image/*"
@@ -316,12 +319,14 @@ export default function QuickAddModal({
                       <div className="rounded-[1.2rem] border border-cyan-300/20 bg-cyan-400/10 p-4 text-cyan-100">
                         <div className="flex items-center gap-3">
                           <div className="h-5 w-5 rounded-full border-2 border-cyan-100/30 border-t-cyan-100 animate-spin" />
+
                           <div>
                             <div className="font-bold">
                               Saving image to Cloudinary...
                             </div>
+
                             <div className="text-sm text-cyan-100/70">
-                              Wait until this finishes before saving to calendar.
+                              Please wait until this finishes before saving.
                             </div>
                           </div>
                         </div>
@@ -343,6 +348,14 @@ export default function QuickAddModal({
                           alt="Uploaded preview"
                           className="mt-3 max-h-48 w-full object-cover rounded-2xl border border-white/10"
                         />
+
+                        <button
+                          type="button"
+                          onClick={() => setImageUrl("")}
+                          className="mt-3 h-10 px-4 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 font-bold"
+                        >
+                          Remove Image
+                        </button>
                       </div>
                     )}
 
