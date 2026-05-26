@@ -96,6 +96,8 @@ export default function CalendarView({
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState({});
   const [openItemMenuId, setOpenItemMenuId] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const today = new Date();
 
@@ -186,6 +188,8 @@ export default function CalendarView({
     setEditingId(null);
     setEditDraft({});
     setOpenItemMenuId(null);
+    setIsUploadingImage(false);
+    setUploadError("");
   };
 
   const addToSelectedDay = () => {
@@ -270,6 +274,7 @@ export default function CalendarView({
       assignedTo: item.assignedTo || "",
       taskStatus: item.taskStatus || "todo",
       tiktokLink: item.tiktokLink || "",
+      imageUrl: item.imageUrl || "",
       scheduledDate: formatDateTimeLocal(rawDate)
     });
   };
@@ -278,9 +283,62 @@ export default function CalendarView({
     setEditingId(null);
     setEditDraft({});
     setOpenItemMenuId(null);
+    setIsUploadingImage(false);
+    setUploadError("");
+  };
+
+  const handleEditImageUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setUploadError("");
+    setIsUploadingImage(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", file);
+      formData.append(
+        "upload_preset",
+        "brightside_unassigned"
+      );
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Cloudinary upload failed");
+      }
+
+      const data = await res.json();
+
+      if (!data.secure_url) {
+        throw new Error("No image URL returned");
+      }
+
+      setEditDraft((prev) => ({
+        ...prev,
+        imageUrl: data.secure_url
+      }));
+    } catch (err) {
+      console.error("Image upload error:", err);
+      setUploadError(
+        "Image did not finish saving. Please try uploading it again."
+      );
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const saveEdit = async (item) => {
+    if (isUploadingImage) return;
+
     const finalDate = editDraft.scheduledDate
       ? new Date(editDraft.scheduledDate)
       : new Date();
@@ -299,6 +357,10 @@ export default function CalendarView({
             caption: editDraft.caption,
             platform: editDraft.platform,
             assignedTo: editDraft.assignedTo,
+            imageUrl:
+              editDraft.platform === "TikTok"
+                ? ""
+                : editDraft.imageUrl || "",
             tiktokLink:
               editDraft.platform === "TikTok"
                 ? editDraft.tiktokLink
@@ -338,6 +400,8 @@ export default function CalendarView({
       setEditingId(null);
       setEditDraft({});
       setOpenItemMenuId(null);
+      setIsUploadingImage(false);
+      setUploadError("");
     } catch (err) {
       console.error(err);
     }
@@ -604,7 +668,15 @@ export default function CalendarView({
                                   onChange={(e) =>
                                     setEditDraft((prev) => ({
                                       ...prev,
-                                      platform: e.target.value
+                                      platform: e.target.value,
+                                      imageUrl:
+                                        e.target.value === "TikTok"
+                                          ? ""
+                                          : prev.imageUrl || "",
+                                      tiktokLink:
+                                        e.target.value === "TikTok"
+                                          ? prev.tiktokLink || ""
+                                          : ""
                                     }))
                                   }
                                   className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white min-w-0"
@@ -673,6 +745,66 @@ export default function CalendarView({
                                   />
                                 )}
 
+                              {editDraft.platform !== "TikTok" &&
+                                item.type !== "task" && (
+                                  <div className="grid gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+                                    <div className="text-xs uppercase tracking-[0.2em] text-cyan-100/50">
+                                      Image
+                                    </div>
+
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleEditImageUpload}
+                                      className="w-full min-w-0 min-h-12 rounded-2xl bg-black/30 border border-white/10 px-3 py-3 text-sm text-white file:mr-2 file:px-3 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white file:text-sm"
+                                    />
+
+                                    {isUploadingImage && (
+                                      <div className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-4 text-cyan-100">
+                                        <div className="flex items-center gap-3">
+                                          <div className="h-5 w-5 rounded-full border-2 border-cyan-100/30 border-t-cyan-100 animate-spin" />
+                                          <div>
+                                            <div className="font-bold">Saving image to Cloudinary...</div>
+                                            <div className="text-sm text-cyan-100/70">Wait until this finishes before pressing Save.</div>
+                                          </div>
+                                        </div>
+                                        <div className="mt-3 h-2 rounded-full bg-black/30 overflow-hidden">
+                                          <div className="h-full w-1/2 rounded-full bg-cyan-300 animate-pulse" />
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {!isUploadingImage && editDraft.imageUrl && (
+                                      <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-emerald-100">
+                                        <div className="font-bold">✓ Image saved and ready.</div>
+                                        <img
+                                          src={editDraft.imageUrl}
+                                          alt="Current post preview"
+                                          className="mt-3 max-h-64 w-full object-cover rounded-2xl border border-white/10"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setEditDraft((prev) => ({
+                                              ...prev,
+                                              imageUrl: ""
+                                            }))
+                                          }
+                                          className="mt-3 h-10 px-4 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 font-bold"
+                                        >
+                                          Remove Image
+                                        </button>
+                                      </div>
+                                    )}
+
+                                    {uploadError && (
+                                      <div className="rounded-2xl border border-red-300/20 bg-red-500/10 p-4 text-red-100 text-sm">
+                                        {uploadError}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
                               <textarea
                                 value={editDraft.caption}
                                 onChange={(e) =>
@@ -692,6 +824,7 @@ export default function CalendarView({
                               <div className="grid grid-cols-1 sm:flex sm:justify-end gap-3">
                                 <button
                                   onClick={cancelEdit}
+                                  disabled={isUploadingImage}
                                   className="h-11 px-5 rounded-xl bg-white/5 border border-white/10 text-white/70"
                                 >
                                   Cancel
@@ -699,14 +832,23 @@ export default function CalendarView({
 
                                 <button
                                   onClick={() => saveEdit(item)}
-                                  className="h-11 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black"
+                                  disabled={isUploadingImage}
+                                  className="h-11 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-black font-black disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
-                                  Save
+                                  {isUploadingImage ? "Saving Image..." : "Save"}
                                 </button>
                               </div>
                             </div>
                           ) : (
                             <>
+                              {item.type !== "task" && item.imageUrl && (
+                                <img
+                                  src={item.imageUrl}
+                                  alt="Post preview"
+                                  className="w-full max-h-[360px] object-cover rounded-2xl border border-white/10"
+                                />
+                              )}
+
                               {item.title && (
                                 <h3 className="text-xl sm:text-2xl font-black text-white break-words">
                                   {item.title}
