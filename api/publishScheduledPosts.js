@@ -116,7 +116,9 @@ export default async function handler(req, res) {
 
           continue;
         }
-
+await new Promise((resolve) =>
+  setTimeout(resolve, 8000)
+);
         const publishRes = await fetch(
           `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media_publish`,
           {
