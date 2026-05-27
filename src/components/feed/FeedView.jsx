@@ -353,7 +353,7 @@ export default function FeedView({
         <div className="grid gap-4">
           <div>
             <h2 className="text-4xl font-black bg-gradient-to-r from-orange-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
-              Feed Planner TEST
+              Feed Planner
             </h2>
 
             <div className="text-cyan-100/70 mt-2">
