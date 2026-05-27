@@ -5,11 +5,10 @@
       "destination": "/api/$1"
     }
   ],
-
   "crons": [
     {
       "path": "/api/publishScheduledPosts",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 9 * * *"
     }
   ]
 }
