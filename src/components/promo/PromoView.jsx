@@ -103,8 +103,7 @@ const saveEdit = async () => {
         {items.map((item) => (
           <GlassCard key={item.id}>
             <div className="grid gap-4 min-w-0">
-              <img
-               {item.imageUrl?.toLowerCase().includes(".pdf") ? (
+              {item.imageUrl?.toLowerCase().includes(".pdf") ? (
   <div className="w-full aspect-square rounded-[1.5rem] border border-white/10 bg-white/5 flex flex-col items-center justify-center text-white/80 text-center p-6">
     <div className="text-5xl mb-3">📄</div>
     <div className="font-black">PDF</div>
