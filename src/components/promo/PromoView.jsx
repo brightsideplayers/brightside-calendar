@@ -120,6 +120,14 @@ export default function PromoView({ currentProduction }) {
       assetUrl: nextUrl,
       assetType: editingItem.assetType || getAssetType(nextUrl),
       fileName: editingItem.fileName || ""
+      const getDownloadUrl = (url = "") => {
+  if (!url) return "";
+
+  if (url.includes("/upload/")) {
+    return url.replace("/upload/", "/upload/fl_attachment/");
+  }
+
+  return url;
     });
 
     setEditingItem(null);
@@ -219,13 +227,14 @@ export default function PromoView({ currentProduction }) {
 
                         <div className="absolute right-0 top-12 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
                           <a
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold flex items-center justify-center"
-                          >
-                            Open
-                          </a>
+                          <a
+  href={getDownloadUrl(url)}
+  target="_blank"
+  rel="noreferrer"
+  className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold flex items-center justify-center"
+>
+  Download
+</a>
 
                           <button
                             onClick={() => {
