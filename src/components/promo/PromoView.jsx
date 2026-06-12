@@ -225,7 +225,11 @@ const formatDate = (timestamp) => {
           const url = item.assetUrl || item.imageUrl || "";
 
           return (
-            <GlassCard key={item.id}>
+  <div
+    key={item.id}
+    className={menuOpenId === item.id ? "relative z-[9999]" : "relative z-0"}
+  >
+    <GlassCard>
               <div className="flex items-center gap-4 min-w-0">
                 <div className="text-3xl shrink-0 w-10 flex justify-center">
                   {getAssetIcon(item)}
@@ -297,8 +301,9 @@ const formatDate = (timestamp) => {
                   )}
                 </div>
               </div>
-            </GlassCard>
-          );
+               </GlassCard>
+  </div>
+);
         })}
 
         {items.length === 0 && (
