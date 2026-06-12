@@ -76,6 +76,19 @@ export default function PromoView({ currentProduction }) {
     return "file";
   };
 
+  const getAssetIcon = (item) => {
+    const url = item.assetUrl || item.imageUrl || "";
+    const type = item.assetType || getAssetType(url);
+
+    if (type === "image") return "🖼️";
+    if (type === "pdf") return "📄";
+    if (type === "doc") return "📝";
+    if (type === "sheet") return "📊";
+    if (type === "slide") return "📽️";
+
+    return "📎";
+  };
+
   const getDownloadUrl = (url = "") => {
     if (!url) return "";
 
@@ -123,7 +136,7 @@ export default function PromoView({ currentProduction }) {
     setEditingItem(null);
   };
 
-  const AssetPreview = ({ item }) => {
+  const AssetThumbnail = ({ item }) => {
     const url = item.assetUrl || item.imageUrl || "";
     const type = item.assetType || getAssetType(url);
 
@@ -132,43 +145,39 @@ export default function PromoView({ currentProduction }) {
         <img
           src={url}
           alt=""
-          className="w-full aspect-square object-cover rounded-[1.5rem] border border-white/10"
+          className="w-16 h-16 object-cover rounded-xl border border-white/10 shrink-0"
         />
       );
     }
 
-    const icon =
-      type === "pdf"
-        ? "📄"
-        : type === "doc"
-        ? "📝"
-        : type === "sheet"
-        ? "📊"
-        : type === "slide"
-        ? "📽️"
-        : "📎";
+    if (type === "pdf") {
+      const thumbUrl = url.replace(
+        "/upload/",
+        "/upload/w_160,h_160,c_fill,f_jpg/"
+      );
 
-    const label =
-      type === "pdf"
-        ? "PDF"
-        : type === "doc"
-        ? "Document"
-        : type === "sheet"
-        ? "Spreadsheet"
-        : type === "slide"
-        ? "PowerPoint"
-        : "File";
+      return (
+        <img
+          src={thumbUrl}
+          alt=""
+          className="w-16 h-16 object-cover rounded-xl border border-white/10 bg-white/5 shrink-0"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      );
+    }
 
     return (
-      <div className="w-full aspect-square rounded-[1.5rem] border border-white/10 bg-white/5 flex flex-col items-center justify-center text-white/80 text-center p-6">
-        <div className="text-5xl mb-3">{icon}</div>
-        <div className="font-black">{label}</div>
-        <div className="text-sm text-white/50 mt-2 break-words">
-          {item.fileName || item.title}
-        </div>
+      <div className="w-16 h-16 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-2xl shrink-0">
+        {getAssetIcon(item)}
       </div>
     );
   };
+
+  const sortedItems = [...items].sort((a, b) =>
+    (a.title || "").localeCompare(b.title || "")
+  );
 
   return (
     <div className="grid gap-5 pb-28 sm:pb-32">
@@ -179,72 +188,80 @@ export default function PromoView({ currentProduction }) {
           </h2>
 
           <div className="text-cyan-100/60">
-            {currentProduction} posters, graphics & marketing materials
+            {currentProduction} documents, posters, graphics & marketing materials
           </div>
         </div>
       </GlassCard>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {items.map((item) => {
+      <div className="grid gap-3">
+        {sortedItems.map((item) => {
           const url = item.assetUrl || item.imageUrl || "";
 
           return (
             <GlassCard key={item.id}>
-              <div className="grid gap-4 min-w-0">
-                <AssetPreview item={item} />
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="text-3xl shrink-0 w-10 flex justify-center">
+                  {getAssetIcon(item)}
+                </div>
 
-                <div className="grid gap-3 min-w-0">
-                  <div className="text-xl font-black text-white break-words">
+                <div className="min-w-0 flex-1">
+                  <div className="text-lg font-black text-white break-words">
                     {item.title}
                   </div>
 
-                  <div className="flex justify-end relative">
-                    <button
-                      onClick={() =>
-                        setMenuOpenId(menuOpenId === item.id ? null : item.id)
-                      }
-                      className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
-                    >
-                      ⋮
-                    </button>
-
-                    {menuOpenId === item.id && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setMenuOpenId(null)}
-                        />
-
-                        <div className="absolute right-0 top-12 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
-                          <a
-                            href={getDownloadUrl(url)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold flex items-center justify-center"
-                          >
-                            Download
-                          </a>
-
-                          <button
-                            onClick={() => {
-                              setMenuOpenId(null);
-                              setEditingItem(item);
-                            }}
-                            className="h-10 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 font-bold"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            onClick={() => deletePromo(item.id)}
-                            className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 font-bold"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </>
-                    )}
+                  <div className="text-sm text-white/40 break-words">
+                    {item.fileName || "Promo asset"}
                   </div>
+                </div>
+
+                <AssetThumbnail item={item} />
+
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() =>
+                      setMenuOpenId(menuOpenId === item.id ? null : item.id)
+                    }
+                    className="w-10 h-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
+                  >
+                    ⋮
+                  </button>
+
+                  {menuOpenId === item.id && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setMenuOpenId(null)}
+                      />
+
+                      <div className="absolute right-0 top-12 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                        <a
+                          href={getDownloadUrl(url)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="h-10 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold flex items-center justify-center"
+                        >
+                          Download
+                        </a>
+
+                        <button
+                          onClick={() => {
+                            setMenuOpenId(null);
+                            setEditingItem(item);
+                          }}
+                          className="h-10 rounded-xl border border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100 font-bold"
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() => deletePromo(item.id)}
+                          className="h-10 rounded-xl border border-rose-300/20 bg-rose-500/10 text-rose-100 font-bold"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </GlassCard>
@@ -316,7 +333,18 @@ export default function PromoView({ currentProduction }) {
             />
 
             {(editingItem.assetUrl || editingItem.imageUrl) && (
-              <AssetPreview item={editingItem} />
+              <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="text-3xl">{getAssetIcon(editingItem)}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-black text-white break-words">
+                    {editingItem.title || "Untitled asset"}
+                  </div>
+                  <div className="text-sm text-white/40 break-words">
+                    {editingItem.fileName || "Promo asset"}
+                  </div>
+                </div>
+                <AssetThumbnail item={editingItem} />
+              </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -404,14 +432,32 @@ export default function PromoView({ currentProduction }) {
             />
 
             {assetUrl && (
-              <AssetPreview
-                item={{
-                  title,
-                  assetUrl,
-                  assetType,
-                  fileName
-                }}
-              />
+              <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="text-3xl">
+                  {getAssetIcon({
+                    assetUrl,
+                    assetType
+                  })}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="font-black text-white break-words">
+                    {title || "Untitled asset"}
+                  </div>
+                  <div className="text-sm text-white/40 break-words">
+                    {fileName || "Promo asset"}
+                  </div>
+                </div>
+
+                <AssetThumbnail
+                  item={{
+                    title,
+                    assetUrl,
+                    assetType,
+                    fileName
+                  }}
+                />
+              </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
