@@ -21,6 +21,7 @@ export default function PromoView({ currentProduction }) {
   const [fileName, setFileName] = useState("");
   const [menuOpenId, setMenuOpenId] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "promo"), (snapshot) => {
@@ -88,7 +89,17 @@ export default function PromoView({ currentProduction }) {
 
     return "📎";
   };
+const formatDate = (timestamp) => {
+  if (!timestamp) return "";
 
+  const date = new Date(timestamp);
+
+  return date.toLocaleDateString("en-CA", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+};
   const getDownloadUrl = (url = "") => {
     if (!url) return "";
 
@@ -175,7 +186,16 @@ export default function PromoView({ currentProduction }) {
     );
   };
 
-  const sortedItems = [...items].sort((a, b) =>
+  const sortedItems = [...items]
+  .filter((item) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      item.title?.toLowerCase().includes(search) ||
+      item.fileName?.toLowerCase().includes(search)
+    );
+  })
+  .sort((a, b) =>
     (a.title || "").localeCompare(b.title || "")
   );
 
@@ -192,7 +212,14 @@ export default function PromoView({ currentProduction }) {
           </div>
         </div>
       </GlassCard>
-
+<GlassCard>
+  <input
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    placeholder="🔍 Search promo assets..."
+    className="w-full h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white placeholder:text-white/30"
+  />
+</GlassCard>
       <div className="grid gap-3">
         {sortedItems.map((item) => {
           const url = item.assetUrl || item.imageUrl || "";
@@ -209,9 +236,15 @@ export default function PromoView({ currentProduction }) {
                     {item.title}
                   </div>
 
-                  <div className="text-sm text-white/40 break-words">
-                    {item.fileName || "Promo asset"}
-                  </div>
+                <div className="text-sm text-white/40 break-words">
+  {item.fileName || "Promo asset"}
+</div>
+
+{item.createdAt && (
+  <div className="text-xs text-white/30 mt-1">
+    Uploaded {formatDate(item.createdAt)}
+  </div>
+)}
                 </div>
 
                 <AssetThumbnail item={item} />
