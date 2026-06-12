@@ -249,7 +249,7 @@ const formatDate = (timestamp) => {
 
                 <AssetThumbnail item={item} />
 
-                <div className="relative shrink-0">
+            <div className="relative shrink-0 z-[9999]">
                   <button
                     onClick={() =>
                       setMenuOpenId(menuOpenId === item.id ? null : item.id)
@@ -266,7 +266,7 @@ const formatDate = (timestamp) => {
                         onClick={() => setMenuOpenId(null)}
                       />
 
-                      <div className="absolute right-0 top-12 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-50 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
+                     <div className="absolute right-0 top-12 w-44 rounded-[1.4rem] bg-[#071018] border border-white/10 p-2 grid gap-2 z-[9999] shadow-[0_0_40px_rgba(0,0,0,0.45)]">
                         <a
                           href={getDownloadUrl(url)}
                           target="_blank"
