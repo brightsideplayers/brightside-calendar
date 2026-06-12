@@ -45,16 +45,48 @@ export default function PromoView({ currentProduction }) {
   };
 
   const getAssetType = (url = "", mimeType = "") => {
-    const lowerUrl = url.toLowerCase();
+  const lowerUrl = url.toLowerCase();
 
-    if (mimeType.startsWith("image/")) return "image";
-    if (mimeType === "application/pdf" || lowerUrl.includes(".pdf")) return "pdf";
-    if (lowerUrl.endsWith(".doc") || lowerUrl.endsWith(".docx")) return "doc";
-    if (lowerUrl.endsWith(".xls") || lowerUrl.endsWith(".xlsx")) return "sheet";
-    if (lowerUrl.endsWith(".ppt") || lowerUrl.endsWith(".pptx")) return "slide";
+  if (
+    mimeType.startsWith("image/") ||
+    lowerUrl.includes(".jpg") ||
+    lowerUrl.includes(".jpeg") ||
+    lowerUrl.includes(".png") ||
+    lowerUrl.includes(".webp")
+  ) {
+    return "image";
+  }
 
-    return "file";
-  };
+  if (
+    mimeType === "application/pdf" ||
+    lowerUrl.includes(".pdf")
+  ) {
+    return "pdf";
+  }
+
+  if (
+    lowerUrl.includes(".doc") ||
+    lowerUrl.includes(".docx")
+  ) {
+    return "doc";
+  }
+
+  if (
+    lowerUrl.includes(".xls") ||
+    lowerUrl.includes(".xlsx")
+  ) {
+    return "sheet";
+  }
+
+  if (
+    lowerUrl.includes(".ppt") ||
+    lowerUrl.includes(".pptx")
+  ) {
+    return "slide";
+  }
+
+  return "file";
+};
 
   const addPromo = async () => {
     if (!title.trim() || !assetUrl) return;
