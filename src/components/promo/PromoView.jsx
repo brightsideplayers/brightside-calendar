@@ -303,7 +303,7 @@ const saveEdit = async () => {
 
             <input
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
               onChange={async (e) => {
                 const file = e.target.files[0];
 
@@ -319,7 +319,7 @@ const saveEdit = async () => {
                 );
 
                 const res = await fetch(
-                  "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
+                   "https://api.cloudinary.com/v1_1/dkpsljxkq/auto/upload",
                   {
                     method: "POST",
                     body: formData
