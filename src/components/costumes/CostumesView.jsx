@@ -77,7 +77,7 @@ function PhotoUploader({ photoUrl, onUpload }) {
       const formData = new FormData();
 
       formData.append("file", file);
-      formData.append("upload_preset", "brightside_unassigned");
+      formData.append("upload_preset", "brightside_costume_inventory");
 
       const res = await fetch(
         "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
