@@ -13,6 +13,120 @@ import {
 
 import { db } from "../../firebase";
 
+function TextField({ label, value, onChange, placeholder }) {
+  return (
+    <div className="grid gap-2">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+        {label}
+      </div>
+
+      <input
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder || label}
+        className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+      />
+    </div>
+  );
+}
+
+function TextAreaField({ label, value, onChange, placeholder }) {
+  return (
+    <div className="grid gap-2">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+        {label}
+      </div>
+
+      <textarea
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder || label}
+        className="min-h-[100px] rounded-2xl bg-black/30 border border-white/10 p-4 text-white"
+      />
+    </div>
+  );
+}
+
+function SelectField({ label, value, onChange, children }) {
+  return (
+    <div className="grid gap-2">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+        {label}
+      </div>
+
+      <select
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
+function PhotoUploader({ photoUrl, onUpload }) {
+  const [uploading, setUploading] = useState(false);
+
+  const uploadPhoto = async (file) => {
+    if (!file) return;
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", file);
+      formData.append("upload_preset", "brightside_unassigned");
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dkpsljxkq/image/upload",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.secure_url) {
+        onUpload(data.secure_url);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="grid gap-3">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+        Costume Photo
+      </div>
+
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={(e) => uploadPhoto(e.target.files[0])}
+        className="w-full min-w-0 min-h-12 rounded-2xl bg-black/30 border border-white/10 px-3 py-3 text-sm text-white file:mr-2 file:px-3 file:py-2 file:border-0 file:rounded-xl file:bg-fuchsia-500/20 file:text-white file:text-sm"
+      />
+
+      {uploading && (
+        <div className="text-sm text-cyan-100/60">
+          Uploading photo...
+        </div>
+      )}
+
+      {photoUrl && (
+        <img
+          src={photoUrl}
+          alt=""
+          className="w-32 h-32 rounded-2xl object-cover border border-white/10"
+        />
+      )}
+    </div>
+  );
+}
+
 export default function CostumesView({ currentProduction }) {
   const [activeTab, setActiveTab] = useState("show");
 
@@ -21,11 +135,9 @@ export default function CostumesView({ currentProduction }) {
   const [measurements, setMeasurements] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
-
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [newProgressNote, setNewProgressNote] = useState("");
-
   const [form, setForm] = useState({});
 
   useEffect(() => {
@@ -75,18 +187,6 @@ export default function CostumesView({ currentProduction }) {
     setNewProgressNote("");
   };
 
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "";
-
-    const date = new Date(timestamp);
-
-    return date.toLocaleDateString("en-CA", {
-      month: "short",
-      day: "numeric",
-      year: "numeric"
-    });
-  };
-
   const getStatusStyles = (status) => {
     switch (status) {
       case "Ready":
@@ -133,6 +233,7 @@ export default function CostumesView({ currentProduction }) {
         item.colour,
         item.location,
         item.condition,
+        item.status,
         item.notes
       ]
         .join(" ")
@@ -157,12 +258,12 @@ export default function CostumesView({ currentProduction }) {
 
     return [
       item.text,
-      item.costumeName,
       item.character,
       item.actor,
       item.scene,
       item.assignedTo,
       item.status,
+      item.inventoryLink,
       item.notes
     ]
       .join(" ")
@@ -203,7 +304,7 @@ export default function CostumesView({ currentProduction }) {
         dueDate: "",
         inventoryLink: "",
         notes: "",
-        progressNotes: []
+        comments: []
       });
     }
 
@@ -239,7 +340,7 @@ export default function CostumesView({ currentProduction }) {
   };
 
   const saveNewItem = async () => {
-    if (activeTab === "show" && !(form.text || form.costumeName || form.character)) return;
+    if (activeTab === "show" && !(form.text || form.character)) return;
     if (activeTab === "inventory" && !form.name) return;
     if (activeTab === "measurements" && !form.actorName) return;
 
@@ -250,7 +351,6 @@ export default function CostumesView({ currentProduction }) {
 
     if (activeTab === "show") {
       payload.production = currentProduction;
-      payload.comments = form.progressNotes || [];
     }
 
     await addDoc(collection(db, getCollectionName()), payload);
@@ -283,7 +383,7 @@ export default function CostumesView({ currentProduction }) {
   const addProgressNote = () => {
     if (!newProgressNote.trim() || !editingItem) return;
 
-    const existingNotes = editingItem.comments || editingItem.progressNotes || [];
+    const existingNotes = editingItem.comments || [];
 
     setEditingItem({
       ...editingItem,
@@ -316,55 +416,12 @@ export default function CostumesView({ currentProduction }) {
     </button>
   );
 
-  const Field = ({ label, value, onChange, placeholder }) => (
-    <div className="grid gap-2">
-      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-        {label}
-      </div>
-      <input
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder || label}
-        className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-      />
-    </div>
-  );
-
-  const TextAreaField = ({ label, value, onChange, placeholder }) => (
-    <div className="grid gap-2">
-      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-        {label}
-      </div>
-      <textarea
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder || label}
-        className="min-h-[100px] rounded-2xl bg-black/30 border border-white/10 p-4 text-white"
-      />
-    </div>
-  );
-
-  const SelectField = ({ label, value, onChange, children }) => (
-    <div className="grid gap-2">
-      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-        {label}
-      </div>
-      <select
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-12 rounded-2xl bg-black/30 border border-white/10 px-4 text-white"
-      >
-        {children}
-      </select>
-    </div>
-  );
-
   const ShowCostumeRow = ({ item }) => {
-    const title = item.character || item.text || item.costumeName || "Untitled Costume";
-    const subtitle = item.costumeName || item.text || "";
+    const title = item.character || item.text || "Untitled Costume";
+    const subtitle = item.text || "";
 
     return (
-      <GlassCard key={item.id}>
+      <GlassCard>
         <div className={`rounded-[1.6rem] border p-4 ${getStatusStyles(item.status)}`}>
           <div className="flex justify-between items-start gap-4">
             <div className="grid gap-3 flex-1 min-w-0">
@@ -414,9 +471,9 @@ export default function CostumesView({ currentProduction }) {
                 </div>
               )}
 
-              {(item.comments || item.progressNotes || []).length > 0 && (
+              {(item.comments || []).length > 0 && (
                 <div className="grid gap-2">
-                  {(item.comments || item.progressNotes || []).slice(-2).map((note, index) => (
+                  {(item.comments || []).slice(-2).map((note, index) => (
                     <div
                       key={index}
                       className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm"
@@ -424,6 +481,7 @@ export default function CostumesView({ currentProduction }) {
                       <div className="font-semibold text-white whitespace-pre-wrap">
                         {note.text}
                       </div>
+
                       <div className="text-cyan-100/50 text-[10px] mt-1">
                         {note.createdAt}
                       </div>
@@ -449,16 +507,16 @@ export default function CostumesView({ currentProduction }) {
   };
 
   const InventoryRow = ({ item }) => (
-    <GlassCard key={item.id}>
+    <GlassCard>
       <div className="flex items-center gap-4 min-w-0">
         {item.photoUrl ? (
           <img
             src={item.photoUrl}
             alt=""
-            className="w-16 h-16 rounded-xl object-cover border border-white/10 shrink-0"
+            className="w-20 h-20 rounded-xl object-cover border border-white/10 shrink-0"
           />
         ) : (
-          <div className="w-16 h-16 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-3xl shrink-0">
+          <div className="w-20 h-20 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-3xl shrink-0">
             👗
           </div>
         )}
@@ -496,7 +554,7 @@ export default function CostumesView({ currentProduction }) {
   );
 
   const MeasurementRow = ({ item }) => (
-    <GlassCard key={item.id}>
+    <GlassCard>
       <div className="flex items-center gap-4 min-w-0">
         <div className="w-16 h-16 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-3xl shrink-0">
           📏
@@ -572,8 +630,14 @@ export default function CostumesView({ currentProduction }) {
 
       <div className="grid gap-3">
         {sortedItems.map((item) => {
-          if (activeTab === "inventory") return <InventoryRow key={item.id} item={item} />;
-          if (activeTab === "measurements") return <MeasurementRow key={item.id} item={item} />;
+          if (activeTab === "inventory") {
+            return <InventoryRow key={item.id} item={item} />;
+          }
+
+          if (activeTab === "measurements") {
+            return <MeasurementRow key={item.id} item={item} />;
+          }
+
           return <ShowCostumeRow key={item.id} item={item} />;
         })}
 
@@ -597,11 +661,9 @@ export default function CostumesView({ currentProduction }) {
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl overflow-y-auto p-4 flex items-start md:items-center justify-center">
           <div className="w-full md:max-w-3xl bg-[#071018] border border-white/10 rounded-[2rem] p-6 grid gap-5 shadow-[0_0_60px_rgba(0,255,255,0.08)]">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
-                  Add {activeTab === "show" ? "Show Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
-                </h3>
-              </div>
+              <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
+                Add {activeTab === "show" ? "Show Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
+              </h3>
 
               <button
                 onClick={() => {
@@ -616,11 +678,11 @@ export default function CostumesView({ currentProduction }) {
 
             {activeTab === "show" && (
               <div className="grid gap-4">
-                <Field label="Costume Name" value={form.text} onChange={(v) => setForm({ ...form, text: v })} placeholder="Shelley Mermaid Tail" />
-                <Field label="Character" value={form.character} onChange={(v) => setForm({ ...form, character: v })} placeholder="Shelley" />
-                <Field label="Actor" value={form.actor} onChange={(v) => setForm({ ...form, actor: v })} />
-                <Field label="Scene" value={form.scene} onChange={(v) => setForm({ ...form, scene: v })} placeholder="Act 1 / Undersea" />
-                <Field label="Assigned To" value={form.assignedTo} onChange={(v) => setForm({ ...form, assignedTo: v })} />
+                <TextField label="Costume Name" value={form.text} onChange={(v) => setForm({ ...form, text: v })} placeholder="Shelley Mermaid Tail" />
+                <TextField label="Character" value={form.character} onChange={(v) => setForm({ ...form, character: v })} />
+                <TextField label="Actor" value={form.actor} onChange={(v) => setForm({ ...form, actor: v })} />
+                <TextField label="Scene" value={form.scene} onChange={(v) => setForm({ ...form, scene: v })} />
+                <TextField label="Assigned To" value={form.assignedTo} onChange={(v) => setForm({ ...form, assignedTo: v })} />
 
                 <SelectField label="Status" value={form.status} onChange={(v) => setForm({ ...form, status: v })}>
                   <option>Needed</option>
@@ -635,20 +697,25 @@ export default function CostumesView({ currentProduction }) {
                   <option>Missing</option>
                 </SelectField>
 
-                <Field label="Due Date" value={form.dueDate} onChange={(v) => setForm({ ...form, dueDate: v })} placeholder="Nov 12" />
-                <Field label="Linked Inventory" value={form.inventoryLink} onChange={(v) => setForm({ ...form, inventoryLink: v })} placeholder="Purple mermaid tail / Rack A" />
-                <TextAreaField label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} placeholder="Design notes, fitting concerns, pieces needed..." />
+                <TextField label="Due Date" value={form.dueDate} onChange={(v) => setForm({ ...form, dueDate: v })} placeholder="Nov 12" />
+                <TextField label="Linked Inventory" value={form.inventoryLink} onChange={(v) => setForm({ ...form, inventoryLink: v })} placeholder="Purple mermaid tail / Rack A" />
+                <TextAreaField label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
               </div>
             )}
 
             {activeTab === "inventory" && (
               <div className="grid gap-4">
-                <Field label="Item Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="Blue Ballgown" />
-                <Field label="Photo URL" value={form.photoUrl} onChange={(v) => setForm({ ...form, photoUrl: v })} />
-                <Field label="Category" value={form.category} onChange={(v) => setForm({ ...form, category: v })} placeholder="Princess / Pirate / Wig / Shoes" />
-                <Field label="Size" value={form.size} onChange={(v) => setForm({ ...form, size: v })} />
-                <Field label="Colour" value={form.colour} onChange={(v) => setForm({ ...form, colour: v })} />
-                <Field label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} placeholder="Rack A / Bin 4" />
+                <TextField label="Item Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="Blue Ballgown" />
+
+                <PhotoUploader
+                  photoUrl={form.photoUrl}
+                  onUpload={(url) => setForm({ ...form, photoUrl: url })}
+                />
+
+                <TextField label="Category" value={form.category} onChange={(v) => setForm({ ...form, category: v })} placeholder="Princess / Pirate / Wig / Shoes" />
+                <TextField label="Size" value={form.size} onChange={(v) => setForm({ ...form, size: v })} />
+                <TextField label="Colour" value={form.colour} onChange={(v) => setForm({ ...form, colour: v })} />
+                <TextField label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} placeholder="Rack A / Bin 4" />
 
                 <SelectField label="Status" value={form.status} onChange={(v) => setForm({ ...form, status: v })}>
                   <option>Available</option>
@@ -669,15 +736,15 @@ export default function CostumesView({ currentProduction }) {
 
             {activeTab === "measurements" && (
               <div className="grid gap-4">
-                <Field label="Actor Name" value={form.actorName} onChange={(v) => setForm({ ...form, actorName: v })} />
-                <Field label="Role / Character" value={form.role} onChange={(v) => setForm({ ...form, role: v })} />
-                <Field label="Height" value={form.height} onChange={(v) => setForm({ ...form, height: v })} />
-                <Field label="Chest / Bust" value={form.chest} onChange={(v) => setForm({ ...form, chest: v })} />
-                <Field label="Waist" value={form.waist} onChange={(v) => setForm({ ...form, waist: v })} />
-                <Field label="Hips" value={form.hips} onChange={(v) => setForm({ ...form, hips: v })} />
-                <Field label="Shoe Size" value={form.shoeSize} onChange={(v) => setForm({ ...form, shoeSize: v })} />
-                <Field label="Clothing Size" value={form.clothingSize} onChange={(v) => setForm({ ...form, clothingSize: v })} />
-                <TextAreaField label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} placeholder="Allergies, sensitivities, comfort notes..." />
+                <TextField label="Actor Name" value={form.actorName} onChange={(v) => setForm({ ...form, actorName: v })} />
+                <TextField label="Role / Character" value={form.role} onChange={(v) => setForm({ ...form, role: v })} />
+                <TextField label="Height" value={form.height} onChange={(v) => setForm({ ...form, height: v })} />
+                <TextField label="Chest / Bust" value={form.chest} onChange={(v) => setForm({ ...form, chest: v })} />
+                <TextField label="Waist" value={form.waist} onChange={(v) => setForm({ ...form, waist: v })} />
+                <TextField label="Hips" value={form.hips} onChange={(v) => setForm({ ...form, hips: v })} />
+                <TextField label="Shoe Size" value={form.shoeSize} onChange={(v) => setForm({ ...form, shoeSize: v })} />
+                <TextField label="Clothing Size" value={form.clothingSize} onChange={(v) => setForm({ ...form, clothingSize: v })} />
+                <TextAreaField label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
               </div>
             )}
 
@@ -707,11 +774,9 @@ export default function CostumesView({ currentProduction }) {
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl overflow-y-auto p-4 flex items-start md:items-center justify-center">
           <div className="w-full md:max-w-3xl bg-[#071018] border border-white/10 rounded-[2rem] p-6 grid gap-5 shadow-[0_0_60px_rgba(0,255,255,0.08)]">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
-                  Edit {activeTab === "show" ? "Show Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
-                </h3>
-              </div>
+              <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
+                Edit {activeTab === "show" ? "Show Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
+              </h3>
 
               <button
                 onClick={() => {
@@ -726,11 +791,11 @@ export default function CostumesView({ currentProduction }) {
 
             {activeTab === "show" && (
               <div className="grid gap-4">
-                <Field label="Costume Name" value={editingItem.text} onChange={(v) => setEditingItem({ ...editingItem, text: v })} />
-                <Field label="Character" value={editingItem.character} onChange={(v) => setEditingItem({ ...editingItem, character: v })} />
-                <Field label="Actor" value={editingItem.actor} onChange={(v) => setEditingItem({ ...editingItem, actor: v })} />
-                <Field label="Scene" value={editingItem.scene} onChange={(v) => setEditingItem({ ...editingItem, scene: v })} />
-                <Field label="Assigned To" value={editingItem.assignedTo} onChange={(v) => setEditingItem({ ...editingItem, assignedTo: v })} />
+                <TextField label="Costume Name" value={editingItem.text} onChange={(v) => setEditingItem({ ...editingItem, text: v })} />
+                <TextField label="Character" value={editingItem.character} onChange={(v) => setEditingItem({ ...editingItem, character: v })} />
+                <TextField label="Actor" value={editingItem.actor} onChange={(v) => setEditingItem({ ...editingItem, actor: v })} />
+                <TextField label="Scene" value={editingItem.scene} onChange={(v) => setEditingItem({ ...editingItem, scene: v })} />
+                <TextField label="Assigned To" value={editingItem.assignedTo} onChange={(v) => setEditingItem({ ...editingItem, assignedTo: v })} />
 
                 <SelectField label="Status" value={editingItem.status || "Needed"} onChange={(v) => setEditingItem({ ...editingItem, status: v })}>
                   <option>Needed</option>
@@ -745,59 +810,39 @@ export default function CostumesView({ currentProduction }) {
                   <option>Missing</option>
                 </SelectField>
 
-                <Field label="Due Date" value={editingItem.dueDate} onChange={(v) => setEditingItem({ ...editingItem, dueDate: v })} />
-                <Field label="Linked Inventory" value={editingItem.inventoryLink} onChange={(v) => setEditingItem({ ...editingItem, inventoryLink: v })} />
+                <TextField label="Due Date" value={editingItem.dueDate} onChange={(v) => setEditingItem({ ...editingItem, dueDate: v })} />
+                <TextField label="Linked Inventory" value={editingItem.inventoryLink} onChange={(v) => setEditingItem({ ...editingItem, inventoryLink: v })} />
                 <TextAreaField label="Notes" value={editingItem.notes} onChange={(v) => setEditingItem({ ...editingItem, notes: v })} />
 
-                <div className="grid gap-3">
-                  <div className="text-xs uppercase tracking-[0.2em] text-white/40">
-                    Progress Notes
-                  </div>
+                <TextAreaField
+                  label="Add Progress Note"
+                  value={newProgressNote}
+                  onChange={setNewProgressNote}
+                  placeholder="Write progress note..."
+                />
 
-                  {(editingItem.comments || editingItem.progressNotes || []).length > 0 && (
-                    <div className="grid gap-2">
-                      {(editingItem.comments || editingItem.progressNotes || []).map((note, index) => (
-                        <div
-                          key={index}
-                          className="rounded-[1.2rem] border border-cyan-300/30 bg-cyan-500/10 p-3 text-sm"
-                        >
-                          <div className="font-semibold text-white whitespace-pre-wrap">
-                            {note.text}
-                          </div>
-
-                          <div className="text-cyan-100/50 text-[10px] mt-1">
-                            {note.createdAt}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <textarea
-                    value={newProgressNote}
-                    onChange={(e) => setNewProgressNote(e.target.value)}
-                    placeholder="Add progress note..."
-                    className="min-h-[80px] rounded-xl bg-black/30 border border-white/10 p-3 text-sm text-white"
-                  />
-
-                  <button
-                    onClick={addProgressNote}
-                    className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
-                  >
-                    Add Progress Note
-                  </button>
-                </div>
+                <button
+                  onClick={addProgressNote}
+                  className="h-11 rounded-xl border border-cyan-300/20 bg-cyan-500/10 text-cyan-100 font-bold hover:bg-cyan-500/20 transition-all"
+                >
+                  Add Progress Note
+                </button>
               </div>
             )}
 
             {activeTab === "inventory" && (
               <div className="grid gap-4">
-                <Field label="Item Name" value={editingItem.name} onChange={(v) => setEditingItem({ ...editingItem, name: v })} />
-                <Field label="Photo URL" value={editingItem.photoUrl} onChange={(v) => setEditingItem({ ...editingItem, photoUrl: v })} />
-                <Field label="Category" value={editingItem.category} onChange={(v) => setEditingItem({ ...editingItem, category: v })} />
-                <Field label="Size" value={editingItem.size} onChange={(v) => setEditingItem({ ...editingItem, size: v })} />
-                <Field label="Colour" value={editingItem.colour} onChange={(v) => setEditingItem({ ...editingItem, colour: v })} />
-                <Field label="Location" value={editingItem.location} onChange={(v) => setEditingItem({ ...editingItem, location: v })} />
+                <TextField label="Item Name" value={editingItem.name} onChange={(v) => setEditingItem({ ...editingItem, name: v })} />
+
+                <PhotoUploader
+                  photoUrl={editingItem.photoUrl}
+                  onUpload={(url) => setEditingItem({ ...editingItem, photoUrl: url })}
+                />
+
+                <TextField label="Category" value={editingItem.category} onChange={(v) => setEditingItem({ ...editingItem, category: v })} />
+                <TextField label="Size" value={editingItem.size} onChange={(v) => setEditingItem({ ...editingItem, size: v })} />
+                <TextField label="Colour" value={editingItem.colour} onChange={(v) => setEditingItem({ ...editingItem, colour: v })} />
+                <TextField label="Location" value={editingItem.location} onChange={(v) => setEditingItem({ ...editingItem, location: v })} />
 
                 <SelectField label="Status" value={editingItem.status || "Available"} onChange={(v) => setEditingItem({ ...editingItem, status: v })}>
                   <option>Available</option>
@@ -818,14 +863,14 @@ export default function CostumesView({ currentProduction }) {
 
             {activeTab === "measurements" && (
               <div className="grid gap-4">
-                <Field label="Actor Name" value={editingItem.actorName} onChange={(v) => setEditingItem({ ...editingItem, actorName: v })} />
-                <Field label="Role / Character" value={editingItem.role} onChange={(v) => setEditingItem({ ...editingItem, role: v })} />
-                <Field label="Height" value={editingItem.height} onChange={(v) => setEditingItem({ ...editingItem, height: v })} />
-                <Field label="Chest / Bust" value={editingItem.chest} onChange={(v) => setEditingItem({ ...editingItem, chest: v })} />
-                <Field label="Waist" value={editingItem.waist} onChange={(v) => setEditingItem({ ...editingItem, waist: v })} />
-                <Field label="Hips" value={editingItem.hips} onChange={(v) => setEditingItem({ ...editingItem, hips: v })} />
-                <Field label="Shoe Size" value={editingItem.shoeSize} onChange={(v) => setEditingItem({ ...editingItem, shoeSize: v })} />
-                <Field label="Clothing Size" value={editingItem.clothingSize} onChange={(v) => setEditingItem({ ...editingItem, clothingSize: v })} />
+                <TextField label="Actor Name" value={editingItem.actorName} onChange={(v) => setEditingItem({ ...editingItem, actorName: v })} />
+                <TextField label="Role / Character" value={editingItem.role} onChange={(v) => setEditingItem({ ...editingItem, role: v })} />
+                <TextField label="Height" value={editingItem.height} onChange={(v) => setEditingItem({ ...editingItem, height: v })} />
+                <TextField label="Chest / Bust" value={editingItem.chest} onChange={(v) => setEditingItem({ ...editingItem, chest: v })} />
+                <TextField label="Waist" value={editingItem.waist} onChange={(v) => setEditingItem({ ...editingItem, waist: v })} />
+                <TextField label="Hips" value={editingItem.hips} onChange={(v) => setEditingItem({ ...editingItem, hips: v })} />
+                <TextField label="Shoe Size" value={editingItem.shoeSize} onChange={(v) => setEditingItem({ ...editingItem, shoeSize: v })} />
+                <TextField label="Clothing Size" value={editingItem.clothingSize} onChange={(v) => setEditingItem({ ...editingItem, clothingSize: v })} />
                 <TextAreaField label="Notes" value={editingItem.notes} onChange={(v) => setEditingItem({ ...editingItem, notes: v })} />
               </div>
             )}
