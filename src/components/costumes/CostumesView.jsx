@@ -608,7 +608,7 @@ export default function CostumesView({ currentProduction }) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <TabButton id="show" label="Show Costumes" />
+            <TabButton id="show" label="Production Costumes" />
             <TabButton id="inventory" label="Inventory" />
             <TabButton id="measurements" label="Measurements" />
           </div>
@@ -617,8 +617,8 @@ export default function CostumesView({ currentProduction }) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={`Search ${
-              activeTab === "show"
-                ? "show costumes"
+  activeTab === "show"
+    ? "production costumes"
                 : activeTab === "inventory"
                 ? "inventory"
                 : "measurements"
@@ -644,7 +644,7 @@ export default function CostumesView({ currentProduction }) {
         {sortedItems.length === 0 && (
           <GlassCard>
             <div className="rounded-[1.8rem] border border-dashed border-white/10 p-10 text-center text-white/40">
-              No {activeTab === "show" ? "show costumes" : activeTab} yet.
+             No {activeTab === "show" ? "production costumes" : activeTab} yet.
             </div>
           </GlassCard>
         )}
@@ -662,7 +662,7 @@ export default function CostumesView({ currentProduction }) {
           <div className="w-full md:max-w-3xl bg-[#071018] border border-white/10 rounded-[2rem] p-6 grid gap-5 shadow-[0_0_60px_rgba(0,255,255,0.08)]">
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
-                Add {activeTab === "show" ? "Show Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
+                Add {activeTab === "show" ? "Production Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
               </h3>
 
               <button
@@ -775,7 +775,7 @@ export default function CostumesView({ currentProduction }) {
           <div className="w-full md:max-w-3xl bg-[#071018] border border-white/10 rounded-[2rem] p-6 grid gap-5 shadow-[0_0_60px_rgba(0,255,255,0.08)]">
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-3xl font-black bg-gradient-to-r from-cyan-300 via-fuchsia-300 to-orange-200 bg-clip-text text-transparent">
-                Edit {activeTab === "show" ? "Show Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
+                Edit {activeTab === "show" ? "Production Costume" : activeTab === "inventory" ? "Inventory Item" : "Actor Measurements"}
               </h3>
 
               <button
