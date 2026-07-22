@@ -105,7 +105,7 @@ export default async function handler(req, res) {
         );
 
         const mediaData = await createMediaRes.json();
-
+console.log("INSTAGRAM CREATE MEDIA RESPONSE:", JSON.stringify(mediaData));
         if (!createMediaRes.ok || mediaData.error || !mediaData.id) {
           results.push({
             postId: post.id,
