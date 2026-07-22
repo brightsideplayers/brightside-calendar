@@ -64,7 +64,7 @@ posts.forEach((post) => {
             body: JSON.stringify({
               url: post.imageUrl,
               caption: post.caption || "",
-              access_token: process.env.INSTAGRAM_ACCESS_TOKEN
+             access_token: process.env.FACEBOOK_PAGE_ACCESS_TOKEN
             })
           }
         );
