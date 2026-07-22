@@ -8,14 +8,24 @@ export default async function handler(req, res) {
       .collection("posts")
       .where("status", "==", "scheduled")
       .get();
-
+console.log("SCHEDULED POSTS FOUND:", snapshot.size);
     const posts = snapshot.docs
       .map((doc) => ({
         id: doc.id,
         ...doc.data()
       }))
       .filter((post) => new Date(post.scheduledFor) <= now);
+console.log("DUE POSTS FOUND:", posts.length);
 
+posts.forEach((post) => {
+  console.log(
+    "DUE POST:",
+    post.id,
+    "platform:", post.platform,
+    "scheduledFor:", post.scheduledFor,
+    "now:", now.toISOString()
+  );
+});
     const results = [];
 
     for (const post of posts) {
