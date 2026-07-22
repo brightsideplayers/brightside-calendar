@@ -100,7 +100,7 @@ posts.forEach((post) => {
 
       if (post.platform === "Instagram") {
         const createMediaRes = await fetch(
-          `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media`,
+          `https://graph.instagram.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media`,
           {
             method: "POST",
             headers: {
@@ -130,7 +130,7 @@ await new Promise((resolve) =>
   setTimeout(resolve, 8000)
 );
         const publishRes = await fetch(
-          `https://graph.facebook.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media_publish`,
+          `https://graph.instagram.com/v23.0/${process.env.INSTAGRAM_USER_ID}/media_publish`,
           {
             method: "POST",
             headers: {
