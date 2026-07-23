@@ -69,7 +69,6 @@ posts.forEach((post) => {
           }
         );
 
-        const facebookData = await facebookRes.json();
 const facebookData = await facebookRes.json();
 
 console.log(
