@@ -70,6 +70,12 @@ posts.forEach((post) => {
         );
 
         const facebookData = await facebookRes.json();
+const facebookData = await facebookRes.json();
+
+console.log(
+  "FACEBOOK RESPONSE:",
+  JSON.stringify(facebookData)
+);
 
         if (!facebookRes.ok || facebookData.error) {
           results.push({
